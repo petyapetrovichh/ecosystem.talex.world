@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TaleX — One ecosystem. Three ways to grow.</title>
+<style>
+  :root{
+    --vc:#FF0033;
+    --rf:#05E3F7;
+    --tx:#0C1214;
+    --tx-green:#6EEF00;
+    --ease:cubic-bezier(.6,.02,.1,1);
+    --dur:620ms;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+    background:#000;color:#0c1214;overflow:hidden;
+  }
+
+  /* full-screen stage */
+  .stage{
+    position:fixed;inset:0;display:flex;width:100vw;height:100vh;
+  }
+
+  /* each column */
+  .col{
+    position:relative;flex:1 1 0;min-width:0;height:100%;
+    overflow:hidden;cursor:pointer;
+    transition:flex-grow var(--dur) var(--ease);
+    will-change:flex-grow;
+  }
+  /* baseline: equal thirds. Expansion is driven by JS classes, not :hover,
+     so the rest state is well-defined even when a cursor sits on the page. */
+  .stage.has-active .col{flex-grow:.5;}     /* siblings shrink when something active */
+  .stage .col.active{flex-grow:3;}          /* active expands to ~2/3 */
+
+  /* static card image (cover) */
+  .card{
+    position:absolute;inset:0;width:100%;height:100%;
+    background-size:cover;background-position:center top;
+    background-repeat:no-repeat;
+    transition:opacity 420ms ease, transform var(--dur) var(--ease);
+  }
+  .col--vc .card{background-image:url('assets/viewscall.png');background-color:#fbeaee}
+  .col--rf .card{background-image:url('assets/roamfi.png');background-color:#eafbff}
+  .col--tx .card{background-image:url('assets/talex.png');background-color:#f0f0f2}
+
+  /* keep figures visible while expanded (until video loads) */
+  .col.active .card{background-position:center center;}
+
+
+  /* video sits above the card, hidden until active+settled */
+  .vid{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;object-position:center;
+    opacity:0;visibility:hidden;transition:opacity 480ms ease;pointer-events:none;
+    background:transparent;
+  }
+  .col.playing .vid{opacity:1;visibility:visible}
+
+  /* subtle separation seams between columns */
+  .col + .col::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:1px;z-index:4;
+    background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.08),rgba(0,0,0,0));
+  }
+
+  /* dim inactive columns when one is active */
+  .scrim{
+    position:absolute;inset:0;z-index:3;pointer-events:none;
+    background:rgba(255,255,255,0);
+    transition:background 420ms ease;
+  }
+  .stage.has-active .col:not(.active) .scrim{background:rgba(245,247,250,.34)}
+
+  /* ---- CTA + copy revealed on active column ---- */
+  .panel{
+    position:absolute;left:0;right:0;bottom:0;z-index:5;
+    padding:0 6% 7%;
+    display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;
+    opacity:0;transform:translateY(18px);
+    transition:opacity 360ms ease 80ms, transform 460ms var(--ease) 80ms;
+    pointer-events:none;
+  }
+  .col.active .panel{opacity:1;transform:none;pointer-events:auto}
+  .panel p{
+    max-width:30ch;font-size:clamp(13px,1.05vw,17px);line-height:1.5;font-weight:500;
+    color:#1c2126;text-shadow:0 1px 14px rgba(255,255,255,.55);
+  }
+  .cta{
+    display:inline-flex;align-items:center;gap:9px;
+    font-weight:800;font-size:clamp(14px,1.05vw,17px);letter-spacing:.01em;
+    color:#fff;text-decoration:none;border:0;border-radius:999px;
+    padding:14px 26px;cursor:pointer;
+    box-shadow:0 14px 34px rgba(0,0,0,.18);
+    transition:transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+  }
+  .cta:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(0,0,0,.24)}
+  .cta:active{transform:translateY(0)}
+  .cta svg{width:18px;height:18px}
+  .col--vc .cta{background:var(--vc)}
+  .col--rf .cta{background:var(--rf);color:#06222a}
+  .col--tx .cta{background:var(--tx)}
+  .col--tx .cta .x{color:var(--tx-green)}
+
+  /* ---- top-center TaleX ecosystem logo ---- */
+  .brand{
+    position:fixed;top:26px;left:50%;transform:translateX(-50%);z-index:20;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    pointer-events:none;
+  }
+  .brand img{height:34px;width:auto;display:block;
+    filter:drop-shadow(0 2px 10px rgba(0,0,0,.18))}
+  .brand .eyebrow{
+    font-size:11px;letter-spacing:.34em;text-transform:uppercase;font-weight:700;
+    color:#6b7280;
+  }
+
+  /* hint to interact (fades once user hovers) */
+  .hint{
+    position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:20;
+    font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#9aa0a6;font-weight:600;
+    transition:opacity 300ms ease;pointer-events:none;
+  }
+  .stage.has-active ~ .hint{opacity:0}
+
+  /* ---------- MOBILE: vertical accordion ---------- */
+  @media (max-width:820px){
+    body{overflow-y:auto;overflow-x:hidden}
+    .stage{position:relative;flex-direction:column;height:auto;min-height:100vh}
+    .col{height:34vh;min-height:240px;cursor:pointer;
+      transition:height var(--dur) var(--ease)}
+    .stage.has-active .col{flex-grow:1}
+    .stage .col.active{flex-grow:1}
+    .col.open{height:78vh}
+    .col + .col::before{width:100%;height:1px;left:0;top:0;right:0;bottom:auto;
+      background:linear-gradient(to right,rgba(0,0,0,0),rgba(0,0,0,.08),rgba(0,0,0,0))}
+    .card{background-position:center}
+    .panel{opacity:0;transform:translateY(14px)}
+    .col.open .panel{opacity:1;transform:none;pointer-events:auto}
+    .stage.has-active .col:not(.active) .scrim{background:transparent}
+    .brand img{height:28px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition-duration:1ms!important;animation-duration:1ms!important}
+  }
+</style>
+</head>
+<body>
+
+  <div class="brand">
+    <span class="eyebrow">The Ecosystem</span>
+    <img src="assets/logo.png" alt="TaleX">
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- ViewsCall -->
+    <section class="col col--vc" data-video="assets/viewscall.mp4">
+      <div class="card"></div>
+      <video class="vid" muted loop playsinline preload="auto"></video>
+      <div class="scrim"></div>
+      <div class="panel">
+        <p>Predict which YouTube videos blow up — and earn when you call it right.</p>
+        <a class="cta" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          Open ViewsCall
+        </a>
+      </div>
+    </section>
+
+    <!-- RoamFi -->
+    <section class="col col--rf" data-video="assets/roamfi.mp4">
+      <div class="card"></div>
+      <video class="vid" muted loop playsinline preload="auto"></video>
+      <div class="scrim"></div>
+      <div class="panel">
+        <p>One eSIM, 200+ destinations. Land anywhere and you're already online.</p>
+        <a class="cta" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          Get RoamFi
+        </a>
+      </div>
+    </section>
+
+    <!-- TaleX content app -->
+    <section class="col col--tx" data-video="assets/talex.mp4">
+      <div class="card"></div>
+      <video class="vid" muted loop playsinline preload="auto"></video>
+      <div class="scrim"></div>
+      <div class="panel">
+        <p>Publish stories, video and audio — and let your supporters share in what you build.</p>
+        <a class="cta" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          Open Tale<span class="x">X</span>
+        </a>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="hint">Hover a column to explore</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const cols = Array.from(document.querySelectorAll('.col'));
+  const isMobile = () => window.matchMedia('(max-width:820px)').matches;
+
+  // attach video sources lazily (so they preload but we control play)
+  cols.forEach(col=>{
+    const v = col.querySelector('.vid');
+    const src = col.dataset.video;
+    if(src){ v.src = src; }
+  });
+
+  let activeCol = null;
+  let settleTimer = null;
+
+  function activate(col){
+    if(activeCol === col) return;
+    deactivate();
+    activeCol = col;
+    stage.classList.add('has-active');
+    col.classList.add('active');
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(()=>{
+      if(activeCol !== col) return;
+      const v = col.querySelector('.vid');
+      if(v && v.getAttribute('src')){
+        v.currentTime = 0;
+        const p = v.play();
+        if(p && p.catch) p.catch(()=>{});
+        col.classList.add('playing');
+      }
+    }, 640);
+  }
+
+  function deactivate(){
+    clearTimeout(settleTimer);
+    stage.classList.remove('has-active');
+    cols.forEach(c=>{
+      c.classList.remove('active');
+      c.classList.remove('playing');
+      const v = c.querySelector('.vid');
+      if(v){ try{ v.pause(); }catch(e){} }
+    });
+    activeCol = null;
+  }
+
+  // DESKTOP: hover
+  cols.forEach(col=>{
+    col.addEventListener('mouseenter', ()=>{ if(!isMobile()) activate(col); });
+  });
+  stage.addEventListener('mouseleave', ()=>{ if(!isMobile()) deactivate(); });
+
+  // MOBILE: tap to open/close accordion + play
+  cols.forEach(col=>{
+    col.addEventListener('click', (e)=>{
+      if(!isMobile()) return;
+      // let CTA clicks through
+      if(e.target.closest('.cta')) return;
+      const isOpen = col.classList.contains('open');
+      cols.forEach(c=>{ c.classList.remove('open'); c.classList.remove('playing'); const v=c.querySelector('.vid'); if(v) try{v.pause()}catch(_){} });
+      if(!isOpen){
+        col.classList.add('open');
+        const v = col.querySelector('.vid');
+        clearTimeout(settleTimer);
+        settleTimer = setTimeout(()=>{
+          if(v && v.src){ v.currentTime=0; const p=v.play(); if(p&&p.catch)p.catch(()=>{}); col.classList.add('playing'); }
+        }, 640);
+      }
+    });
+  });
+
+  // pause videos when tab hidden (perf)
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden) deactivate(); });
+</script>
+</body>
+</html>
