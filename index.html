@@ -11,8 +11,10 @@
     --tx:#0C1214;
     --tx-green:#6EEF00;
     --ease:cubic-bezier(.6,.02,.1,1);
-    --dur:480ms;
     --spring:cubic-bezier(.34,1.56,.64,1);
+    --icon-cx: 321;
+    --icon-cy: 526;
+    --icon-sz: 156;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%}
@@ -20,42 +22,33 @@
     font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
     background:#000;color:#0c1214;overflow:hidden;
   }
-
-  /* full-screen stage — uses dynamic viewport so figures pin to the real
-     browser-window bottom, never cut off by OS taskbars */
   .stage{
     position:fixed;inset:0;display:flex;width:100vw;
     height:100vh;height:100dvh;
   }
-
-  /* each column — ALWAYS equal thirds, no width change ever */
   .col{
     position:relative;flex:1 1 0;min-width:0;height:100%;
     overflow:hidden;cursor:pointer;
   }
-
-  /* static card image */
-  .card{
-    position:absolute;inset:0;width:100%;height:100%;
-    background-size:cover;background-position:center bottom;
-    background-repeat:no-repeat;
+  .frame{
+    position:absolute;left:50%;bottom:0;
+    width:640px;height:1080px;
+    transform:translateX(-50%);
+    transform-origin:bottom center;
   }
-  .col--vc .card{background-image:url('assets/viewscall.png');background-color:#fbeaee}
-  .col--rf .card{background-image:url('assets/roamfi.png');background-color:#eafbff}
-  .col--tx .card{background-image:url('assets/talex.png');background-color:#f0f0f2}
-
-  /* DARK PLACEHOLDER for active column (temporary, replaces banner so the
-     switching mechanics are visible). Sits above card, below icon-glow. */
+  .photo{
+    position:absolute;inset:0;width:100%;height:100%;
+    background-size:cover;background-position:center bottom;background-repeat:no-repeat;
+    z-index:1;
+  }
+  .col--vc .photo{background-image:url('assets/viewscall.png');background-color:#fbeaee}
+  .col--rf .photo{background-image:url('assets/roamfi.png');background-color:#eafbff}
+  .col--tx .photo{background-image:url('assets/talex.png');background-color:#f0f0f2}
   .placeholder{
-    position:absolute;inset:0;z-index:2;
-    background:#0c1214;
+    position:absolute;inset:0;z-index:2;background:#0c1214;
     opacity:0;transition:opacity 360ms ease;pointer-events:none;
   }
   .col.active .placeholder{opacity:1}
-
-  /* video sits above placeholder, hidden until active+settled.
-     Source is 1080x640 (horizontal) — object-fit:cover fills the
-     vertical column, cropping the sides. */
   .vid{
     position:absolute;inset:0;width:100%;height:100%;z-index:3;
     object-fit:cover;object-position:center;
@@ -63,50 +56,57 @@
     background:#0c1214;
   }
   .col.playing .vid{opacity:1;visibility:visible}
-
-  /* DARK HOVER OVERLAY on the two NON-active columns.
-     z-index:4 dims the card + placeholder, but icon-layer (z-5) stays bright. */
   .dim{
     position:absolute;inset:0;z-index:4;pointer-events:none;
     background:rgba(8,12,16,0);
     transition:background 380ms ease;
   }
-  .stage.has-active .col:not(.active) .dim{background:rgba(8,12,16,.62)}
-
-  /* seams between columns */
+  .stage.has-active .col:not(.active) .dim{background:rgba(8,12,16,.64)}
+  .appicon{
+    position:absolute;z-index:5;pointer-events:none;
+    left:calc(var(--icon-cx) * 1px);
+    top:calc(var(--icon-cy) * 1px);
+    width:calc(var(--icon-sz) * 1px);
+    height:calc(var(--icon-sz) * 1px);
+    transform:translate(-50%,-50%);
+    background-repeat:no-repeat;background-position:center;background-size:contain;
+    opacity:0;transition:opacity 320ms ease;
+    filter:drop-shadow(0 10px 22px rgba(0,0,0,.28));
+  }
+  .col--vc .appicon{background-image:url('assets/icon_viewscall.svg')}
+  .col--rf .appicon{background-image:url('assets/icon_roamfi.svg')}
+  .col--tx .appicon{background-image:url('assets/icon_talex.svg')}
+  .stage.has-active .col:not(.active) .appicon{opacity:1}
   .col + .col::before{
     content:"";position:absolute;left:0;top:0;bottom:0;width:1px;z-index:6;
     background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.08),rgba(0,0,0,0));
   }
-
-  /* ---- clickable TaleX logo, top-center ---- */
   .brand{
     position:fixed;top:26px;left:50%;transform:translateX(-50%);z-index:30;
   }
   .brand a{
     display:block;line-height:0;text-decoration:none;
-    transition:transform 220ms var(--spring);
-    transform-origin:center center;
+    transition:transform 220ms var(--spring);transform-origin:center center;
   }
   .brand a:hover{transform:scale(1.08)}
   .brand a:active{transform:scale(.94)}
-  .brand img{
+  .brand .logo{
     height:36px;width:auto;display:block;
     filter:drop-shadow(0 2px 10px rgba(0,0,0,.18));
+    transition:opacity 300ms ease;
   }
-
-  /* ---------- MOBILE: vertical accordion ---------- */
+  .brand .logo--white{position:absolute;top:0;left:0;opacity:0}
+  .stage.has-active ~ .brand .logo--dark{opacity:0}
+  .stage.has-active ~ .brand .logo--white{opacity:1}
   @media (max-width:820px){
     body{overflow-y:auto;overflow-x:hidden}
     .stage{position:relative;flex-direction:column;height:auto;min-height:100dvh}
     .col{height:34vh;min-height:240px}
-    .card{background-position:center bottom}
     .col + .col::before{width:100%;height:1px;left:0;top:0;right:0;bottom:auto;
       background:linear-gradient(to right,rgba(0,0,0,0),rgba(0,0,0,.08),rgba(0,0,0,0))}
     .stage.has-active .col:not(.active) .dim{background:rgba(8,12,16,.55)}
-    .brand img{height:28px}
+    .brand .logo{height:28px}
   }
-
   @media (prefers-reduced-motion:reduce){
     *{transition-duration:1ms!important;animation-duration:1ms!important}
   }
@@ -114,38 +114,45 @@
 </head>
 <body>
 
-  <div class="brand">
-    <a href="https://docs.talex.world" target="_blank" rel="noopener" id="brandLink">
-      <img src="assets/logo.png" alt="TaleX">
-    </a>
-  </div>
-
   <div class="stage" id="stage">
 
-    <!-- ViewsCall -->
     <section class="col col--vc" data-video="assets/viewscall.mp4">
-      <div class="card"></div>
+      <div class="frame">
+        <div class="photo"></div>
+        <div class="appicon"></div>
+      </div>
       <div class="placeholder"></div>
       <video class="vid" muted loop playsinline preload="auto"></video>
       <div class="dim"></div>
     </section>
 
-    <!-- RoamFi -->
     <section class="col col--rf" data-video="assets/roamfi.mp4">
-      <div class="card"></div>
+      <div class="frame">
+        <div class="photo"></div>
+        <div class="appicon"></div>
+      </div>
       <div class="placeholder"></div>
       <video class="vid" muted loop playsinline preload="auto"></video>
       <div class="dim"></div>
     </section>
 
-    <!-- TaleX content app -->
     <section class="col col--tx" data-video="assets/talex.mp4">
-      <div class="card"></div>
+      <div class="frame">
+        <div class="photo"></div>
+        <div class="appicon"></div>
+      </div>
       <div class="placeholder"></div>
       <video class="vid" muted loop playsinline preload="auto"></video>
       <div class="dim"></div>
     </section>
 
+  </div>
+
+  <div class="brand">
+    <a href="https://docs.talex.world" target="_blank" rel="noopener" id="brandLink">
+      <img class="logo logo--dark" src="assets/logo.png" alt="TaleX">
+      <img class="logo logo--white" src="assets/logo_white.png" alt="">
+    </a>
   </div>
 
 <script>
@@ -154,16 +161,22 @@
   const brandLink = document.getElementById('brandLink');
   const isMobile = () => window.matchMedia('(max-width:820px)').matches;
 
-  // lazy-attach video sources
+  function fitFrames(){
+    cols.forEach(col=>{
+      const frame = col.querySelector('.frame');
+      const cw = col.clientWidth, ch = col.clientHeight;
+      const scale = Math.max(cw/640, ch/1080);
+      frame.style.transform = `translateX(-50%) scale(${scale})`;
+    });
+  }
+  window.addEventListener('resize', fitFrames);
+
   cols.forEach(col=>{
     const v = col.querySelector('.vid');
-    const src = col.dataset.video;
-    if(src){ v.src = src; }
+    if(col.dataset.video){ v.src = col.dataset.video; }
   });
 
-  let activeCol = null;
-  let settleTimer = null;
-  let brandHovered = false;   // when true, suppress column activation under logo
+  let activeCol = null, settleTimer = null, brandHovered = false;
 
   function activate(col){
     if(activeCol === col) return;
@@ -177,8 +190,7 @@
       const v = col.querySelector('.vid');
       if(v && v.getAttribute('src')){
         v.currentTime = 0;
-        const p = v.play();
-        if(p && p.catch) p.catch(()=>{});
+        const p = v.play(); if(p && p.catch) p.catch(()=>{});
         col.classList.add('playing');
       }
     }, 360);
@@ -188,43 +200,34 @@
     clearTimeout(settleTimer);
     stage.classList.remove('has-active');
     cols.forEach(c=>{
-      c.classList.remove('active');
-      c.classList.remove('playing');
-      const v = c.querySelector('.vid');
-      if(v){ try{ v.pause(); }catch(e){} }
+      c.classList.remove('active'); c.classList.remove('playing');
+      const v = c.querySelector('.vid'); if(v){ try{ v.pause(); }catch(e){} }
     });
     activeCol = null;
   }
 
-  // DESKTOP: hover a column -> activate (unless cursor is over the logo)
   cols.forEach(col=>{
     col.addEventListener('mouseenter', ()=>{
-      if(isMobile()) return;
-      if(brandHovered) return;     // logo hover blocks ViewsCall col behind it
+      if(isMobile() || brandHovered) return;
       activate(col);
     });
   });
   stage.addEventListener('mouseleave', ()=>{ if(!isMobile()) deactivate(); });
 
-  // LOGO: hovering the logo must NOT activate the column behind it (ViewsCall).
-  brandLink.addEventListener('mouseenter', ()=>{
-    brandHovered = true;
-    if(!isMobile()) deactivate();
-  });
+  brandLink.addEventListener('mouseenter', ()=>{ brandHovered = true; if(!isMobile()) deactivate(); });
   brandLink.addEventListener('mouseleave', ()=>{ brandHovered = false; });
 
-  // MOBILE: tap to play/stop
   cols.forEach(col=>{
     col.addEventListener('click', ()=>{
       if(!isMobile()) return;
-      const isOn = col.classList.contains('active');
-      deactivate();
-      if(!isOn){ activate(col); }
+      const on = col.classList.contains('active');
+      deactivate(); if(!on) activate(col);
     });
   });
 
-  // pause when tab hidden
   document.addEventListener('visibilitychange', ()=>{ if(document.hidden) deactivate(); });
+
+  fitFrames();
 </script>
 </body>
 </html>
