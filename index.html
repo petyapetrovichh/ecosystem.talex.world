@@ -147,7 +147,10 @@
     font-size:16px !important;font-weight:800 !important;color:#fff;
     margin-bottom:12px !important;letter-spacing:.005em;
   }
-  .vc-kicker{font-weight:700;color:#fff;margin-top:2px}
+  .vc-kicker{
+    font-weight:700;color:#fff;margin-top:2px;
+    font-size:12px !important;white-space:nowrap;letter-spacing:0;
+  }
   /* solid brand-red CTA */
   .vc-cta{
     display:inline-flex;align-items:center;justify-content:center;gap:8px;
@@ -225,8 +228,8 @@
       <div class="vc-panel">
         <div class="vc-glass">
           <p class="vc-tagline">The YouTube prediction market.</p>
-          <p><em>"Called it when this had 1K views, now it's 10M."</em> — For years, fans spotted successful YouTube videos early — and earned nothing but credit in the comments.</p>
-          <p>With ViewsCall, fans can finally say "Yes" to the impossible view milestones, and profit by making them possible. Creators can fund the other side to hedge production costs — while booming views earn them far more from YouTube ad revenue. Both sides win on the same call.</p>
+          <p><em>Called it when this had 1K views, now it's 10M.</em> — For years, fans spotted successful YouTube videos early, and earned nothing but credit in the comments.</p>
+          <p>With ViewsCall, fans can finally say "Yes" to the impossible view milestones, and profit by making them possible. Creators can fund the other side to hedge production costs, while booming views earn them far more from YouTube ad revenue. Both sides win on the same call.</p>
           <p class="vc-kicker">Win-win for everyone. Prediction determines outcome. Try it now.</p>
         </div>
         <a class="vc-cta" href="https://test.viewscall.com/" target="_blank" rel="noopener">Open</a>
@@ -324,7 +327,35 @@
           word.style.top  = vcLock.wordTop + 'px';
           word.style.width = vcLock.wordW + 'px';
           word.style.height = vcLock.wordH + 'px';
-          if(!col.classList.contains('active')) setEyeSpawn(col);
+          // re-apply the correct end-state after geometry recompute (zoom/resize safe)
+          if(col.classList.contains('active')){
+            // jump straight to the lockup position without animating on resize
+            eye.style.transition = 'none';
+            eye.style.transform = 'translate(0,0) scale(1)';
+          } else {
+            setEyeSpawn(col);
+          }
+        }
+
+        // ----- adaptive: if the column is too short for the text panel to clear
+        // the lockup, scale the panel down so nothing overlaps (zoom-in safety) -----
+        const panel = col.querySelector('.vc-panel');
+        if(panel){
+          const active = col.classList.contains('active');
+          if(active){
+            panel.style.transform = 'none';          // reset to measure true height
+            const lockupBottom = vcLock.finalEyeCy + vcLock.finalEyeH/2;
+            const avail = ch - lockupBottom - ch*0.07 - 12;
+            const panelH = panel.scrollHeight;
+            if(panelH > avail && avail > 0){
+              const s = Math.max(0.6, avail / panelH);
+              panel.style.transformOrigin = 'bottom center';
+              panel.style.transform = `scale(${s})`;
+            }
+          } else {
+            panel.style.transform = '';              // let CSS handle the hidden state
+            panel.style.transformOrigin = '';
+          }
         }
       }
     });
@@ -349,6 +380,28 @@
     eye.style.transition = 'transform 480ms cubic-bezier(.5,.02,.2,1)';
     eye.style.transform = 'translate(0,0) scale(1)';
   }
+
+  // Robust recompute on any viewport change (window resize AND zoom).
+  // Zoom fires a burst of resize events; debounce so geometry settles once,
+  // then recompute everything from the new column dimensions. Because every
+  // element (frame, photo, video, icon, lockup, text) derives from the same
+  // column size, recomputing here keeps the layout aligned at any zoom level.
+  let resizeRAF = null, resizeTimer = null;
+  function onViewportChange(){
+    if(resizeRAF) cancelAnimationFrame(resizeRAF);
+    clearTimeout(resizeTimer);
+    // run once immediately for responsiveness...
+    resizeRAF = requestAnimationFrame(fitFrames);
+    // ...and once more after the zoom/resize burst settles, to correct rounding
+    resizeTimer = setTimeout(()=>requestAnimationFrame(fitFrames), 180);
+  }
+  window.addEventListener('resize', onViewportChange);
+  // some browsers fire zoom as a visualViewport change rather than resize
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', onViewportChange);
+    window.visualViewport.addEventListener('scroll', onViewportChange);
+  }
+
 
 
   cols.forEach(col=>{
@@ -375,6 +428,8 @@
     if(col.classList.contains('col--vc')){
       setEyeSpawn(col);        // ensure starting point is exact
       requestAnimationFrame(()=> setEyeLockup(col));
+      // apply adaptive text-panel scaling now that the panel is visible
+      requestAnimationFrame(fitFrames);
     }
   }
 
