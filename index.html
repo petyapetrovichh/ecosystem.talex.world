@@ -116,9 +116,9 @@
 
   /* ===== ViewsCall text panel + CTA (below the lockup) ===== */
   .vc-panel{
-    position:absolute;left:0;right:0;bottom:7%;z-index:9;
+    position:absolute;left:0;right:0;bottom:3.5%;z-index:9;
     display:flex;flex-direction:column;align-items:center;gap:16px;
-    padding:0 7%;
+    padding:0 3.5%;
     opacity:0;transform:translateY(14px);
     transition:opacity 360ms ease 160ms, transform 420ms cubic-bezier(.5,.02,.2,1) 160ms;
     pointer-events:none;
@@ -137,7 +137,7 @@
     color:#eef1f4;text-align:left;
   }
   .vc-glass p{
-    font-size:16px;line-height:1.46;font-weight:550;
+    font-size:16px;line-height:1.46;font-weight:500;
     margin:0 0 7px;letter-spacing:.002em;
     text-shadow:0 1px 8px rgba(0,0,0,.4);
   }
@@ -229,7 +229,7 @@
           <p class="vc-tagline">The YouTube prediction market.</p>
           <p><em>Called it when this had 1K views, now it's 10M.</em> — For years, fans spotted successful YouTube videos early, and earned nothing but credit in the comments.</p>
           <p>With ViewsCall, fans can finally say "Yes" to the impossible view milestones, and profit by making them possible. Creators can fund the other side to hedge production costs, while booming views earn them far more from YouTube ad revenue. Both sides win on the same call.</p>
-          <p class="vc-kicker">Win-win for everyone. Prediction determines outcome. Try it now.</p>
+          <p class="vc-kicker">Win-win for everyone. Prediction determines outcome.</p>
         </div>
         <a class="vc-cta" href="https://test.viewscall.com/" target="_blank" rel="noopener">Open</a>
       </div>
@@ -351,7 +351,9 @@
     if(col.classList.contains('active')){
       panel.style.transform = 'none';            // reset to measure true height
       const lockupBottom = vcLock.finalEyeCy + vcLock.finalEyeH/2;
-      const avail = ch - lockupBottom - ch*0.07 - 12;
+      // reserve a deliberate gap (48px) below the lockup so the box never
+      // crowds it; the panel scales to fit the remaining space.
+      const avail = ch - lockupBottom - ch*0.035 - 48;
       const panelH = panel.scrollHeight;
       if(panelH > avail && avail > 0){
         const s = Math.max(0.6, avail / panelH);
