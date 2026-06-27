@@ -46,21 +46,20 @@
   .col--tx .photo{background-image:url('assets/talex.png');background-color:#f0f0f2}
   .placeholder{
     position:absolute;inset:0;z-index:2;background:#0c1214;
-    opacity:0;transition:opacity 360ms ease;pointer-events:none;
+    opacity:0;transition:opacity 120ms ease;pointer-events:none;
   }
   .col.active .placeholder{opacity:1}
-  /* when a column is active, lift its frame (which now holds the video)
-     above the placeholder so the video is visible */
-  .col.active .frame{z-index:3}
-  /* video lives INSIDE .frame (same 640x1080 geometry as the photo), so it is
-     bounded by the browser window via the frame — never cropped by the screen. */
+  /* VIDEO fills the column's work-area (under address bar -> above taskbar).
+     It sits at column level (not in .frame) at z-3, above the placeholder.
+     object-fit:cover + center keeps it full-height; any overflow is split
+     evenly, and excess width is cropped at the sides. */
   .vid{
     position:absolute;inset:0;width:100%;height:100%;z-index:3;
-    object-fit:cover;object-position:center bottom;
-    opacity:0;visibility:hidden;transition:opacity 480ms ease;pointer-events:none;
+    object-fit:cover;object-position:center center;
+    opacity:0;visibility:hidden;transition:opacity 160ms ease;pointer-events:none;
     background:#0c1214;
   }
-  .col.playing .frame .vid{opacity:1;visibility:visible}
+  .col.playing .vid{opacity:1;visibility:visible}
   .dim{
     position:absolute;inset:0;z-index:4;pointer-events:none;
     background:rgba(8,12,16,0);
@@ -124,9 +123,9 @@
     <section class="col col--rf" data-video="assets/roamfi.mp4">
       <div class="frame">
         <div class="photo"></div>
-        <video class="vid" muted loop playsinline preload="auto"></video>
       </div>
       <div class="placeholder"></div>
+      <video class="vid" muted loop playsinline preload="auto"></video>
       <div class="dim"></div>
       <div class="appicon"></div>
     </section>
@@ -134,9 +133,9 @@
     <section class="col col--vc" data-video="assets/viewscall.mp4">
       <div class="frame">
         <div class="photo"></div>
-        <video class="vid" muted loop playsinline preload="auto"></video>
       </div>
       <div class="placeholder"></div>
+      <video class="vid" muted loop playsinline preload="auto"></video>
       <div class="dim"></div>
       <div class="appicon"></div>
     </section>
@@ -144,9 +143,9 @@
     <section class="col col--tx" data-video="assets/talex.mp4">
       <div class="frame">
         <div class="photo"></div>
-        <video class="vid" muted loop playsinline preload="auto"></video>
       </div>
       <div class="placeholder"></div>
+      <video class="vid" muted loop playsinline preload="auto"></video>
       <div class="dim"></div>
       <div class="appicon"></div>
     </section>
@@ -204,16 +203,13 @@
     activeCol = col;
     stage.classList.add('has-active');
     col.classList.add('active');
-    clearTimeout(settleTimer);
-    settleTimer = setTimeout(()=>{
-      if(activeCol !== col) return;
-      const v = col.querySelector('.vid');
-      if(v && v.getAttribute('src')){
-        v.currentTime = 0;
-        const p = v.play(); if(p && p.catch) p.catch(()=>{});
-        col.classList.add('playing');
-      }
-    }, 360);
+    // start the video immediately — no delay, banner hides at once
+    const v = col.querySelector('.vid');
+    if(v && v.getAttribute('src')){
+      v.currentTime = 0;
+      const p = v.play(); if(p && p.catch) p.catch(()=>{});
+      col.classList.add('playing');
+    }
   }
 
   function deactivate(){
