@@ -97,22 +97,20 @@
   /* the standalone red eye: spawns exactly over the plate-eye, then JS moves
      it to the lockup slot (left + shrink). Transition is driven by JS. */
   .lockup-eye{
-    position:absolute;
+    position:absolute;z-index:2;
     background:url('assets/vc_eye.svg') center/contain no-repeat;
     transform-origin:center center;
     will-change:transform;
     filter:drop-shadow(0 8px 18px rgba(0,0,0,.30));
   }
-  /* the white word: wipes in left->right via clip-path, beside the eye. */
+  /* the white word: wipe + position are driven by JS (setWordHidden/Reveal) */
   .lockup-word{
-    position:absolute;
+    position:absolute;z-index:1;
     background:url('assets/vc_word.svg') left center/contain no-repeat;
-    clip-path:inset(0 100% 0 0);            /* fully hidden (revealed from left) */
+    clip-path:inset(0 100% 0 0);
     opacity:0;
-    transition:clip-path 460ms cubic-bezier(.5,.02,.2,1) 120ms, opacity 200ms ease 120ms;
     filter:drop-shadow(0 6px 16px rgba(0,0,0,.35));
   }
-  .col.active .lockup-word{clip-path:inset(0 0 0 0);opacity:1}
 
   /* ===== ViewsCall text panel + CTA (below the lockup) ===== */
   .vc-panel{
@@ -386,6 +384,24 @@
     eye.style.transform = 'translate(0,0) scale(1)';
   }
 
+  // word: fully clipped + hidden, no transition (instant reset on deactivate)
+  function setWordHidden(col){
+    const word = col.querySelector('.lockup-word');
+    if(!word) return;
+    word.style.transition = 'none';
+    word.style.clipPath = 'inset(0 100% 0 0)';
+    word.style.opacity = '0';
+  }
+  // word: wipe in left->right beside the eye (on activate)
+  function setWordReveal(col){
+    const word = col.querySelector('.lockup-word');
+    if(!word) return;
+    void word.offsetWidth;   // commit the hidden state before animating
+    word.style.transition = 'clip-path 460ms cubic-bezier(.5,.02,.2,1) 120ms, opacity 200ms ease 120ms';
+    word.style.clipPath = 'inset(0 0 0 0)';
+    word.style.opacity = '1';
+  }
+
   // Robust recompute on any viewport change (window resize AND zoom).
   // Zoom fires a burst of resize events; debounce so geometry settles once,
   // then recompute everything from the new column dimensions. Because every
@@ -452,7 +468,8 @@
     // ViewsCall: eye is sitting at SPAWN (over the plate); animate it into the lockup
     if(col.classList.contains('col--vc')){
       setEyeSpawn(col);        // ensure starting point is exact
-      requestAnimationFrame(()=> setEyeLockup(col));
+      setWordHidden(col);      // word starts fully clipped
+      requestAnimationFrame(()=>{ setEyeLockup(col); setWordReveal(col); });
       // adaptive text-panel scaling (does NOT touch the eye, so animation is safe)
       requestAnimationFrame(()=> scalePanel(col));
     }
@@ -463,11 +480,14 @@
     stage.classList.remove('has-active');
     cols.forEach(c=>{
       // instantly drop the active layers (no fade) so the banner returns at once
-      const layers = c.querySelectorAll('.placeholder, .vid, .vc-panel, .dim, .lockup, .lockup-word');
+      const layers = c.querySelectorAll('.placeholder, .vid, .vc-panel, .dim, .lockup');
       layers.forEach(el=>{ el.style.transition = 'none'; });
       c.classList.remove('active'); c.classList.remove('playing');
       const v = c.querySelector('.vid'); if(v){ try{ v.pause(); }catch(e){} }
-      if(c.classList.contains('col--vc')) setEyeSpawn(c);  // reset eye to spawn
+      if(c.classList.contains('col--vc')){
+        setEyeSpawn(c);          // reset eye to spawn
+        setWordHidden(c);        // reset word to fully clipped (no flash)
+      }
       // force the no-transition state to commit (reflow) BEFORE restoring transitions,
       // so the hide is truly instant, then re-enable for the next activation
       void c.offsetWidth;
