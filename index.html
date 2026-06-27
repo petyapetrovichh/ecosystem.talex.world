@@ -137,19 +137,18 @@
     color:#eef1f4;text-align:left;
   }
   .vc-glass p{
-    font-size:14px;line-height:1.46;font-weight:450;
+    font-size:16px;line-height:1.46;font-weight:550;
     margin:0 0 7px;letter-spacing:.002em;
     text-shadow:0 1px 8px rgba(0,0,0,.4);
   }
   .vc-glass p:last-child{margin-bottom:0}
   .vc-glass em{font-style:italic;color:#fff;opacity:.96}
   .vc-tagline{
-    font-size:16px !important;font-weight:800 !important;color:#fff;
+    font-size:17px !important;font-weight:800 !important;color:#fff;
     margin-bottom:12px !important;letter-spacing:.005em;
   }
   .vc-kicker{
-    font-weight:700;color:#fff;margin-top:2px;
-    font-size:12px !important;white-space:nowrap;letter-spacing:0;
+    font-weight:700;color:#fff;margin-top:2px;letter-spacing:0;
   }
   /* solid brand-red CTA */
   .vc-cta{
@@ -337,28 +336,32 @@
           }
         }
 
-        // ----- adaptive: if the column is too short for the text panel to clear
-        // the lockup, scale the panel down so nothing overlaps (zoom-in safety) -----
-        const panel = col.querySelector('.vc-panel');
-        if(panel){
-          const active = col.classList.contains('active');
-          if(active){
-            panel.style.transform = 'none';          // reset to measure true height
-            const lockupBottom = vcLock.finalEyeCy + vcLock.finalEyeH/2;
-            const avail = ch - lockupBottom - ch*0.07 - 12;
-            const panelH = panel.scrollHeight;
-            if(panelH > avail && avail > 0){
-              const s = Math.max(0.6, avail / panelH);
-              panel.style.transformOrigin = 'bottom center';
-              panel.style.transform = `scale(${s})`;
-            }
-          } else {
-            panel.style.transform = '';              // let CSS handle the hidden state
-            panel.style.transformOrigin = '';
-          }
-        }
+        // adaptive text-panel scaling (kept separate so it never disturbs the eye)
+        scalePanel(col);
       }
     });
+  }
+
+  // Scale the text panel down only if it can't clear the lockup (zoom-in safety).
+  // Never touches .lockup-eye, so the eye animation is unaffected.
+  function scalePanel(col){
+    const panel = col.querySelector('.vc-panel');
+    if(!panel || !vcLock) return;
+    const ch = col.clientHeight;
+    if(col.classList.contains('active')){
+      panel.style.transform = 'none';            // reset to measure true height
+      const lockupBottom = vcLock.finalEyeCy + vcLock.finalEyeH/2;
+      const avail = ch - lockupBottom - ch*0.07 - 12;
+      const panelH = panel.scrollHeight;
+      if(panelH > avail && avail > 0){
+        const s = Math.max(0.6, avail / panelH);
+        panel.style.transformOrigin = 'bottom center';
+        panel.style.transform = `scale(${s})`;
+      }
+    } else {
+      panel.style.transform = '';
+      panel.style.transformOrigin = '';
+    }
   }
 
   // place the eye at the SPAWN transform (over the plate eye, full size)
@@ -428,8 +431,8 @@
     if(col.classList.contains('col--vc')){
       setEyeSpawn(col);        // ensure starting point is exact
       requestAnimationFrame(()=> setEyeLockup(col));
-      // apply adaptive text-panel scaling now that the panel is visible
-      requestAnimationFrame(fitFrames);
+      // adaptive text-panel scaling (does NOT touch the eye, so animation is safe)
+      requestAnimationFrame(()=> scalePanel(col));
     }
   }
 
