@@ -49,13 +49,18 @@
     opacity:0;transition:opacity 360ms ease;pointer-events:none;
   }
   .col.active .placeholder{opacity:1}
+  /* when a column is active, lift its frame (which now holds the video)
+     above the placeholder so the video is visible */
+  .col.active .frame{z-index:3}
+  /* video lives INSIDE .frame (same 640x1080 geometry as the photo), so it is
+     bounded by the browser window via the frame — never cropped by the screen. */
   .vid{
     position:absolute;inset:0;width:100%;height:100%;z-index:3;
-    object-fit:cover;object-position:center;
+    object-fit:cover;object-position:center bottom;
     opacity:0;visibility:hidden;transition:opacity 480ms ease;pointer-events:none;
     background:#0c1214;
   }
-  .col.playing .vid{opacity:1;visibility:visible}
+  .col.playing .frame .vid{opacity:1;visibility:visible}
   .dim{
     position:absolute;inset:0;z-index:4;pointer-events:none;
     background:rgba(8,12,16,0);
@@ -119,9 +124,9 @@
     <section class="col col--rf" data-video="assets/roamfi.mp4">
       <div class="frame">
         <div class="photo"></div>
+        <video class="vid" muted loop playsinline preload="auto"></video>
       </div>
       <div class="placeholder"></div>
-      <video class="vid" muted loop playsinline preload="auto"></video>
       <div class="dim"></div>
       <div class="appicon"></div>
     </section>
@@ -129,9 +134,9 @@
     <section class="col col--vc" data-video="assets/viewscall.mp4">
       <div class="frame">
         <div class="photo"></div>
+        <video class="vid" muted loop playsinline preload="auto"></video>
       </div>
       <div class="placeholder"></div>
-      <video class="vid" muted loop playsinline preload="auto"></video>
       <div class="dim"></div>
       <div class="appicon"></div>
     </section>
@@ -139,9 +144,9 @@
     <section class="col col--tx" data-video="assets/talex.mp4">
       <div class="frame">
         <div class="photo"></div>
+        <video class="vid" muted loop playsinline preload="auto"></video>
       </div>
       <div class="placeholder"></div>
-      <video class="vid" muted loop playsinline preload="auto"></video>
       <div class="dim"></div>
       <div class="appicon"></div>
     </section>
