@@ -418,10 +418,30 @@
 
   function activate(col){
     if(activeCol === col) return;
+    const wasActive = activeCol;          // a switch if another column was active
     deactivate();
     activeCol = col;
+
+    // On a direct switch, snap the sibling dim ON instantly (no 380ms fade) so the
+    // just-deactivated column goes video -> dark banner with no bright flash between.
+    const dimsToSnap = [];
+    if(wasActive){
+      cols.forEach(c=>{
+        if(c !== col){
+          const d = c.querySelector('.dim');
+          if(d){ d.style.transition = 'none'; dimsToSnap.push(d); }
+        }
+      });
+    }
+
     stage.classList.add('has-active');
     col.classList.add('active');
+
+    // commit the dimmed state with transitions disabled, then re-enable for later
+    if(dimsToSnap.length){
+      dimsToSnap.forEach(d=>{ void d.offsetWidth; });   // force reflow -> dim is now opaque instantly
+      requestAnimationFrame(()=>{ dimsToSnap.forEach(d=>{ d.style.transition = ''; }); });
+    }
     // start the video immediately — no delay, banner hides at once
     const v = col.querySelector('.vid');
     if(v && v.getAttribute('src')){
@@ -442,9 +462,16 @@
     clearTimeout(settleTimer);
     stage.classList.remove('has-active');
     cols.forEach(c=>{
+      // instantly drop the active layers (no fade) so the banner returns at once
+      const layers = c.querySelectorAll('.placeholder, .vid, .vc-panel, .dim, .lockup, .lockup-word');
+      layers.forEach(el=>{ el.style.transition = 'none'; });
       c.classList.remove('active'); c.classList.remove('playing');
       const v = c.querySelector('.vid'); if(v){ try{ v.pause(); }catch(e){} }
       if(c.classList.contains('col--vc')) setEyeSpawn(c);  // reset eye to spawn
+      // force the no-transition state to commit (reflow) BEFORE restoring transitions,
+      // so the hide is truly instant, then re-enable for the next activation
+      void c.offsetWidth;
+      requestAnimationFrame(()=>{ layers.forEach(el=>{ el.style.transition = ''; }); });
     });
     activeCol = null;
   }
