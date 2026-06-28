@@ -258,16 +258,21 @@
     .brand{top:18px}
     .brand .logo{height:30px}
 
-    /* text box: WIDER + bigger type for mobile readability. No entry animation —
-       it appears instantly so only the lockup animates. */
+    /* text box: WIDER + bigger type for mobile readability. On mobile the panel
+       must stay HIDDEN on the static banner and appear INSTANTLY on tap (no
+       fade, no slide) so only the lockup animates. We override just the entry
+       transition/transform here — visibility is still gated by .col.active. */
     .vc-panel{
-      bottom:max(7%, env(safe-area-inset-bottom));
+      bottom:max(6%, env(safe-area-inset-bottom));
       padding:0 3.5%;
-      opacity:1 !important;transition:none !important;
+      transform:none !important;
+      transition:none !important;
     }
+    .col.active .vc-panel{opacity:1;transform:none !important;pointer-events:auto}
     .vc-glass{padding:14px 16px;border-radius:18px}
-    .vc-tagline{font-size:16px !important;margin-bottom:9px !important}
-    .vc-glass p{font-size:14px;line-height:1.45;margin-bottom:6px}
+    .vc-panel{--panel-fs:1}
+    .vc-tagline{font-size:calc(16px * var(--panel-fs)) !important;margin-bottom:calc(9px * var(--panel-fs)) !important}
+    .vc-glass p{font-size:calc(14px * var(--panel-fs));line-height:1.45;margin-bottom:calc(6px * var(--panel-fs))}
     .vc-cta{font-size:17px;padding:11px 36px}
 
     /* play/pause: far bottom-right, above the iOS search bar (safe-area) */
@@ -409,7 +414,7 @@
   function fitFrames(){
     const mob = isMobile();
     // banner source dims + icon plate position differ on mobile (portrait banner)
-    const SRC = mob ? {w:640, h:1387, icx:319, icy:769, isz:156}
+    const SRC = mob ? {w:640, h:1387, icx:319, icy:669, isz:156}
                     : {w:640, h:1080, icx:ICON.cx, icy:ICON.cy, isz:ICON.sz};
     cols.forEach(col=>{
       const frame = col.querySelector('.frame');
@@ -495,27 +500,39 @@
     const key = lockKey(col);
     if(!panel || !key || !lockGeo[key]) return;
     const ch = col.clientHeight;
+    const mob = isMobile();
     if(col.classList.contains('active')){
-      panel.style.transform = 'none';            // reset to measure true height
+      // reset any prior scaling so we measure the true natural height
+      panel.style.transform = 'none';
+      panel.style.removeProperty('--panel-fs');
       // Use a SHARED reference (ViewsCall geometry) so the text box + CTA land at
       // the exact same height in every column. All lockups are vertically centered
       // at the same plate-center line, so we reference VC's lockup bottom for all.
       const refG = lockGeo['col--vc'] || lockGeo[key];
       const lockupBottom = refG.finalIconCy + refG.finalIconH/2;
       // reserve a gap below the lockup so the box never crowds it (smaller on mobile)
-      const mob = isMobile();
-      const gap = mob ? 18 : 48;
-      const bottomInset = ch * (mob ? 0.10 : 0.035);
+      const gap = mob ? 14 : 48;
+      const bottomInset = ch * (mob ? 0.06 : 0.035);
       const avail = ch - lockupBottom - bottomInset - gap;
       const panelH = panel.scrollHeight;
       if(panelH > avail && avail > 0){
-        const s = Math.max(0.55, avail / panelH);
-        panel.style.transformOrigin = 'bottom center';
-        panel.style.transform = `scale(${s})`;
+        const s = Math.max(0.62, avail / panelH);
+        if(mob){
+          // MOBILE: shrink the TEXT (font-size factor), NOT the box width. This keeps
+          // every column's glass box at the same full width even when a column (TaleX)
+          // has more copy. Re-measure once after applying, in case it now fits.
+          panel.style.setProperty('--panel-fs', s.toFixed(3));
+          // a font shrink reduces height super-linearly with line-wrapping, so one pass
+          // is enough; clamp keeps it readable.
+        } else {
+          panel.style.transformOrigin = 'bottom center';
+          panel.style.transform = `scale(${s})`;
+        }
       }
     } else {
       panel.style.transform = '';
       panel.style.transformOrigin = '';
+      panel.style.removeProperty('--panel-fs');
     }
   }
 
