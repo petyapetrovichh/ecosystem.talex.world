@@ -94,23 +94,29 @@
     opacity:0;
   }
   .col.active .lockup{opacity:1}
-  /* the standalone red eye: spawns exactly over the plate-eye, then JS moves
+  /* the standalone icon: spawns exactly over the plate glyph, then JS moves
      it to the lockup slot (left + shrink). Transition is driven by JS. */
   .lockup-eye{
     position:absolute;z-index:2;
-    background:url('assets/vc_eye.svg') center/contain no-repeat;
+    background:center/contain no-repeat;
     transform-origin:center center;
     will-change:transform;
     filter:drop-shadow(0 8px 18px rgba(0,0,0,.30));
   }
+  .col--vc .lockup-eye{background-image:url('assets/vc_eye.svg')}
+  .col--rf .lockup-eye{background-image:url('assets/rf_icon.svg')}
+  .col--tx .lockup-eye{background-image:url('assets/tx_feather.svg')}
   /* the white word: wipe + position are driven by JS (setWordHidden/Reveal) */
   .lockup-word{
     position:absolute;z-index:1;
-    background:url('assets/vc_word.svg') left center/contain no-repeat;
+    background:left center/contain no-repeat;
     clip-path:inset(0 100% 0 0);
     opacity:0;
     filter:drop-shadow(0 6px 16px rgba(0,0,0,.35));
   }
+  .col--vc .lockup-word{background-image:url('assets/vc_word.svg')}
+  .col--rf .lockup-word{background-image:url('assets/rf_word.svg')}
+  .col--tx .lockup-word{background-image:url('assets/tx_word.svg')}
 
   /* ===== ViewsCall text panel + CTA (below the lockup) ===== */
   .vc-panel{
@@ -159,6 +165,18 @@
   }
   .vc-cta:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(255,0,51,.46)}
   .vc-cta:active{transform:translateY(0)}
+  /* RoamFi: teal CTA */
+  .vc-cta--rf{
+    background:var(--rf);color:#06222a;
+    box-shadow:0 12px 30px rgba(5,227,247,.30), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .vc-cta--rf:hover{box-shadow:0 16px 38px rgba(5,227,247,.42)}
+  /* TaleX: white CTA */
+  .vc-cta--tx{
+    background:#fff;color:#0c1214;
+    box-shadow:0 12px 30px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  .vc-cta--tx:hover{box-shadow:0 16px 38px rgba(0,0,0,.42)}
 
 
   .col + .col::before{
@@ -208,6 +226,19 @@
       <video class="vid" muted loop playsinline preload="auto"></video>
       <div class="dim"></div>
       <div class="appicon"></div>
+      <div class="lockup">
+        <div class="lockup-eye"></div>
+        <div class="lockup-word"></div>
+      </div>
+      <div class="vc-panel">
+        <div class="vc-glass">
+          <p class="vc-tagline">The YouTube prediction market.</p>
+          <p><em>Called it when this had 1K views, now it's 10M.</em> — For years, fans spotted successful YouTube videos early, and earned nothing but credit in the comments.</p>
+          <p>With ViewsCall, fans can finally say "Yes" to the impossible view milestones, and profit by making them possible. Creators can fund the other side to hedge production costs, while booming views earn them far more from YouTube ad revenue. Both sides win on the same call.</p>
+          <p class="vc-kicker">Win-win for everyone. Prediction determines outcome.</p>
+        </div>
+        <a class="vc-cta vc-cta--rf" href="https://test.viewscall.com/" target="_blank" rel="noopener">Open</a>
+      </div>
     </section>
 
     <section class="col col--vc" data-video="assets/viewscall.mp4">
@@ -241,6 +272,19 @@
       <video class="vid" muted loop playsinline preload="auto"></video>
       <div class="dim"></div>
       <div class="appicon"></div>
+      <div class="lockup">
+        <div class="lockup-eye"></div>
+        <div class="lockup-word"></div>
+      </div>
+      <div class="vc-panel">
+        <div class="vc-glass">
+          <p class="vc-tagline">The YouTube prediction market.</p>
+          <p><em>Called it when this had 1K views, now it's 10M.</em> — For years, fans spotted successful YouTube videos early, and earned nothing but credit in the comments.</p>
+          <p>With ViewsCall, fans can finally say "Yes" to the impossible view milestones, and profit by making them possible. Creators can fund the other side to hedge production costs, while booming views earn them far more from YouTube ad revenue. Both sides win on the same call.</p>
+          <p class="vc-kicker">Win-win for everyone. Prediction determines outcome.</p>
+        </div>
+        <a class="vc-cta vc-cta--tx" href="https://test.viewscall.com/" target="_blank" rel="noopener">Open</a>
+      </div>
     </section>
 
   </div>
@@ -258,14 +302,28 @@
   const brandLink = document.getElementById('brandLink');
   const isMobile = () => window.matchMedia('(max-width:820px)').matches;
 
-  // plate geometry in source-image (640x1080) coords
+  // plate geometry in source-image (640x1080) coords — same for all columns
   const ICON = { cx:321, cy:526, sz:156 };
-  const EYE_RATIO = 118/62;          // eye-only SVG aspect
-  const EYE_IN_PLATE = 0.748;        // eye width / plate width (measured)
-  const LOCKUP = { eyeW:118, gap:10, wordW:355, totalW:483, h:62 }; // lockup proportions
 
-  // store per-activation geometry for the ViewsCall lockup
-  let vcLock = null;
+  // per-column lockup config. iconInPlate = glyph width / plate width.
+  // iconRatio = glyph w/h. word_w/word_h/gap/total in the lockup's own units.
+  // targetW = on-screen total lockup width (SAME for all three, matches ViewsCall).
+  const TARGET_LOCKUP_W = 283;   // px — ViewsCall's active lockup width
+  const LOCKS = {
+    'col--vc': { iconInPlate:0.748, iconRatio:118/62, gap:10,  wordW:355, wordH:62,  totalW:483 },
+    'col--rf': { iconInPlate:1.0,   iconRatio:129/129, gap:32,  wordW:376, wordH:71,  totalW:537, iconW:129 },
+    'col--tx': { iconInPlate:0.712, iconRatio:113/113, gap:45,  wordW:297, wordH:82,  totalW:462, iconW:113 },
+  };
+  function lockKey(col){
+    if(col.classList.contains('col--vc')) return 'col--vc';
+    if(col.classList.contains('col--rf')) return 'col--rf';
+    if(col.classList.contains('col--tx')) return 'col--tx';
+    return null;
+  }
+
+  // store per-column computed lockup geometry
+  const lockGeo = {};
+
 
   function fitFrames(){
     cols.forEach(col=>{
@@ -286,47 +344,45 @@
       icon.style.width  = isz + 'px';
       icon.style.height = isz + 'px';
 
-      // ----- ViewsCall lockup geometry -----
-      if(col.classList.contains('col--vc')){
-        const eyeW = isz * EYE_IN_PLATE;          // standalone eye spawn width = plate eye width
-        const eyeH = eyeW / EYE_RATIO;
-        // SPAWN: eye centered exactly on the plate eye (plate center)
+      // ----- lockup geometry (ViewsCall / RoamFi / TaleX) -----
+      const key = lockKey(col);
+      if(key){
+        const L = LOCKS[key];
+        const iconUnitsW = L.iconW || 118;      // icon width in lockup units (eye=118 for VC)
+        // SPAWN: standalone icon sits exactly over the plate glyph (plate center)
+        const spawnIconW = isz * L.iconInPlate; // on-screen size of the glyph in the plate
         const spawnCx = ix, spawnCy = iy;
 
-        // FINAL lockup: keep the eye on the SAME vertical line (spawnCy),
-        // shrink it a touch and slide left so the word fits to its right.
-        const finalEyeW = eyeW * 0.74;            // eye shrinks ~26% in the lockup
-        const finalEyeH = finalEyeW / EYE_RATIO;
-        const unit = finalEyeW / LOCKUP.eyeW;     // px per lockup unit
-        const lockTotalW = LOCKUP.totalW * unit;  // full lockup width on screen
-        // center the whole lockup horizontally in the column
-        const lockLeft = (cw - lockTotalW)/2;
-        const finalEyeCx = lockLeft + (LOCKUP.eyeW/2)*unit;
-        const finalEyeCy = spawnCy;               // same height as spawn
-        const wordLeft   = lockLeft + (LOCKUP.eyeW + LOCKUP.gap)*unit;
-        const wordW      = LOCKUP.wordW * unit;
-        const wordH      = LOCKUP.h * unit;
+        // FINAL lockup scaled so its TOTAL width === TARGET_LOCKUP_W (same for all)
+        const unit = TARGET_LOCKUP_W / L.totalW;     // px per lockup unit
+        const finalIconW = iconUnitsW * unit;
+        const finalIconH = finalIconW / L.iconRatio;
+        const lockLeft = (cw - TARGET_LOCKUP_W)/2;   // center lockup in column
+        const finalIconCx = lockLeft + (iconUnitsW/2)*unit;
+        const finalIconCy = spawnCy;                 // keep icon on same vertical line
+        const wordLeft = lockLeft + (iconUnitsW + L.gap)*unit;
+        const wordW = L.wordW * unit;
+        const wordH = L.wordH * unit;
 
-        vcLock = { eyeW, eyeH, spawnCx, spawnCy,
-                   finalEyeW, finalEyeH, finalEyeCx, finalEyeCy,
-                   wordLeft, wordTop: finalEyeCy - wordH/2, wordW, wordH };
+        lockGeo[key] = {
+          spawnIconW, spawnIconH: spawnIconW / L.iconRatio, spawnCx, spawnCy,
+          finalIconW, finalIconH, finalIconCx, finalIconCy,
+          wordLeft, wordTop: finalIconCy - wordH/2, wordW, wordH
+        };
 
-        // place the eye element at SPAWN by default (transform handles the move)
         const eye = col.querySelector('.lockup-eye');
         const word = col.querySelector('.lockup-word');
         if(eye && word){
-          eye.style.width  = vcLock.finalEyeW + 'px';
-          eye.style.height = vcLock.finalEyeH + 'px';
-          // base position = FINAL slot; we translate it back to spawn when idle
-          eye.style.left = (vcLock.finalEyeCx - vcLock.finalEyeW/2) + 'px';
-          eye.style.top  = (vcLock.finalEyeCy - vcLock.finalEyeH/2) + 'px';
-          word.style.left = vcLock.wordLeft + 'px';
-          word.style.top  = vcLock.wordTop + 'px';
-          word.style.width = vcLock.wordW + 'px';
-          word.style.height = vcLock.wordH + 'px';
-          // re-apply the correct end-state after geometry recompute (zoom/resize safe)
+          const G = lockGeo[key];
+          eye.style.width  = G.finalIconW + 'px';
+          eye.style.height = G.finalIconH + 'px';
+          eye.style.left = (G.finalIconCx - G.finalIconW/2) + 'px';
+          eye.style.top  = (G.finalIconCy - G.finalIconH/2) + 'px';
+          word.style.left = G.wordLeft + 'px';
+          word.style.top  = G.wordTop + 'px';
+          word.style.width = G.wordW + 'px';
+          word.style.height = G.wordH + 'px';
           if(col.classList.contains('active')){
-            // jump straight to the lockup position without animating on resize
             eye.style.transition = 'none';
             eye.style.transform = 'translate(0,0) scale(1)';
           } else {
@@ -334,23 +390,24 @@
           }
         }
 
-        // adaptive text-panel scaling (kept separate so it never disturbs the eye)
+        // adaptive text-panel scaling (kept separate so it never disturbs the icon)
         scalePanel(col);
       }
     });
   }
 
   // Scale the text panel down only if it can't clear the lockup (zoom-in safety).
-  // Never touches .lockup-eye, so the eye animation is unaffected.
+  // Never touches .lockup-eye, so the icon animation is unaffected.
   function scalePanel(col){
     const panel = col.querySelector('.vc-panel');
-    if(!panel || !vcLock) return;
+    const key = lockKey(col);
+    if(!panel || !key || !lockGeo[key]) return;
+    const G = lockGeo[key];
     const ch = col.clientHeight;
     if(col.classList.contains('active')){
       panel.style.transform = 'none';            // reset to measure true height
-      const lockupBottom = vcLock.finalEyeCy + vcLock.finalEyeH/2;
-      // reserve a deliberate gap (48px) below the lockup so the box never
-      // crowds it; the panel scales to fit the remaining space.
+      const lockupBottom = G.finalIconCy + G.finalIconH/2;
+      // reserve a deliberate gap (48px) below the lockup so the box never crowds it
       const avail = ch - lockupBottom - ch*0.035 - 48;
       const panelH = panel.scrollHeight;
       if(panelH > avail && avail > 0){
@@ -364,13 +421,15 @@
     }
   }
 
-  // place the eye at the SPAWN transform (over the plate eye, full size)
+  // place the icon at the SPAWN transform (over the plate glyph, full size)
   function setEyeSpawn(col){
     const eye = col.querySelector('.lockup-eye');
-    if(!eye || !vcLock) return;
-    const dx = vcLock.spawnCx - vcLock.finalEyeCx;
-    const dy = vcLock.spawnCy - vcLock.finalEyeCy;   // 0 (same height)
-    const s  = vcLock.eyeW / vcLock.finalEyeW;       // scale up to spawn size
+    const key = lockKey(col);
+    if(!eye || !key || !lockGeo[key]) return;
+    const G = lockGeo[key];
+    const dx = G.spawnCx - G.finalIconCx;
+    const dy = G.spawnCy - G.finalIconCy;     // 0 (same height)
+    const s  = G.spawnIconW / G.finalIconW;   // scale up to spawn size
     eye.style.transition = 'none';
     eye.style.transform = `translate(${dx}px,${dy}px) scale(${s})`;
   }
@@ -465,12 +524,12 @@
       const p = v.play(); if(p && p.catch) p.catch(()=>{});
       col.classList.add('playing');
     }
-    // ViewsCall: eye is sitting at SPAWN (over the plate); animate it into the lockup
-    if(col.classList.contains('col--vc')){
+    // any lockup column: icon sits at SPAWN (over the plate); animate into lockup
+    if(lockKey(col)){
       setEyeSpawn(col);        // ensure starting point is exact
       setWordHidden(col);      // word starts fully clipped
       requestAnimationFrame(()=>{ setEyeLockup(col); setWordReveal(col); });
-      // adaptive text-panel scaling (does NOT touch the eye, so animation is safe)
+      // adaptive text-panel scaling (does NOT touch the icon, so animation is safe)
       requestAnimationFrame(()=> scalePanel(col));
     }
   }
@@ -484,8 +543,8 @@
       layers.forEach(el=>{ el.style.transition = 'none'; });
       c.classList.remove('active'); c.classList.remove('playing');
       const v = c.querySelector('.vid'); if(v){ try{ v.pause(); }catch(e){} }
-      if(c.classList.contains('col--vc')){
-        setEyeSpawn(c);          // reset eye to spawn
+      if(lockKey(c)){
+        setEyeSpawn(c);          // reset icon to spawn
         setWordHidden(c);        // reset word to fully clipped (no flash)
       }
       // force the no-transition state to commit (reflow) BEFORE restoring transitions,
