@@ -176,6 +176,27 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
   }
 
+  /* play/pause video toggle — bottom-right of the active column only */
+  .vidtoggle{
+    position:absolute;right:18px;bottom:18px;z-index:11;
+    width:42px;height:42px;border-radius:999px;border:none;cursor:pointer;
+    display:none;align-items:center;justify-content:center;
+    background:rgba(8,10,13,.46);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);
+    color:#fff;
+    opacity:0;transition:opacity 260ms ease 140ms, transform 160ms ease, background 160ms ease;
+    pointer-events:none;
+  }
+  .col.active .vidtoggle{display:flex;opacity:.9;pointer-events:auto}
+  .vidtoggle:hover{opacity:1;transform:scale(1.08);background:rgba(8,10,13,.62)}
+  .vidtoggle:active{transform:scale(.96)}
+  .vidtoggle svg{fill:currentColor;display:block}
+  /* default: video playing -> show PAUSE icon. paused -> show PLAY icon */
+  .vidtoggle .ico-play{display:none}
+  .vidtoggle.is-paused .ico-pause{display:none}
+  .vidtoggle.is-paused .ico-play{display:block}
+
 
   .col + .col::before{
     content:"";position:absolute;left:0;top:0;bottom:0;width:1px;z-index:6;
@@ -237,6 +258,10 @@
         </div>
         <a class="vc-cta vc-cta--rf" href="https://www.roamfi.net/" target="_blank" rel="noopener">Open</a>
       </div>
+      <button class="vidtoggle" aria-label="Pause video" type="button">
+        <svg class="ico-pause" viewBox="0 0 24 24" width="20" height="20"><rect x="6" y="5" width="4" height="14" rx="1.3"/><rect x="14" y="5" width="4" height="14" rx="1.3"/></svg>
+        <svg class="ico-play" viewBox="0 0 24 24" width="20" height="20"><path d="M8 5.2c0-.9 1-1.5 1.8-1l9 6.8c.7.5.7 1.5 0 2l-9 6.8c-.8.5-1.8-.1-1.8-1V5.2z"/></svg>
+      </button>
     </section>
 
     <section class="col col--vc" data-video="assets/viewscall.mp4">
@@ -260,6 +285,10 @@
         </div>
         <a class="vc-cta" href="https://test.viewscall.com/" target="_blank" rel="noopener">Open</a>
       </div>
+      <button class="vidtoggle" aria-label="Pause video" type="button">
+        <svg class="ico-pause" viewBox="0 0 24 24" width="20" height="20"><rect x="6" y="5" width="4" height="14" rx="1.3"/><rect x="14" y="5" width="4" height="14" rx="1.3"/></svg>
+        <svg class="ico-play" viewBox="0 0 24 24" width="20" height="20"><path d="M8 5.2c0-.9 1-1.5 1.8-1l9 6.8c.7.5.7 1.5 0 2l-9 6.8c-.8.5-1.8-.1-1.8-1V5.2z"/></svg>
+      </button>
     </section>
 
     <section class="col col--tx" data-video="assets/talex.mp4">
@@ -283,6 +312,10 @@
         </div>
         <a class="vc-cta vc-cta--tx" href="https://talex.world/" target="_blank" rel="noopener">Open</a>
       </div>
+      <button class="vidtoggle" aria-label="Pause video" type="button">
+        <svg class="ico-pause" viewBox="0 0 24 24" width="20" height="20"><rect x="6" y="5" width="4" height="14" rx="1.3"/><rect x="14" y="5" width="4" height="14" rx="1.3"/></svg>
+        <svg class="ico-play" viewBox="0 0 24 24" width="20" height="20"><path d="M8 5.2c0-.9 1-1.5 1.8-1l9 6.8c.7.5.7 1.5 0 2l-9 6.8c-.8.5-1.8-.1-1.8-1V5.2z"/></svg>
+      </button>
     </section>
 
   </div>
@@ -490,6 +523,9 @@
   });
 
   let activeCol = null, settleTimer = null, brandHovered = false;
+  // session preference: when true, video starts paused on a frozen frame so the
+  // text stays readable. Toggled by the per-column play/pause button. Resets on reload.
+  let videoPaused = false;
 
   function activate(col){
     if(activeCol === col) return;
@@ -517,12 +553,20 @@
       dimsToSnap.forEach(d=>{ void d.offsetWidth; });   // force reflow -> dim is now opaque instantly
       requestAnimationFrame(()=>{ dimsToSnap.forEach(d=>{ d.style.transition = ''; }); });
     }
-    // start the video immediately — no delay, banner hides at once
+    // start the video — but honor the session pause preference. The frosted
+    // text box still shows on a frozen frame so it's always readable.
     const v = col.querySelector('.vid');
+    const toggle = col.querySelector('.vidtoggle');
     if(v && v.getAttribute('src')){
       v.currentTime = 0;
-      const p = v.play(); if(p && p.catch) p.catch(()=>{});
-      col.classList.add('playing');
+      col.classList.add('playing');           // keep the video LAYER visible (frame shown)
+      if(videoPaused){
+        try{ v.pause(); }catch(e){}
+        if(toggle) toggle.classList.add('is-paused');
+      } else {
+        const p = v.play(); if(p && p.catch) p.catch(()=>{});
+        if(toggle) toggle.classList.remove('is-paused');
+      }
     }
     // any lockup column: icon sits at SPAWN (over the plate); animate into lockup
     if(lockKey(col)){
@@ -562,6 +606,35 @@
     });
   });
   stage.addEventListener('mouseleave', ()=>{ if(!isMobile()) deactivate(); });
+
+  // play/pause toggle — flips the SESSION preference and applies it to the
+  // current video immediately. Clicking it must NOT deactivate the column.
+  cols.forEach(col=>{
+    const btn = col.querySelector('.vidtoggle');
+    if(!btn) return;
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      videoPaused = !videoPaused;
+      const v = col.querySelector('.vid');
+      if(v){
+        if(videoPaused){
+          try{ v.pause(); }catch(err){}
+          btn.classList.add('is-paused');
+          btn.setAttribute('aria-label','Play video');
+        } else {
+          const p = v.play(); if(p && p.catch) p.catch(()=>{});
+          btn.classList.remove('is-paused');
+          btn.setAttribute('aria-label','Pause video');
+        }
+      }
+      // keep every column's button icon in sync with the session flag
+      cols.forEach(c=>{
+        const b=c.querySelector('.vidtoggle'); if(!b) return;
+        b.classList.toggle('is-paused', videoPaused);
+        b.setAttribute('aria-label', videoPaused ? 'Play video' : 'Pause video');
+      });
+    });
+  });
 
   brandLink.addEventListener('mouseenter', ()=>{ brandHovered = true; if(!isMobile()) deactivate(); });
   brandLink.addEventListener('mouseleave', ()=>{ brandHovered = false; });
