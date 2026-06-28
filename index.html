@@ -220,38 +220,63 @@
   /* ============ MOBILE: full-screen vertical banner feed ============ */
   @media (max-width:820px){
     body{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-    /* stage becomes a vertical scroll feed; each column is one full screen */
     .stage{
       position:relative;flex-direction:column;width:100vw;
       height:auto;min-height:100dvh;
+      scroll-snap-type:y mandatory;
     }
     .col{
       width:100vw;height:100dvh;min-height:100dvh;
       scroll-snap-align:start;
     }
-    /* mobile-only feed order: ViewsCall, then RoamFi, then TaleX (PC untouched) */
+    /* mobile-only feed order: ViewsCall, RoamFi, TaleX (PC untouched) */
     .col--vc{order:1}
     .col--rf{order:2}
     .col--tx{order:3}
-    .stage{scroll-snap-type:y mandatory}
+
+    /* MOBILE STATIC BANNER: portrait 640x1387 image, pinned to the BOTTOM of the
+       screen so nothing is cropped at the bottom; the top may crop on shorter
+       phones. Width always fills 100vw (1080 native -> no side crop). */
+    .col .frame{
+      left:0;bottom:0;top:auto;
+      width:100vw;height:auto;aspect-ratio:640/1387;
+      transform:none;
+    }
+    .col--vc .photo{background-image:url('assets/viewscall_phone.png')}
+    .col--rf .photo{background-image:url('assets/roamfi_phone.png')}
+    .col--tx .photo{background-image:url('assets/talex_phone.png')}
+    .col .photo{background-position:center bottom;background-size:cover}
+
     /* seam between stacked banners */
     .col + .col::before{
       width:100%;height:1px;left:0;top:0;right:auto;bottom:auto;
       background:linear-gradient(to right,rgba(0,0,0,0),rgba(0,0,0,.10),rgba(0,0,0,0));
     }
-    /* dim siblings when one is active (visible on scroll) */
     .stage.has-active .col:not(.active) .dim{background:rgba(8,12,16,.60)}
-    /* TaleX logo fixed on top, always visible while scrolling */
+
+    /* TaleX logo fixed on top */
     .brand{top:18px}
     .brand .logo{height:30px}
-    /* the frosted text box + CTA: comfortable mobile padding */
-    .vc-panel{bottom:5%;padding:0 5%}
-    .vc-glass{padding:16px 18px;border-radius:18px}
-    .vc-tagline{font-size:18px !important}
-    .vc-glass p{font-size:15px}
-    /* play/pause icon a touch bigger for tapping */
-    .vidtoggle{width:26px;height:26px}
-    .vidtoggle svg{width:26px;height:26px}
+
+    /* text box: WIDER + bigger type for mobile readability. No entry animation —
+       it appears instantly so only the lockup animates. */
+    .vc-panel{
+      bottom:max(7%, env(safe-area-inset-bottom));
+      padding:0 3.5%;
+      opacity:1 !important;transition:none !important;
+    }
+    .vc-glass{padding:14px 16px;border-radius:18px}
+    .vc-tagline{font-size:16px !important;margin-bottom:9px !important}
+    .vc-glass p{font-size:14px;line-height:1.45;margin-bottom:6px}
+    .vc-cta{font-size:17px;padding:11px 36px}
+
+    /* play/pause: far bottom-right, above the iOS search bar (safe-area) */
+    .vidtoggle{
+      width:28px;height:28px;
+      right:18px !important;left:auto !important;
+      bottom:calc(env(safe-area-inset-bottom) + 16px) !important;top:auto !important;
+    }
+    .vidtoggle svg{width:28px;height:28px}
   }
   @media (prefers-reduced-motion:reduce){
     *{transition-duration:1ms!important;animation-duration:1ms!important}
@@ -382,19 +407,30 @@
 
 
   function fitFrames(){
+    const mob = isMobile();
+    // banner source dims + icon plate position differ on mobile (portrait banner)
+    const SRC = mob ? {w:640, h:1387, icx:319, icy:769, isz:156}
+                    : {w:640, h:1080, icx:ICON.cx, icy:ICON.cy, isz:ICON.sz};
     cols.forEach(col=>{
       const frame = col.querySelector('.frame');
       const icon  = col.querySelector('.appicon');
       const cw = col.clientWidth, ch = col.clientHeight;
-      const scale = Math.max(cw/640, ch/1080);   // cover
-      frame.style.transform = `translateX(-50%) scale(${scale})`;
 
-      // frame is 640x1080 scaled by `scale`, centered horizontally, pinned bottom.
-      const frameLeft = (cw - 640*scale)/2;       // left edge of scaled frame
-      const frameTop  = ch - 1080*scale;          // top edge (bottom pinned to ch)
-      const ix = frameLeft + ICON.cx*scale;       // icon center x within column
-      const iy = frameTop  + ICON.cy*scale;       // icon center y within column
-      const isz = ICON.sz*scale;
+      let frameLeft, frameTop, sc;
+      if(mob){
+        // banner fills width (no side crop); bottom-pinned; top crops if needed.
+        sc = cw / SRC.w;                       // scale to fill width exactly
+        frameLeft = 0;
+        frameTop  = ch - SRC.h*sc;             // bottom edge pinned to column bottom
+      } else {
+        sc = Math.max(cw/SRC.w, ch/SRC.h);     // cover
+        frame.style.transform = `translateX(-50%) scale(${sc})`;
+        frameLeft = (cw - SRC.w*sc)/2;
+        frameTop  = ch - SRC.h*sc;
+      }
+      const ix = frameLeft + SRC.icx*sc;       // icon center x within column
+      const iy = frameTop  + SRC.icy*sc;       // icon center y within column
+      const isz = SRC.isz*sc;
       icon.style.left   = ix + 'px';
       icon.style.top    = iy + 'px';
       icon.style.width  = isz + 'px';
@@ -466,11 +502,14 @@
       // at the same plate-center line, so we reference VC's lockup bottom for all.
       const refG = lockGeo['col--vc'] || lockGeo[key];
       const lockupBottom = refG.finalIconCy + refG.finalIconH/2;
-      // reserve a deliberate gap (48px) below the lockup so the box never crowds it
-      const avail = ch - lockupBottom - ch*0.035 - 48;
+      // reserve a gap below the lockup so the box never crowds it (smaller on mobile)
+      const mob = isMobile();
+      const gap = mob ? 18 : 48;
+      const bottomInset = ch * (mob ? 0.10 : 0.035);
+      const avail = ch - lockupBottom - bottomInset - gap;
       const panelH = panel.scrollHeight;
       if(panelH > avail && avail > 0){
-        const s = Math.max(0.6, avail / panelH);
+        const s = Math.max(0.55, avail / panelH);
         panel.style.transformOrigin = 'bottom center';
         panel.style.transform = `scale(${s})`;
       }
