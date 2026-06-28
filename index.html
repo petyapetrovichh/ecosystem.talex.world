@@ -237,7 +237,7 @@
           <p>With ViewsCall, fans can finally say "Yes" to the impossible view milestones, and profit by making them possible. Creators can fund the other side to hedge production costs, while booming views earn them far more from YouTube ad revenue. Both sides win on the same call.</p>
           <p class="vc-kicker">Win-win for everyone. Prediction determines outcome.</p>
         </div>
-        <a class="vc-cta vc-cta--rf" href="https://test.viewscall.com/" target="_blank" rel="noopener">Open</a>
+        <a class="vc-cta vc-cta--rf" href="https://www.roamfi.net/" target="_blank" rel="noopener">Open</a>
       </div>
     </section>
 
@@ -283,7 +283,7 @@
           <p>With ViewsCall, fans can finally say "Yes" to the impossible view milestones, and profit by making them possible. Creators can fund the other side to hedge production costs, while booming views earn them far more from YouTube ad revenue. Both sides win on the same call.</p>
           <p class="vc-kicker">Win-win for everyone. Prediction determines outcome.</p>
         </div>
-        <a class="vc-cta vc-cta--tx" href="https://test.viewscall.com/" target="_blank" rel="noopener">Open</a>
+        <a class="vc-cta vc-cta--tx" href="https://talex.world/" target="_blank" rel="noopener">Open</a>
       </div>
     </section>
 
@@ -389,11 +389,10 @@
             setEyeSpawn(col);
           }
         }
-
-        // adaptive text-panel scaling (kept separate so it never disturbs the icon)
-        scalePanel(col);
       }
     });
+    // second pass: scale panels now that ALL lockGeo (incl. ViewsCall ref) is ready
+    cols.forEach(col=>{ if(lockKey(col)) scalePanel(col); });
   }
 
   // Scale the text panel down only if it can't clear the lockup (zoom-in safety).
@@ -402,11 +401,14 @@
     const panel = col.querySelector('.vc-panel');
     const key = lockKey(col);
     if(!panel || !key || !lockGeo[key]) return;
-    const G = lockGeo[key];
     const ch = col.clientHeight;
     if(col.classList.contains('active')){
       panel.style.transform = 'none';            // reset to measure true height
-      const lockupBottom = G.finalIconCy + G.finalIconH/2;
+      // Use a SHARED reference (ViewsCall geometry) so the text box + CTA land at
+      // the exact same height in every column. All lockups are vertically centered
+      // at the same plate-center line, so we reference VC's lockup bottom for all.
+      const refG = lockGeo['col--vc'] || lockGeo[key];
+      const lockupBottom = refG.finalIconCy + refG.finalIconH/2;
       // reserve a deliberate gap (48px) below the lockup so the box never crowds it
       const avail = ch - lockupBottom - ch*0.035 - 48;
       const panelH = panel.scrollHeight;
