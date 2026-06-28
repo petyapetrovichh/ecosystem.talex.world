@@ -176,22 +176,20 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
   }
 
-  /* play/pause video toggle — bottom-right of the active column only */
+  /* play/pause video toggle — bare icon, no button chrome */
   .vidtoggle{
-    position:absolute;right:18px;bottom:18px;z-index:11;
-    width:42px;height:42px;border-radius:999px;border:none;cursor:pointer;
+    position:absolute;z-index:11;
+    width:24px;height:24px;padding:0;border:none;cursor:pointer;background:none;
     display:none;align-items:center;justify-content:center;
-    background:rgba(8,10,13,.46);
-    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);
     color:#fff;
-    opacity:0;transition:opacity 260ms ease 140ms, transform 160ms ease, background 160ms ease;
+    opacity:0;transition:opacity 260ms ease 140ms, transform 160ms ease;
     pointer-events:none;
+    filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));
   }
-  .col.active .vidtoggle{display:flex;opacity:.9;pointer-events:auto}
-  .vidtoggle:hover{opacity:1;transform:scale(1.08);background:rgba(8,10,13,.62)}
-  .vidtoggle:active{transform:scale(.96)}
-  .vidtoggle svg{fill:currentColor;display:block}
+  .col.active .vidtoggle{display:flex;opacity:.92;pointer-events:auto}
+  .vidtoggle:hover{opacity:1;transform:scale(1.12)}
+  .vidtoggle:active{transform:scale(.94)}
+  .vidtoggle svg{fill:currentColor;display:block;width:24px;height:24px}
   /* default: video playing -> show PAUSE icon. paused -> show PLAY icon */
   .vidtoggle .ico-play{display:none}
   .vidtoggle.is-paused .ico-pause{display:none}
@@ -424,6 +422,7 @@
     });
     // second pass: scale panels now that ALL lockGeo (incl. ViewsCall ref) is ready
     cols.forEach(col=>{ if(lockKey(col)) scalePanel(col); });
+    requestAnimationFrame(()=>{ cols.forEach(col=>{ if(lockKey(col)) placeVidToggle(col); }); });
   }
 
   // Scale the text panel down only if it can't clear the lockup (zoom-in safety).
@@ -452,6 +451,23 @@
       panel.style.transform = '';
       panel.style.transformOrigin = '';
     }
+  }
+
+  // position the bare play/pause icon: right edge aligned to the text box's
+  // right edge, vertical center aligned to the Open button's vertical center.
+  function placeVidToggle(col){
+    const btn = col.querySelector('.vidtoggle');
+    const glass = col.querySelector('.vc-glass');
+    const cta = col.querySelector('.vc-cta');
+    if(!btn || !glass || !cta) return;
+    const colR = col.getBoundingClientRect();
+    const gR = glass.getBoundingClientRect();
+    const cR = cta.getBoundingClientRect();
+    // right edge of icon = right edge of glass; bottom of icon = bottom of CTA
+    const iconW = 24, iconH = 24;
+    btn.style.left = (gR.right - colR.left - iconW) + 'px';
+    btn.style.top  = (cR.bottom - colR.top - iconH) + 'px';
+    btn.style.right = 'auto'; btn.style.bottom = 'auto';
   }
 
   // place the icon at the SPAWN transform (over the plate glyph, full size)
@@ -574,7 +590,10 @@
       setWordHidden(col);      // word starts fully clipped
       requestAnimationFrame(()=>{ setEyeLockup(col); setWordReveal(col); });
       // adaptive text-panel scaling (does NOT touch the icon, so animation is safe)
-      requestAnimationFrame(()=> scalePanel(col));
+      requestAnimationFrame(()=>{ scalePanel(col); });
+      // position the icon after the panel's entry transition settles (so the
+      // scaled glass/CTA rects are final), then keep it correct on resize.
+      setTimeout(()=> placeVidToggle(col), 480);
     }
   }
 
