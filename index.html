@@ -202,13 +202,9 @@
   }
   .brand{
     position:fixed;top:26px;left:50%;transform:translateX(-50%);z-index:30;
+    display:flex;align-items:center;gap:14px;
   }
-  .brand a{
-    display:block;line-height:0;text-decoration:none;
-    transition:transform 220ms var(--spring);transform-origin:center center;
-  }
-  .brand a:hover{transform:scale(1.08)}
-  .brand a:active{transform:scale(.94)}
+  .brand-logo{display:block;line-height:0;position:relative}
   .brand .logo{
     height:36px;width:auto;display:block;
     filter:drop-shadow(0 2px 10px rgba(0,0,0,.18));
@@ -217,6 +213,29 @@
   .brand .logo--white{position:absolute;top:0;left:0;opacity:0}
   .stage.has-active ~ .brand .logo--dark{opacity:0}
   .stage.has-active ~ .brand .logo--white{opacity:1}
+
+  /* round frosted-glass buttons flanking the logo — same height as the logo,
+     same spring press feel, custom (not OS) glass so it looks identical on
+     iOS and Android. */
+  .glassbtn{
+    width:36px;height:36px;border-radius:999px;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    text-decoration:none;-webkit-tap-highlight-color:transparent;
+    background:rgba(255,255,255,.14);
+    -webkit-backdrop-filter:blur(18px) saturate(180%);
+    backdrop-filter:blur(18px) saturate(180%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.55),
+      inset 0 -1px 1px rgba(0,0,0,.06),
+      0 4px 14px rgba(0,0,0,.16);
+    transition:transform 220ms var(--spring), background 200ms ease;
+  }
+  .glassbtn:hover{background:rgba(255,255,255,.22);transform:scale(1.08)}
+  .glassbtn:active{transform:scale(.94)}
+  .glassbtn-ico{width:17px;height:17px;display:block;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
+  /* icons are white SVGs; on the light PC/mobile idle banners the glass sits
+     over varied imagery, so keep icons white with a soft shadow for contrast
+     against both light and dark backdrops. */
   /* ============ MOBILE: full-screen vertical banner feed ============ */
   @media (max-width:820px){
     body{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
@@ -375,17 +394,23 @@
 
   </div>
 
-  <div class="brand">
-    <a href="https://docs.talex.world" target="_blank" rel="noopener" id="brandLink">
+  <div class="brand" id="brand">
+    <button class="glassbtn" id="treasuryBtn" type="button" aria-label="Treasury">
+      <img class="glassbtn-ico" src="assets/icon_treasury.svg" alt="">
+    </button>
+    <span class="brand-logo" id="brandLogo">
       <img class="logo logo--dark" src="assets/logo.png" alt="TaleX">
       <img class="logo logo--white" src="assets/logo_white.png" alt="">
+    </span>
+    <a class="glassbtn" href="https://docs.talex.world/" target="_blank" rel="noopener" id="docsBtn" aria-label="Docs">
+      <img class="glassbtn-ico" src="assets/icon_docs.svg" alt="">
     </a>
   </div>
 
 <script>
   const stage = document.getElementById('stage');
   const cols = Array.from(document.querySelectorAll('.col'));
-  const brandLink = document.getElementById('brandLink');
+  const brandLink = document.getElementById('brand');
   const isMobile = () => window.matchMedia('(max-width:820px)').matches;
 
   // plate geometry in source-image (640x1080) coords — same for all columns
