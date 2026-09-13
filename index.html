@@ -227,7 +227,7 @@
     --press:1;
     width:36px;height:36px;border-radius:999px;border:none;cursor:pointer;
     position:absolute;top:50%;
-    transform:translateY(-50%) scale(var(--press));
+    transform:scale(var(--press));
     display:flex;align-items:center;justify-content:center;
     text-decoration:none;-webkit-tap-highlight-color:transparent;
     background:rgba(20,22,26,.16);
@@ -243,12 +243,16 @@
   #docsBtn{ left:calc(50% + 60px) }
   .glassbtn:hover{--press:1.08}
   .glassbtn:active{--press:.94}
-  .glassbtn-ico{width:17px;height:17px;display:block;transition:opacity 220ms ease}
-  /* two stacked icons (dark ink + white); default shows the DARK one for the
-     idle light banner. .on-dark (JS-applied — see updateBrandButtons) means
-     the column actually behind THIS button is dark right now (active or
-     dimmed), so we cross-fade to the white icon instead. */
-  .glassbtn-ico.ico-light{position:absolute;opacity:0}
+  .glassbtn-ico{
+    width:17px;height:17px;display:block;transition:opacity 220ms ease;
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  }
+  /* two stacked icons (dark ink + white), both centered identically via the
+     rule above; default shows the DARK one for the idle light banner.
+     .on-dark (JS-applied — see updateBrandButtons) means the column actually
+     behind THIS button is dark right now (active or dimmed), so we cross-fade
+     to the white icon instead. */
+  .glassbtn-ico.ico-light{opacity:0}
   .glassbtn.on-dark .ico-dark{opacity:0}
   .glassbtn.on-dark .ico-light{opacity:1}
   /* DEFAULT (idle, light banner underneath): light glass tint.
@@ -280,7 +284,10 @@
 
     /* mobile: buttons spread to the screen edges (PC keeps them near the logo) */
     .brand{justify-content:space-between;padding:0 28px}
-    #treasuryBtn, #docsBtn{position:static;right:auto;left:auto;top:auto;transform:none}
+    #treasuryBtn, #docsBtn{
+      position:static;right:auto;left:auto;top:auto;
+      transform:scale(var(--press));   /* keep the press scale, drop the PC translateY */
+    }
     .glassbtn:hover{--press:1}   /* no hover state on touch */
     .glassbtn:active{--press:.94}
 
@@ -628,7 +635,14 @@
   // PC only: place each glass button exactly midway between the ViewsCall
   // column's outer edge and the logo's edge (mobile uses fixed CSS instead).
   function placeBrandButtons(){
-    if(isMobile()) return;
+    if(isMobile()){
+      // clear any leftover inline PC-positioning so mobile CSS takes over cleanly
+      [treasuryBtn, docsBtn].forEach(b=>{
+        if(!b) return;
+        b.style.position=''; b.style.left=''; b.style.right=''; b.style.top=''; b.style.transform='';
+      });
+      return;
+    }
     const vc = document.querySelector('.col--vc');
     const logo = document.getElementById('brandLogo');
     if(!vc || !logo || !treasuryBtn || !docsBtn) return;
@@ -637,11 +651,10 @@
     const leftMid  = (vcR.left  + logoR.left)  / 2;
     const rightMid = (vcR.right + logoR.right) / 2;
     const cy = logoR.top + logoR.height/2;   // vertical center = logo's center
-    const btnW = 36;
+    const btnW = 36, btnH = 36;
     [treasuryBtn, docsBtn].forEach(b=>{
       b.style.position = 'fixed';
-      b.style.top = (cy - btnW/2) + 'px';
-      b.style.transform = '';
+      b.style.top = (cy - btnH/2) + 'px';   // exact top edge — no extra CSS translateY needed
       b.style.right = 'auto';
     });
     treasuryBtn.style.left = (leftMid - btnW/2) + 'px';
@@ -915,16 +928,11 @@
     });
   });
 
-  brandLink.addEventListener('mouseenter', ()=>{ brandHovered = true; if(!isMobile()) deactivate(); });
-  brandLink.addEventListener('mouseleave', (e)=>{
-    brandHovered = false;
-    if(isMobile()) return;
-    // if the cursor left the logo but did NOT land back on the stage (e.g. it
-    // went to empty space, another fixed button, or off-window), .stage never
-    // gets its own mouseleave again — so re-check here.
-    const to = e.relatedTarget;
-    if(!to || !stage.contains(to)) deactivate();
-  });
+  // Hovering the logo must NOT deactivate an active card and must NOT
+  // activate the ViewsCall card sitting behind it — brandHovered only blocks
+  // the column's own mouseenter-activate handler below.
+  brandLink.addEventListener('mouseenter', ()=>{ brandHovered = true; });
+  brandLink.addEventListener('mouseleave', ()=>{ brandHovered = false; });
 
   cols.forEach(col=>{
     col.addEventListener('click', ()=>{
