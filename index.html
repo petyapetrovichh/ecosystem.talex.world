@@ -786,12 +786,10 @@
   function updateBrandButtons(){
     if(!treasuryBtn || !docsBtn) return;
     if(isMobile()){
-      // whichever column currently sits under the fixed header (top of viewport)
-      const topCol = cols.find(c=>{
-        const r = c.getBoundingClientRect();
-        return r.top <= 40 && r.bottom > 40;
-      }) || cols[0];
-      const dark = colIsDark(topCol);
+      // mobile: as soon as ANY card is open, the whole feed is dark (the open
+      // card plus its dimmed siblings) — so both buttons go white together,
+      // regardless of which column currently sits under the fixed header.
+      const dark = stage.classList.contains('has-active');
       treasuryBtn.classList.toggle('on-dark', dark);
       docsBtn.classList.toggle('on-dark', dark);
     } else {
