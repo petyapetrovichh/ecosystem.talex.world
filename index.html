@@ -201,10 +201,14 @@
     background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.08),rgba(0,0,0,0));
   }
   .brand{
-    position:fixed;top:26px;left:50%;transform:translateX(-50%);z-index:30;
-    display:flex;align-items:center;gap:14px;
+    position:fixed;top:26px;left:0;right:0;z-index:30;
+    display:flex;align-items:center;justify-content:center;
+    pointer-events:none;                 /* row itself is a spacer; children opt back in */
   }
-  .brand-logo{display:block;line-height:0;position:relative}
+  .brand>*{pointer-events:auto}
+  .brand-logo{
+    display:block;line-height:0;position:relative;z-index:1;
+  }
   .brand .logo{
     height:36px;width:auto;display:block;
     filter:drop-shadow(0 2px 10px rgba(0,0,0,.18));
@@ -216,26 +220,47 @@
 
   /* round frosted-glass buttons flanking the logo — same height as the logo,
      same spring press feel, custom (not OS) glass so it looks identical on
-     iOS and Android. */
+     iOS and Android. PC: fixed near the logo (JS refines the exact midpoint
+     between the ViewsCall column edge and the logo edge). Mobile overrides
+     position in the media query below to spread them to the screen edges. */
   .glassbtn{
+    --press:1;
     width:36px;height:36px;border-radius:999px;border:none;cursor:pointer;
+    position:absolute;top:50%;
+    transform:translateY(-50%) scale(var(--press));
     display:flex;align-items:center;justify-content:center;
     text-decoration:none;-webkit-tap-highlight-color:transparent;
-    background:rgba(255,255,255,.14);
+    background:rgba(20,22,26,.16);
     -webkit-backdrop-filter:blur(18px) saturate(180%);
     backdrop-filter:blur(18px) saturate(180%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.75),
+      inset 0 -1px 1px rgba(0,0,0,.05),
+      0 4px 14px rgba(0,0,0,.10);
+    transition:transform 220ms var(--spring), background 220ms ease;
+  }
+  #treasuryBtn{ right:calc(50% + 60px) }
+  #docsBtn{ left:calc(50% + 60px) }
+  .glassbtn:hover{--press:1.08}
+  .glassbtn:active{--press:.94}
+  .glassbtn-ico{width:17px;height:17px;display:block;transition:opacity 220ms ease}
+  /* two stacked icons (dark ink + white); default shows the DARK one for the
+     idle light banner. .on-dark (JS-applied — see updateBrandButtons) means
+     the column actually behind THIS button is dark right now (active or
+     dimmed), so we cross-fade to the white icon instead. */
+  .glassbtn-ico.ico-light{position:absolute;opacity:0}
+  .glassbtn.on-dark .ico-dark{opacity:0}
+  .glassbtn.on-dark .ico-light{opacity:1}
+  /* DEFAULT (idle, light banner underneath): light glass tint.
+     .on-dark: darker glass tint to match the dark backdrop. */
+  .glassbtn.on-dark{
+    background:rgba(255,255,255,.14);
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,.55),
       inset 0 -1px 1px rgba(0,0,0,.06),
       0 4px 14px rgba(0,0,0,.16);
-    transition:transform 220ms var(--spring), background 200ms ease;
   }
-  .glassbtn:hover{background:rgba(255,255,255,.22);transform:scale(1.08)}
-  .glassbtn:active{transform:scale(.94)}
-  .glassbtn-ico{width:17px;height:17px;display:block;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
-  /* icons are white SVGs; on the light PC/mobile idle banners the glass sits
-     over varied imagery, so keep icons white with a soft shadow for contrast
-     against both light and dark backdrops. */
+  .glassbtn.on-dark:hover{background:rgba(255,255,255,.22)}
   /* ============ MOBILE: full-screen vertical banner feed ============ */
   @media (max-width:820px){
     body{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
@@ -252,6 +277,12 @@
     .col--vc{order:1}
     .col--rf{order:2}
     .col--tx{order:3}
+
+    /* mobile: buttons spread to the screen edges (PC keeps them near the logo) */
+    .brand{justify-content:space-between;padding:0 28px}
+    #treasuryBtn, #docsBtn{position:static;right:auto;left:auto;top:auto;transform:none}
+    .glassbtn:hover{--press:1}   /* no hover state on touch */
+    .glassbtn:active{--press:.94}
 
     /* MOBILE STATIC BANNER: portrait 640x1387 image, pinned to the BOTTOM of the
        screen so nothing is cropped at the bottom; the top may crop on shorter
@@ -396,21 +427,23 @@
 
   <div class="brand" id="brand">
     <button class="glassbtn" id="treasuryBtn" type="button" aria-label="Treasury">
-      <img class="glassbtn-ico" src="assets/icon_treasury.svg" alt="">
+      <img class="glassbtn-ico ico-dark" src="assets/icon_treasury_black.svg" alt="">
+      <img class="glassbtn-ico ico-light" src="assets/icon_treasury.svg" alt="">
     </button>
     <span class="brand-logo" id="brandLogo">
       <img class="logo logo--dark" src="assets/logo.png" alt="TaleX">
       <img class="logo logo--white" src="assets/logo_white.png" alt="">
     </span>
     <a class="glassbtn" href="https://docs.talex.world/" target="_blank" rel="noopener" id="docsBtn" aria-label="Docs">
-      <img class="glassbtn-ico" src="assets/icon_docs.svg" alt="">
+      <img class="glassbtn-ico ico-dark" src="assets/icon_docs_black.svg" alt="">
+      <img class="glassbtn-ico ico-light" src="assets/icon_docs.svg" alt="">
     </a>
   </div>
 
 <script>
   const stage = document.getElementById('stage');
   const cols = Array.from(document.querySelectorAll('.col'));
-  const brandLink = document.getElementById('brand');
+  const brandLink = document.getElementById('brandLogo');
   const isMobile = () => window.matchMedia('(max-width:820px)').matches;
 
   // plate geometry in source-image (640x1080) coords — same for all columns
@@ -592,6 +625,30 @@
     btn.style.right = 'auto'; btn.style.bottom = 'auto';
   }
 
+  // PC only: place each glass button exactly midway between the ViewsCall
+  // column's outer edge and the logo's edge (mobile uses fixed CSS instead).
+  function placeBrandButtons(){
+    if(isMobile()) return;
+    const vc = document.querySelector('.col--vc');
+    const logo = document.getElementById('brandLogo');
+    if(!vc || !logo || !treasuryBtn || !docsBtn) return;
+    const vcR = vc.getBoundingClientRect();
+    const logoR = logo.getBoundingClientRect();
+    const leftMid  = (vcR.left  + logoR.left)  / 2;
+    const rightMid = (vcR.right + logoR.right) / 2;
+    const cy = logoR.top + logoR.height/2;   // vertical center = logo's center
+    const btnW = 36;
+    [treasuryBtn, docsBtn].forEach(b=>{
+      b.style.position = 'fixed';
+      b.style.top = (cy - btnW/2) + 'px';
+      b.style.transform = '';
+      b.style.right = 'auto';
+    });
+    treasuryBtn.style.left = (leftMid - btnW/2) + 'px';
+    docsBtn.style.left = (rightMid - btnW/2) + 'px';
+  }
+
+
   // place the icon at the SPAWN transform (over the plate glyph, full size)
   function setEyeSpawn(col){
     const eye = col.querySelector('.lockup-eye');
@@ -662,9 +719,9 @@
     if(resizeRAF) cancelAnimationFrame(resizeRAF);
     clearTimeout(resizeTimer);
     // run once immediately for responsiveness...
-    resizeRAF = requestAnimationFrame(fitFrames);
+    resizeRAF = requestAnimationFrame(()=>{ fitFrames(); placeBrandButtons(); });
     // ...and once more after the zoom/resize burst settles, to correct rounding
-    resizeTimer = setTimeout(()=>requestAnimationFrame(fitFrames), 180);
+    resizeTimer = setTimeout(()=>requestAnimationFrame(()=>{ fitFrames(); placeBrandButtons(); }), 180);
   }
   window.addEventListener('resize', onViewportChange);
   // some browsers fire zoom as a visualViewport change rather than resize
@@ -684,6 +741,52 @@
   // session preference: when true, video starts paused on a frozen frame so the
   // text stays readable. Toggled by the per-column play/pause button. Resets on reload.
   let videoPaused = false;
+
+  // Keep the treasury/docs glass buttons readable against whatever is actually
+  // behind THEM specifically (not a global flag) — each sits over a different
+  // column, and on mobile the column under the fixed header changes on scroll.
+  const treasuryBtn = document.getElementById('treasuryBtn');
+  const docsBtn = document.getElementById('docsBtn');
+  // These buttons sit fixed above the columns but are NOT inside .stage in the
+  // DOM, so moving the cursor onto them fires a real mouseleave on .stage.
+  // Reuse the same brandHovered guard as the logo so that mouseleave doesn't
+  // deactivate — but, unlike the logo, do NOT call deactivate() ourselves:
+  // hovering a button must never activate OR deactivate a card either way.
+  [treasuryBtn, docsBtn].forEach(btn=>{
+    if(!btn) return;
+    btn.addEventListener('click', e=> e.stopPropagation());
+    btn.addEventListener('mouseenter', ()=>{ brandHovered = true; });
+    btn.addEventListener('mouseleave', (e)=>{
+      brandHovered = false;
+      if(isMobile()) return;
+      const to = e.relatedTarget;
+      if(!to || !stage.contains(to)) deactivate();
+    });
+  });
+  function colIsDark(col){
+    // a column reads as a dark backdrop when it's showing its video/placeholder
+    // (active) or sitting dimmed behind another active column
+    if(!col) return false;
+    return col.classList.contains('active') ||
+           (stage.classList.contains('has-active') && !isMobile());
+  }
+  function updateBrandButtons(){
+    if(!treasuryBtn || !docsBtn) return;
+    if(isMobile()){
+      // whichever column currently sits under the fixed header (top of viewport)
+      const topCol = cols.find(c=>{
+        const r = c.getBoundingClientRect();
+        return r.top <= 40 && r.bottom > 40;
+      }) || cols[0];
+      const dark = colIsDark(topCol);
+      treasuryBtn.classList.toggle('on-dark', dark);
+      docsBtn.classList.toggle('on-dark', dark);
+    } else {
+      // desktop: treasury sits over the FIRST column, docs over the LAST
+      treasuryBtn.classList.toggle('on-dark', colIsDark(cols[0]));
+      docsBtn.classList.toggle('on-dark', colIsDark(cols[cols.length-1]));
+    }
+  }
 
   function activate(col){
     if(activeCol === col) return;
@@ -742,6 +845,7 @@
       // scaled glass/CTA rects are final), then keep it correct on resize.
       setTimeout(()=> placeVidToggle(col), 480);
     }
+    updateBrandButtons();
   }
 
   function deactivate(){
@@ -764,6 +868,7 @@
       requestAnimationFrame(()=>{ layers.forEach(el=>{ el.style.transition = ''; }); });
     });
     activeCol = null;
+    updateBrandButtons();
   }
 
   cols.forEach(col=>{
@@ -772,7 +877,14 @@
       activate(col);
     });
   });
-  stage.addEventListener('mouseleave', ()=>{ if(!isMobile()) deactivate(); });
+  stage.addEventListener('mouseleave', ()=>{
+    if(isMobile()) return;
+    // The cursor moving from a column onto the brand row (logo or buttons)
+    // fires this mouseleave BEFORE the row's own mouseenter (different DOM
+    // trees), so brandHovered isn't set yet at this exact instant. Defer one
+    // tick so that synchronous mouseenter fires first and updates the flag.
+    setTimeout(()=>{ if(!brandHovered) deactivate(); }, 0);
+  });
 
   // play/pause toggle — flips the SESSION preference and applies it to the
   // current video immediately. Clicking it must NOT deactivate the column.
@@ -804,7 +916,15 @@
   });
 
   brandLink.addEventListener('mouseenter', ()=>{ brandHovered = true; if(!isMobile()) deactivate(); });
-  brandLink.addEventListener('mouseleave', ()=>{ brandHovered = false; });
+  brandLink.addEventListener('mouseleave', (e)=>{
+    brandHovered = false;
+    if(isMobile()) return;
+    // if the cursor left the logo but did NOT land back on the stage (e.g. it
+    // went to empty space, another fixed button, or off-window), .stage never
+    // gets its own mouseleave again — so re-check here.
+    const to = e.relatedTarget;
+    if(!to || !stage.contains(to)) deactivate();
+  });
 
   cols.forEach(col=>{
     col.addEventListener('click', ()=>{
@@ -817,6 +937,12 @@
   document.addEventListener('visibilitychange', ()=>{ if(document.hidden) deactivate(); });
 
   fitFrames();
+  placeBrandButtons();
+  updateBrandButtons();
+  // re-run once images (logo) have their final layout size
+  window.addEventListener('load', ()=>{ placeBrandButtons(); });
+  // mobile: the column under the fixed header changes as the feed scrolls
+  window.addEventListener('scroll', updateBrandButtons, {passive:true});
 </script>
 </body>
 </html>
