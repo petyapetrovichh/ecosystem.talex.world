@@ -28,7 +28,7 @@
   }
   .col{
     position:relative;flex:1 1 0;min-width:0;height:100%;
-    overflow:hidden;cursor:pointer;
+    overflow:hidden;
   }
   .frame{
     position:absolute;left:50%;bottom:0;
@@ -222,14 +222,20 @@
      same spring press feel, custom (not OS) glass so it looks identical on
      iOS and Android. PC: fixed near the logo (JS refines the exact midpoint
      between the ViewsCall column edge and the logo edge). Mobile overrides
-     position in the media query below to spread them to the screen edges. */
+     position in the media query below to spread them to the screen edges.
+     The button itself never scales — only its ::before glass layer does —
+     so the icon on top stays put at a fixed size while the glass grows. */
   .glassbtn{
     --press:1;
     width:36px;height:36px;border-radius:999px;border:none;cursor:pointer;
     position:absolute;top:50%;
-    transform:scale(var(--press));
     display:flex;align-items:center;justify-content:center;
     text-decoration:none;-webkit-tap-highlight-color:transparent;
+    background:none;
+  }
+  .glassbtn::before{
+    content:"";position:absolute;inset:0;border-radius:999px;
+    transform:scale(var(--press));
     background:rgba(20,22,26,.16);
     -webkit-backdrop-filter:blur(18px) saturate(180%);
     backdrop-filter:blur(18px) saturate(180%);
@@ -246,6 +252,7 @@
   .glassbtn-ico{
     width:17px;height:17px;display:block;transition:opacity 220ms ease;
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    z-index:1;   /* sit above the ::before glass layer, unaffected by its scale */
   }
   /* two stacked icons (dark ink + white), both centered identically via the
      rule above; default shows the DARK one for the idle light banner.
@@ -257,14 +264,14 @@
   .glassbtn.on-dark .ico-light{opacity:1}
   /* DEFAULT (idle, light banner underneath): light glass tint.
      .on-dark: darker glass tint to match the dark backdrop. */
-  .glassbtn.on-dark{
+  .glassbtn.on-dark::before{
     background:rgba(255,255,255,.14);
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,.55),
       inset 0 -1px 1px rgba(0,0,0,.06),
       0 4px 14px rgba(0,0,0,.16);
   }
-  .glassbtn.on-dark:hover{background:rgba(255,255,255,.22)}
+  .glassbtn.on-dark:hover::before{background:rgba(255,255,255,.22)}
   /* ============ MOBILE: full-screen vertical banner feed ============ */
   @media (max-width:820px){
     body{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
@@ -275,18 +282,20 @@
     }
     .col{
       width:100vw;height:100dvh;min-height:100dvh;
-      scroll-snap-align:start;
+      scroll-snap-align:start;cursor:pointer;
     }
     /* mobile-only feed order: ViewsCall, RoamFi, TaleX (PC untouched) */
     .col--vc{order:1}
     .col--rf{order:2}
     .col--tx{order:3}
 
-    /* mobile: buttons spread to the screen edges (PC keeps them near the logo) */
+    /* mobile: buttons spread to the screen edges (PC keeps them near the logo).
+       Mobile keeps the simpler whole-button press scale (icon scaling with it
+       on tap is fine here — the PC hover-icon-drift issue doesn't apply to touch). */
     .brand{justify-content:space-between;padding:0 28px}
     #treasuryBtn, #docsBtn{
       position:static;right:auto;left:auto;top:auto;
-      transform:scale(var(--press));   /* keep the press scale, drop the PC translateY */
+      transform:scale(var(--press));
     }
     .glassbtn:hover{--press:1}   /* no hover state on touch */
     .glassbtn:active{--press:.94}
