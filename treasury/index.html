@@ -21,10 +21,9 @@
 
   /* ===== hero ===== */
   .hero{text-align:center;padding:96px 0 84px}
-  .hero-icon{width:112px;height:112px;border-radius:50%;margin:0 auto 34px;background:radial-gradient(circle at 35% 30%,#1c2a2f,#0e1417);
-    border:1px solid var(--line);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 10px rgba(255,255,255,.02)}
-  .hero-icon img{width:60px;height:60px}
-  .hero h1{font-size:52px;line-height:1.12;font-weight:800;letter-spacing:-.025em;max-width:880px;margin:0 auto 22px}
+  .hero-logo{height:44px;width:auto;display:block;margin:0 auto 38px}
+  .hero h1{font-size:43px;line-height:1.16;font-weight:800;letter-spacing:-.025em;margin:0 auto 22px}
+  .hero h1 span{white-space:nowrap}
   .hero p{font-size:18px;color:var(--dim);max-width:720px;margin:0 auto 34px;line-height:1.6}
   .btns{display:flex;justify-content:center;gap:12px}
   .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;font-family:inherit;transition:.15s}
@@ -32,6 +31,7 @@
   .btn.primary{background:var(--green);color:#071008;border-color:var(--green)}
   .btn.primary:hover{filter:brightness(1.06)}
   .btn .bn{height:24px;width:auto;display:block;margin:-4px 0 -4px -2px}
+  .btn .bi{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;margin-left:2px}
 
   /* ===== sections ===== */
   section{margin-bottom:56px}
@@ -61,7 +61,7 @@
   .metric .sub{font-size:13px;color:var(--faint)}
 
   .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-  .chart{width:100%;display:block}
+  .chart{width:100%;display:block;touch-action:pan-y;-webkit-tap-highlight-color:transparent}
   .big{font-size:22px;font-weight:600;line-height:1}
   .big.amber{color:var(--amber)}
   .latest{font-size:12px;color:var(--faint);text-align:right;margin-top:6px}
@@ -102,6 +102,7 @@
 
   /* ===== table ===== */
   .tbl{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .tbl .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
   table{width:100%;border-collapse:collapse}
   thead th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:600;text-align:right;padding:16px 22px;border-bottom:1px solid var(--line);white-space:nowrap}
   thead th:first-child{text-align:left}
@@ -151,8 +152,44 @@
   @media (max-width:960px){
     .metrics{grid-template-columns:1fr}
     .two,.calc,.why{grid-template-columns:1fr}
-    .hero h1{font-size:34px}
     .outs{grid-template-columns:1fr}
+  }
+  @media (max-width:700px){
+    body{padding:0 14px 80px}
+    .hero{padding:56px 0 48px}
+    .hero-logo{height:34px;margin-bottom:26px}
+    .hero h1{font-size:28px;line-height:1.2}
+    .hero h1 span{white-space:normal}
+    .hero h1 br{display:none}
+    .hero p{font-size:15px;margin-bottom:24px}
+    .btns{flex-wrap:wrap}
+    .btn{padding:12px 18px;font-size:14px;width:100%;justify-content:center}
+    .hero .btns .btn, .why .btns .btn{width:auto;flex:1 1 auto}
+    section{margin-bottom:36px}
+    .sec-head h2{font-size:21px}
+    .sec-head p{font-size:14px}
+    .card{padding:18px 16px}
+    .card-head{margin-bottom:10px}
+    .card-head h3{font-size:17px}
+    .card-head p{font-size:13px}
+    .kv{gap:12px 18px;font-size:13px}
+    .metric{padding:20px 18px}
+    .metric .val{font-size:28px}
+    .big{font-size:19px}
+    .calc{padding:20px 16px;gap:20px}
+    .calc-r{padding:20px 16px}
+    .calc-r .huge{font-size:44px}
+    .badge{float:none;display:inline-block;margin-bottom:12px}
+    .live{padding:16px 14px}
+    .price-row .p{font-size:26px}
+    .tv{height:420px}
+    thead th, tbody td{padding:12px 14px;font-size:13px}
+    .why{padding:22px 18px;gap:22px}
+    .why .lead{font-size:17px}
+    .why p{font-size:14px}
+    .fine{padding:18px 16px;font-size:13px}
+    .tip{min-width:170px;padding:10px 12px}
+    .tip .tp-r{font-size:12.5px}
   }
 </style>
 </head>
@@ -160,12 +197,12 @@
 <div class="wrap">
   <!-- ===== HERO ===== -->
   <div class="hero">
-    <div class="hero-icon"><img src="../assets/icon_talex.svg" alt=""></div>
-    <h1>$X token powers the user-driven ecosystem for Real-World Businesses (RWBs)</h1>
-    <p>Every buyback, injected back into the treasury as liquidity pool. Every dollar the TaleX ecosystem projects generate as company revenue buys $X on the open market, then injects it back into the main $X liquidity pool.</p>
+    <img class="hero-logo" src="../assets/logo_white.png" alt="TaleX">
+    <h1><span>$X token powers the user-driven ecosystem for</span><br><span class="l2"> Real-World Businesses (RWBs)</span></h1>
+    <p>The native token of the TaleX ecosystem, built to grow the user-driven economy with value shared back to everyone.</p>
     <div class="btns">
-      <a class="btn primary" href="https://www.binance.com/en/trade/X_USDT" target="_blank" rel="noopener">Trade $X on <img class="bn" src="../assets/binance.svg" alt="Binance"></a>
-      <button class="btn" id="shareBtn" type="button">Share</button>
+      <a class="btn primary" href="https://www.binance.com/en/alpha/bsc/0x0510101ec6c49d24ed911f0011e22a0d697ee776" target="_blank" rel="noopener">Trade $X on <img class="bn" src="../assets/binance.svg" alt="Binance"><svg class="bi" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <button class="btn" id="shareBtn" type="button">Share<svg class="bi" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
     </div>
   </div>
 
@@ -173,7 +210,7 @@
   <section>
     <div class="sec-head">
       <h2>Every buyback, injected as liquidity</h2>
-      <p>Every dollar the TaleX ecosystem earns buys $X on the open market, then injects it back into the $X liquidity pool.</p>
+      <p>Every dollar the TaleX ecosystem generates as company revenue through its projects buys $X on the open market, then injects it back into the main $X liquidity pool.</p>
     </div>
     <div class="metrics">
       <div class="metric glow">
@@ -196,7 +233,7 @@
     <!-- cumulative -->
     <div class="card" style="margin-bottom:16px">
       <div class="card-head">
-        <div><h3>Cumulative buybacks</h3><p>Total USD deployed to buy &amp; inject $X, since launch.</p></div>
+        <div><h3>Cumulative buybacks</h3><p>Total USD deployed to buy &amp; inject $X.</p></div>
         <div class="kv">
           <span><i class="sw" style="background:var(--green)"></i>Cumulative buybacks<b class="mono" style="color:var(--green)" id="cumV"></b></span>
           <span><i class="sw" style="background:var(--purple)"></i>$X FDV<b class="mono" style="color:var(--purple)" id="fdvV"></b></span>
@@ -279,7 +316,7 @@
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
           {
             "autosize": true,
-            "symbol": "UNISWAP3BSC:XUSDT_F020B2.USD",
+            "symbol": "PANCAKESWAP3BSC:XWBNB_22313A.USD",
             "interval": "D",
             "timezone": "Etc/UTC",
             "theme": "dark",
@@ -303,10 +340,12 @@
   <section>
     <div class="sec-head"><h2>Every injection, on-chain</h2><p>A verifiable record of each weekly purchase and injection, settled on BNB Chain.</p></div>
     <div class="tbl">
+      <div class="scroll">
       <table>
         <thead><tr><th>Date</th><th>$X injected</th><th>$BNB injected</th><th>Spent USD</th><th>Price</th><th>% of revenue</th></tr></thead>
         <tbody id="tbody" class="mono"></tbody>
       </table>
+      </div>
       <div class="pager"><span id="pinfo"></span><div class="nav"><button id="prev">&lsaquo;</button><span class="mono" id="pnum"></span><button id="next">&rsaquo;</button></div></div>
     </div>
   </section>
@@ -326,8 +365,8 @@
           <div class="fact"><div class="v mono">Aug 2025</div><div class="k">$X token launched</div></div>
         </div>
         <div class="btns" style="justify-content:flex-start">
-          <a class="btn primary" href="https://www.binance.com/en/trade/X_USDT" target="_blank" rel="noopener">Trade $X on <img class="bn" src="../assets/binance.svg" alt="Binance"></a>
-          <button class="btn share2" type="button">Share</button>
+          <a class="btn primary" href="https://www.binance.com/en/alpha/bsc/0x0510101ec6c49d24ed911f0011e22a0d697ee776" target="_blank" rel="noopener">Trade $X on <img class="bn" src="../assets/binance.svg" alt="Binance"><svg class="bi" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <button class="btn share2" type="button">Share<svg class="bi" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
         </div>
       </div>
     </div>
@@ -362,143 +401,170 @@ const T0=new Date(DAILY[0].date+'T00:00:00').getTime(), T1=new Date(DAILY[DAILY.
 const tx=(iso,x0,x1)=>{const t=new Date(iso+'T00:00:00').getTime();return x0+((t-T0)/(T1-T0))*(x1-x0);};
 const line=pts=>pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
 const F='Inter,sans-serif', FM="'JetBrains Mono',monospace";
+const isMob=()=>innerWidth<700;
 
 function axes(svg,W,H,pl,pr,pt,pb,opt){
-  // month ticks along the bottom, one per month boundary
-  let last=null, idx=0;
-  const every=opt.every||1;   // label every Nth month on narrow charts
-  DAILY.forEach(d=>{
-    const m=d.date.slice(0,7);
-    if(m!==last){last=m; idx++;
-      const x=tx(d.date,pl,W-pr);
-      if(x>pl+6 && idx%every===0){const t=mk('text',{x,y:H-6,'font-size':11,fill:'#5F6B72','text-anchor':'middle','font-family':F});t.textContent=mon(d.date);svg.appendChild(t);}
-    }
-  });
+  const FS=opt.fs||11;
+  if(opt.weekly){
+    WEEKLY.forEach((w,i)=>{
+      if((WEEKLY.length-1-i)%opt.weekly!==0) return;
+      const x=tx(w.date,pl,W-pr);
+      const t=mk('text',{x,y:H-6,'font-size':FS,fill:'#5F6B72','text-anchor':'middle','font-family':F});
+      t.textContent=new Date(w.date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      svg.appendChild(t);
+    });
+  } else {
+    let last=null, idx=0; const every=opt.every||1;
+    DAILY.forEach(d=>{
+      const m=d.date.slice(0,7);
+      if(m!==last){last=m; idx++;
+        const x=tx(d.date,pl,W-pr);
+        if(x>pl+6 && idx%every===0){const t=mk('text',{x,y:H-6,'font-size':FS,fill:'#5F6B72','text-anchor':'middle','font-family':F});t.textContent=mon(d.date);svg.appendChild(t);}
+      }
+    });
+  }
   (opt.yl||[]).forEach(([v,lab])=>{
     const y=pt+(H-pt-pb)*(1-v);
     svg.appendChild(mk('line',{x1:pl,y1:y,x2:W-pr,y2:y,stroke:'#1F2A2F','stroke-width':1}));
-    const t=mk('text',{x:pl-10,y:y+4,'font-size':11,fill:'#5F6B72','text-anchor':'end','font-family':FM});t.textContent=lab;svg.appendChild(t);
+    const t=mk('text',{x:pl-8,y:y+4,'font-size':FS,fill:'#5F6B72','text-anchor':'end','font-family':FM});t.textContent=lab;svg.appendChild(t);
   });
   (opt.yr||[]).forEach(([v,lab])=>{
     const y=pt+(H-pt-pb)*(1-v);
-    const t=mk('text',{x:W-pr+10,y:y+4,'font-size':11,fill:'#5F6B72','text-anchor':'start','font-family':FM});t.textContent=lab;svg.appendChild(t);
+    const t=mk('text',{x:W-pr+8,y:y+4,'font-size':FS,fill:'#5F6B72','text-anchor':'start','font-family':FM});t.textContent=lab;svg.appendChild(t);
   });
 }
 
-
-// ===== generic hover: crosshair + dots + tooltip =====
+// ===== generic hover/touch: crosshair + dots + tooltip =====
 function hoverify(svg,W,H,pl,pr,pt,pb,probe){
   const card=svg.closest('.card');
+  card.querySelectorAll('.tip').forEach(t=>t.remove());
   const tip=document.createElement('div'); tip.className='tip'; card.appendChild(tip);
   const g=mk('g',{style:'display:none'});
   const xl=mk('line',{class:'xl',y1:pt,y2:H-pb}); g.appendChild(xl);
   const dots=[]; svg.appendChild(g);
   const cover=mk('rect',{x:pl,y:pt,width:W-pl-pr,height:H-pt-pb,fill:'transparent'}); svg.appendChild(cover);
-  function move(e){
-    const r=svg.getBoundingClientRect(), sx=W/r.width, sy=H/r.height;
-    const vx=(e.clientX-r.left)*sx; if(vx<pl||vx>W-pr) return leave();
-    const res=probe(vx); if(!res) return leave();
+  function show(clientX,clientY){
+    const r=svg.getBoundingClientRect(), sx=W/r.width;
+    const vx=(clientX-r.left)*sx; if(vx<pl||vx>W-pr) return hide();
+    const res=probe(vx); if(!res) return hide();
     g.style.display=''; xl.setAttribute('x1',res.x); xl.setAttribute('x2',res.x);
     while(dots.length<res.dots.length){const c=mk('circle',{class:'xdot',r:4.5});g.appendChild(c);dots.push(c);}
     dots.forEach((c,i)=>{const d=res.dots[i]; if(d){c.style.display='';c.setAttribute('cx',d.x);c.setAttribute('cy',d.y);c.setAttribute('fill',d.color);} else c.style.display='none';});
     tip.innerHTML=`<div class="tp-h">${res.title}</div>`+res.rows.map(rw=>`<div class="tp-r"><span class="tp-d" style="background:${rw.color}"></span>${rw.label}<span class="tp-v mono">${rw.value}</span></div>`).join('');
     tip.classList.add('on');
-    const cr=card.getBoundingClientRect();
-    let left=(e.clientX-cr.left)+16, top=(e.clientY-cr.top)+16;
-    const tw=tip.offsetWidth, thh=tip.offsetHeight;
-    if(left+tw>cr.width-12) left=(e.clientX-cr.left)-tw-16;
-    if(top+thh>cr.height-8) top=(e.clientY-cr.top)-thh-16;
+    const cr=card.getBoundingClientRect(), tw=tip.offsetWidth, th=tip.offsetHeight;
+    let left, top;
+    if(isMob()){
+      // finger covers the point: pin the card just above the plot, following x
+      const px=r.left+res.x/sx;
+      left=(px-cr.left)-tw/2; left=Math.max(6,Math.min(cr.width-tw-6,left));
+      top=(r.top-cr.top)-th-6; if(top<4) top=4;
+    } else {
+      left=(clientX-cr.left)+16; top=(clientY-cr.top)+16;
+      if(left+tw>cr.width-12) left=(clientX-cr.left)-tw-16;
+      if(top+th>cr.height-8) top=(clientY-cr.top)-th-16;
+    }
     tip.style.left=left+'px'; tip.style.top=top+'px';
   }
-  function leave(){ g.style.display='none'; tip.classList.remove('on'); }
-  cover.addEventListener('mousemove',move); cover.addEventListener('mouseleave',leave);
+  function hide(){ g.style.display='none'; tip.classList.remove('on'); }
+  cover.addEventListener('mousemove',e=>show(e.clientX,e.clientY));
+  cover.addEventListener('mouseleave',hide);
+  cover.addEventListener('touchstart',e=>{const t=e.touches[0];show(t.clientX,t.clientY);},{passive:true});
+  cover.addEventListener('touchmove',e=>{const t=e.touches[0];show(t.clientX,t.clientY);},{passive:true});
+  document.addEventListener('touchstart',e=>{ if(!svg.contains(e.target)) hide(); },{passive:true});
+  svg._hide=hide;
 }
 const nearestIdx=(arr,vx,pl,pr,W)=>{let bi=0,bd=1e9;arr.forEach((a,i)=>{const d=Math.abs(tx(a.date,pl,W-pr)-vx);if(d<bd){bd=d;bi=i;}});return bi;};
 
-// ===== Cumulative buybacks (green area, left axis) + FDV (purple, right axis)
-(function(){
-  const s=document.getElementById('cumChart'),W=1120,H=300,pl=64,pr=70,pt=14,pb=30;
-  const ch=H-pt-pb;
-  const cmax=Math.max(...WEEKLY.map(w=>w.cum))*1.2, fmax=Math.max(...DAILY.map(d=>d.fdv))*1.25;
-  axes(s,W,H,pl,pr,pt,pb,{
-    yl:[0,.25,.5,.75,1].map(v=>[v,fmtM(v*cmax)]),
-    yr:[0,.25,.5,.75,1].map(v=>[v,fmtM(v*fmax)])
-  });
-  const cp=[[pl,pt+ch],...WEEKLY.map(w=>[tx(w.date,pl,W-pr),pt+ch*(1-w.cum/cmax)])];
-  const g=mk('linearGradient',{id:'gc',x1:0,y1:0,x2:0,y2:1});
-  g.appendChild(mk('stop',{offset:'0','stop-color':'#6EEF00','stop-opacity':.28}));g.appendChild(mk('stop',{offset:'1','stop-color':'#6EEF00','stop-opacity':0}));
-  const d=mk('defs',{});d.appendChild(g);s.appendChild(d);
-  s.appendChild(mk('path',{d:line(cp)+` L${cp[cp.length-1][0]},${pt+ch} Z`,fill:'url(#gc)'}));
-  s.appendChild(mk('path',{d:line(cp),fill:'none',stroke:'#6EEF00','stroke-width':2}));
-  const fp=DAILY.map(x=>[tx(x.date,pl,W-pr),pt+ch*(1-x.fdv/fmax)]);
-  s.appendChild(mk('path',{d:line(fp),fill:'none',stroke:'#7C7CFF','stroke-width':1.6}));
-  document.getElementById('cumV').textContent=fmtM(WEEKLY[WEEKLY.length-1].cum);
-  document.getElementById('fdvV').textContent=fmtM(DAILY[DAILY.length-1].fdv);
-  hoverify(s,W,H,pl,pr,pt,pb,vx=>{
-    const di=nearestIdx(DAILY,vx,pl,pr,W), d=DAILY[di];
-    const x=tx(d.date,pl,W-pr);
-    // cumulative value at that date = last weekly point on/before it
-    let cv=0,cy=pt+ch; for(const w of WEEKLY){ if(w.date<=d.date){cv=w.cum;cy=pt+ch*(1-w.cum/cmax);} else break; }
-    return {x,title:mon(d.date),
-      dots:[{x,y:cy,color:'#6EEF00'},{x,y:pt+ch*(1-d.fdv/fmax),color:'#7C7CFF'}],
-      rows:[{color:'#6EEF00',label:'Cumulative buybacks',value:fmtM(cv)},{color:'#7C7CFF',label:'FDV',value:fmtM(d.fdv)}]};
-  });
-})();
+function buildCharts(){
+  const M=isMob();
+  const FS=M?11:11;
 
-// ===== Weekly bars (amber)
-(function(){
-  const s=document.getElementById('wkChart'),W=540,H=220,pl=58,pr=10,pt=10,pb=30,ch=H-pt-pb;
-  const mx=Math.max(...WEEKLY.map(w=>w.usd))*1.15;
-  axes(s,W,H,pl,pr,pt,pb,{every:2,yl:[0,.25,.5,.75,1].map(v=>[v,fmtM(v*mx)])});
-  const bw=Math.max(3,((W-pl-pr)/WEEKLY.length)*0.55);
-  WEEKLY.forEach(w=>{
-    const x=tx(w.date,pl,W-pr),h=ch*(w.usd/mx);
-    s.appendChild(mk('rect',{x:x-bw/2,y:pt+ch-h,width:bw,height:h,fill:'#F5A524',rx:1}));
-  });
-  document.getElementById('wkV').textContent=fmtM(WEEKLY[WEEKLY.length-1].usd);
-  const hl=mk('rect',{fill:'#FFD27A',rx:1,style:'display:none'}); s.appendChild(hl);   // added before cover -> cover stays on top
-  hoverify(s,W,H,pl,pr,pt,pb,vx=>{
-    const i=nearestIdx(WEEKLY,vx,pl,pr,W), w=WEEKLY[i], x=tx(w.date,pl,W-pr), h=ch*(w.usd/mx);
-    hl.style.display=''; hl.setAttribute('x',x-bw/2); hl.setAttribute('y',pt+ch-h); hl.setAttribute('width',bw); hl.setAttribute('height',h);
-    return {x,title:mon(w.date),dots:[],rows:[{color:'#F5A524',label:'USD spent',value:fmtM(w.usd)}]};
-  });
-  s.addEventListener('mouseleave',()=>hl.style.display='none');
-})();
+  // ----- Cumulative: green area (left axis) + FDV (right axis)
+  (function(){
+    const s=document.getElementById('cumChart'); s.innerHTML='';
+    const W=M?380:1120, H=M?250:300, pl=M?48:64, pr=M?60:70, pt=14, pb=30;
+    s.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    const ch=H-pt-pb;
+    const cmax=Math.max(...WEEKLY.map(w=>w.cum))*1.2, fmax=Math.max(...DAILY.map(d=>d.fdv))*1.25;
+    const yl=(M?[0,.5,1]:[0,.25,.5,.75,1]);
+    axes(s,W,H,pl,pr,pt,pb,{fs:FS,weekly:M?13:4, yl:yl.map(v=>[v,fmtM(v*cmax)]), yr:yl.map(v=>[v,fmtM(v*fmax)])});
+    const cp=[[pl,pt+ch],...WEEKLY.map(w=>[tx(w.date,pl,W-pr),pt+ch*(1-w.cum/cmax)])];
+    const g=mk('linearGradient',{id:'gc',x1:0,y1:0,x2:0,y2:1});
+    g.appendChild(mk('stop',{offset:'0','stop-color':'#6EEF00','stop-opacity':.28}));g.appendChild(mk('stop',{offset:'1','stop-color':'#6EEF00','stop-opacity':0}));
+    const d=mk('defs',{});d.appendChild(g);s.appendChild(d);
+    s.appendChild(mk('path',{d:line(cp)+` L${cp[cp.length-1][0]},${pt+ch} Z`,fill:'url(#gc)'}));
+    s.appendChild(mk('path',{d:line(cp),fill:'none',stroke:'#6EEF00','stroke-width':2}));
+    const fp=DAILY.map(x=>[tx(x.date,pl,W-pr),pt+ch*(1-x.fdv/fmax)]);
+    s.appendChild(mk('path',{d:line(fp),fill:'none',stroke:'#7C7CFF','stroke-width':1.6}));
+    document.getElementById('cumV').textContent=fmtM(WEEKLY[WEEKLY.length-1].cum);
+    document.getElementById('fdvV').textContent=fmtM(DAILY[DAILY.length-1].fdv);
+    hoverify(s,W,H,pl,pr,pt,pb,vx=>{
+      const di=nearestIdx(DAILY,vx,pl,pr,W), dd=DAILY[di], x=tx(dd.date,pl,W-pr);
+      let cv=0,cy=pt+ch; for(const w of WEEKLY){ if(w.date<=dd.date){cv=w.cum;cy=pt+ch*(1-w.cum/cmax);} else break; }
+      return {x,title:dmy(dd.date),dots:[{x,y:cy,color:'#6EEF00'},{x,y:pt+ch*(1-dd.fdv/fmax),color:'#7C7CFF'}],
+        rows:[{color:'#6EEF00',label:'Cumulative buybacks',value:fmtM(cv)},{color:'#7C7CFF',label:'FDV',value:fmtM(dd.fdv)}]};
+    });
+  })();
 
-// ===== Allocation line + 100% target
-(function(){
-  const s=document.getElementById('allocChart'),W=540,H=220,pl=58,pr=10,pt=10,pb=30,ch=H-pt-pb;
-  const mx=110;
-  axes(s,W,H,pl,pr,pt,pb,{every:2,yl:[0,.318,.636,.909].map(v=>[v,Math.round(v*mx)+'%'])});
-  const yT=pt+ch*(1-100/mx);
-  s.appendChild(mk('line',{x1:pl,y1:yT,x2:W-pr,y2:yT,stroke:'#5F6B72','stroke-width':1,'stroke-dasharray':'4 4'}));
-  const pts=WEEKLY.map(w=>[tx(w.date,pl,W-pr),pt+ch*(1-w.pct/mx)]);
-  s.appendChild(mk('path',{d:line(pts),fill:'none',stroke:'#6EEF00','stroke-width':1.8}));
-  hoverify(s,W,H,pl,pr,pt,pb,vx=>{
-    const i=nearestIdx(WEEKLY,vx,pl,pr,W), w=WEEKLY[i];
-    return {x:pts[i][0],title:mon(w.date),dots:[{x:pts[i][0],y:pts[i][1],color:'#6EEF00'}],
-      rows:[{color:'#6EEF00',label:'Revenue to buyback',value:w.pct.toFixed(1)+'%'}]};
-  });
-})();
+  // ----- Weekly bars
+  (function(){
+    const s=document.getElementById('wkChart'); s.innerHTML='';
+    const W=M?380:540, H=M?230:220, pl=M?48:58, pr=10, pt=10, pb=30, ch=H-pt-pb;
+    s.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    const mx=Math.max(...WEEKLY.map(w=>w.usd))*1.15;
+    axes(s,W,H,pl,pr,pt,pb,{fs:FS,weekly:M?13:8,yl:(M?[0,.5,1]:[0,.25,.5,.75,1]).map(v=>[v,fmtM(v*mx)])});
+    const bw=Math.max(3,((W-pl-pr)/WEEKLY.length)*0.55);
+    WEEKLY.forEach(w=>{const x=tx(w.date,pl,W-pr),h=ch*(w.usd/mx);s.appendChild(mk('rect',{x:x-bw/2,y:pt+ch-h,width:bw,height:h,fill:'#F5A524',rx:1}));});
+    document.getElementById('wkV').textContent=fmtM(WEEKLY[WEEKLY.length-1].usd);
+    const hl=mk('rect',{fill:'#FFD27A',rx:1,style:'display:none'}); s.appendChild(hl);
+    hoverify(s,W,H,pl,pr,pt,pb,vx=>{
+      const i=nearestIdx(WEEKLY,vx,pl,pr,W), w=WEEKLY[i], x=tx(w.date,pl,W-pr), h=ch*(w.usd/mx);
+      hl.style.display=''; hl.setAttribute('x',x-bw/2); hl.setAttribute('y',pt+ch-h); hl.setAttribute('width',bw); hl.setAttribute('height',h);
+      return {x,title:dmy(w.date),dots:[],rows:[{color:'#F5A524',label:'USD spent',value:fmtM(w.usd)}]};
+    });
+    s.addEventListener('mouseleave',()=>hl.style.display='none');
+  })();
 
-// ===== Holders line
-(function(){
-  const s=document.getElementById('holdChart'),W=1120,H=240,pl=64,pr=20,pt=12,pb=30,ch=H-pt-pb;
-  const mx=Math.max(...DAILY.map(d=>d.holders))*1.15;
-  axes(s,W,H,pl,pr,pt,pb,{yl:[0,.25,.5,.75,1].map(v=>[v,fmtK(Math.round(v*mx))])});
-  const pts=DAILY.map(d=>[tx(d.date,pl,W-pr),pt+ch*(1-d.holders/mx)]);
-  const g=mk('linearGradient',{id:'gh',x1:0,y1:0,x2:0,y2:1});
-  g.appendChild(mk('stop',{offset:'0','stop-color':'#6EEF00','stop-opacity':.22}));g.appendChild(mk('stop',{offset:'1','stop-color':'#6EEF00','stop-opacity':0}));
-  const d=mk('defs',{});d.appendChild(g);s.appendChild(d);
-  s.appendChild(mk('path',{d:line(pts)+` L${pts[pts.length-1][0]},${pt+ch} L${pts[0][0]},${pt+ch} Z`,fill:'url(#gh)'}));
-  s.appendChild(mk('path',{d:line(pts),fill:'none',stroke:'#6EEF00','stroke-width':1.8}));
-  document.getElementById('holdV').textContent=fmtK(DAILY[DAILY.length-1].holders);
-  hoverify(s,W,H,pl,pr,pt,pb,vx=>{
-    const i=nearestIdx(DAILY,vx,pl,pr,W), d=DAILY[i];
-    return {x:pts[i][0],title:mon(d.date),dots:[{x:pts[i][0],y:pts[i][1],color:'#6EEF00'}],
-      rows:[{color:'#6EEF00',label:'Active holders',value:d.holders.toLocaleString()}]};
-  });
-})();
+  // ----- Allocation
+  (function(){
+    const s=document.getElementById('allocChart'); s.innerHTML='';
+    const W=M?380:540, H=M?200:220, pl=M?48:58, pr=10, pt=10, pb=30, ch=H-pt-pb, mx=110;
+    s.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    axes(s,W,H,pl,pr,pt,pb,{fs:FS,weekly:M?13:8,yl:[0,.318,.636,.909].map(v=>[v,Math.round(v*mx)+'%'])});
+    const yT=pt+ch*(1-100/mx);
+    s.appendChild(mk('line',{x1:pl,y1:yT,x2:W-pr,y2:yT,stroke:'#5F6B72','stroke-width':1,'stroke-dasharray':'4 4'}));
+    const pts=WEEKLY.map(w=>[tx(w.date,pl,W-pr),pt+ch*(1-w.pct/mx)]);
+    s.appendChild(mk('path',{d:line(pts),fill:'none',stroke:'#6EEF00','stroke-width':1.8}));
+    hoverify(s,W,H,pl,pr,pt,pb,vx=>{
+      const i=nearestIdx(WEEKLY,vx,pl,pr,W), w=WEEKLY[i];
+      return {x:pts[i][0],title:dmy(w.date),dots:[{x:pts[i][0],y:pts[i][1],color:'#6EEF00'}],rows:[{color:'#6EEF00',label:'Revenue to buyback',value:w.pct.toFixed(1)+'%'}]};
+    });
+  })();
+
+  // ----- Holders
+  (function(){
+    const s=document.getElementById('holdChart'); s.innerHTML='';
+    const W=M?380:1120, H=M?230:240, pl=M?44:64, pr=M?12:20, pt=12, pb=30, ch=H-pt-pb;
+    s.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    const mx=Math.max(...DAILY.map(d=>d.holders))*1.15;
+    axes(s,W,H,pl,pr,pt,pb,{fs:FS,every:M?3:1,yl:(M?[0,.5,1]:[0,.25,.5,.75,1]).map(v=>[v,fmtK(Math.round(v*mx))])});
+    const pts=DAILY.map(d=>[tx(d.date,pl,W-pr),pt+ch*(1-d.holders/mx)]);
+    const g=mk('linearGradient',{id:'gh',x1:0,y1:0,x2:0,y2:1});
+    g.appendChild(mk('stop',{offset:'0','stop-color':'#6EEF00','stop-opacity':.22}));g.appendChild(mk('stop',{offset:'1','stop-color':'#6EEF00','stop-opacity':0}));
+    const d=mk('defs',{});d.appendChild(g);s.appendChild(d);
+    s.appendChild(mk('path',{d:line(pts)+` L${pts[pts.length-1][0]},${pt+ch} L${pts[0][0]},${pt+ch} Z`,fill:'url(#gh)'}));
+    s.appendChild(mk('path',{d:line(pts),fill:'none',stroke:'#6EEF00','stroke-width':1.8}));
+    document.getElementById('holdV').textContent=fmtK(DAILY[DAILY.length-1].holders);
+    hoverify(s,W,H,pl,pr,pt,pb,vx=>{
+      const i=nearestIdx(DAILY,vx,pl,pr,W), dd=DAILY[i];
+      return {x:pts[i][0],title:mon(dd.date),dots:[{x:pts[i][0],y:pts[i][1],color:'#6EEF00'}],rows:[{color:'#6EEF00',label:'Active holders',value:dd.holders.toLocaleString()}]};
+    });
+  })();
+}
+buildCharts();
+let _rt=null, _wasMob=isMob();
+addEventListener('resize',()=>{clearTimeout(_rt);_rt=setTimeout(()=>{ if(isMob()!==_wasMob){_wasMob=isMob();buildCharts();} },150);});
 
 // ===== Calculator (allocation fixed at 100%, circ supply 150M)
 (function(){
@@ -535,7 +601,7 @@ const nearestIdx=(arr,vx,pl,pr,W)=>{let bi=0,bd=1e9;arr.forEach((a,i)=>{const d=
 document.querySelectorAll('#shareBtn,.share2').forEach(b=>b.addEventListener('click',async()=>{
   const url=location.href;
   if(navigator.share){try{await navigator.share({title:'$X Token — TaleX',url});return;}catch(e){}}
-  try{await navigator.clipboard.writeText(url);b.textContent='Copied';setTimeout(()=>b.textContent='Share',1400);}catch(e){}
+  try{await navigator.clipboard.writeText(url);const t=b.firstChild;t.textContent='Copied';setTimeout(()=>t.textContent='Share',1400);}catch(e){}
 }));
 </script>
 </body>
