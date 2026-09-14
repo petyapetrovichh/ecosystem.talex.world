@@ -232,7 +232,11 @@
     display:flex;align-items:center;justify-content:center;
     text-decoration:none;-webkit-tap-highlight-color:transparent;
     background:none;
+    opacity:0;                       /* hidden until placeBrandButtons() confirms
+                                         the final position — prevents the visible
+                                         "jump" from an early, wrong measurement */
   }
+  .glassbtn.positioned{opacity:1}
   .glassbtn::before{
     content:"";position:absolute;inset:0;border-radius:999px;
     transform:scale(var(--press));
@@ -296,6 +300,7 @@
     #treasuryBtn, #docsBtn{
       position:static;right:auto;left:auto;top:auto;
       transform:scale(var(--press));
+      opacity:1;                     /* mobile buttons don't wait on JS geometry */
     }
     .glassbtn:hover{--press:1}   /* no hover state on touch */
     .glassbtn:active{--press:.94}
@@ -372,7 +377,7 @@
       </div>
       <div class="vc-panel">
         <div class="vc-glass">
-          <p class="vc-tagline">One global eSIM for 200+ destinations.</p>
+          <p class="vc-tagline">eSIM that pays you back.</p>
           <p><em>Choosing an eSIM shouldn't take longer than the trip.</em> — Travelers drown in endless eSIM options, and buying a local SIM abroad means queues, paperwork, and a number you'll never use again.</p>
           <p>With RoamFi, one eSIM keeps you connected the moment you land — no choosing, no queues, no local SIM. And it pays you back: every RoamFi user can share in the profit from every RoamFi eSIM sold around the world after them.</p>
           <p class="vc-kicker">A smart eSIM that can earn back more than you paid.</p>
@@ -442,10 +447,10 @@
   </div>
 
   <div class="brand" id="brand">
-    <button class="glassbtn" id="treasuryBtn" type="button" aria-label="Treasury">
+    <a class="glassbtn" href="treasury/" id="treasuryBtn" aria-label="Treasury">
       <img class="glassbtn-ico ico-dark" src="assets/icon_treasury_black.svg" alt="">
       <img class="glassbtn-ico ico-light" src="assets/icon_treasury.svg" alt="">
-    </button>
+    </a>
     <span class="brand-logo" id="brandLogo">
       <img class="logo logo--dark" src="assets/logo.png" alt="TaleX">
       <img class="logo logo--white" src="assets/logo_white.png" alt="">
@@ -649,6 +654,7 @@
       [treasuryBtn, docsBtn].forEach(b=>{
         if(!b) return;
         b.style.position=''; b.style.left=''; b.style.right=''; b.style.top=''; b.style.transform='';
+        b.classList.add('positioned');
       });
       return;
     }
@@ -657,6 +663,10 @@
     if(!vc || !logo || !treasuryBtn || !docsBtn) return;
     const vcR = vc.getBoundingClientRect();
     const logoR = logo.getBoundingClientRect();
+    // logo not laid out with a real size yet (image still loading) — skip this
+    // run rather than positioning from a wrong, too-small measurement; whatever
+    // calls us again once the logo is ready will reveal the buttons correctly.
+    if(logoR.width < 10) return;
     const leftMid  = (vcR.left  + logoR.left)  / 2;
     const rightMid = (vcR.right + logoR.right) / 2;
     const cy = logoR.top + logoR.height/2;   // vertical center = logo's center
@@ -668,6 +678,8 @@
     });
     treasuryBtn.style.left = (leftMid - btnW/2) + 'px';
     docsBtn.style.left = (rightMid - btnW/2) + 'px';
+    treasuryBtn.classList.add('positioned');
+    docsBtn.classList.add('positioned');
   }
 
 
@@ -954,7 +966,15 @@
   fitFrames();
   placeBrandButtons();
   updateBrandButtons();
-  // re-run once images (logo) have their final layout size
+  // Re-run as soon as the logo image itself is actually ready — this is much
+  // earlier than window.load (which waits for videos etc. too), and is the
+  // exact moment getBoundingClientRect() first returns a real, final size.
+  const logoImg = document.querySelector('.brand-logo .logo--dark');
+  if(logoImg){
+    if(logoImg.complete) placeBrandButtons();
+    else logoImg.addEventListener('load', placeBrandButtons, {once:true});
+  }
+  // safety net in case the above is somehow missed
   window.addEventListener('load', ()=>{ placeBrandButtons(); });
   // mobile: the column under the fixed header changes as the feed scrolls
   window.addEventListener('scroll', updateBrandButtons, {passive:true});
