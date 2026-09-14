@@ -1,1 +1,542 @@
-123
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>$X Token — TaleX's native token</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0C1214; --card:#121A1D; --card2:#182126; --line:#1F2A2F;
+    --text:#F2F4F5; --dim:#8E9AA0; --faint:#5F6B72;
+    --green:#6EEF00; --purple:#7C7CFF; --amber:#F5A524; --red:#FF4D6D;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;padding:0 28px 120px}
+  .mono{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+  .wrap{max-width:1180px;margin:0 auto}
+  a{color:inherit}
+
+  /* ===== hero ===== */
+  .hero{text-align:center;padding:96px 0 84px}
+  .hero-icon{width:112px;height:112px;border-radius:50%;margin:0 auto 34px;background:radial-gradient(circle at 35% 30%,#1c2a2f,#0e1417);
+    border:1px solid var(--line);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 10px rgba(255,255,255,.02)}
+  .hero-icon img{width:60px;height:60px}
+  .hero h1{font-size:52px;line-height:1.12;font-weight:800;letter-spacing:-.025em;max-width:880px;margin:0 auto 22px}
+  .hero p{font-size:18px;color:var(--dim);max-width:720px;margin:0 auto 34px;line-height:1.6}
+  .btns{display:flex;justify-content:center;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;font-family:inherit;transition:.15s}
+  .btn:hover{background:var(--card2)}
+  .btn.primary{background:var(--green);color:#071008;border-color:var(--green)}
+  .btn.primary:hover{filter:brightness(1.06)}
+  .btn .bn{height:24px;width:auto;display:block;margin:-4px 0 -4px -2px}
+
+  /* ===== sections ===== */
+  section{margin-bottom:56px}
+  .sec-head{margin-bottom:18px}
+  .sec-head h2{font-size:24px;font-weight:700;letter-spacing:-.01em;margin-bottom:6px}
+  .sec-head p{font-size:15px;color:var(--dim)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 30px}
+  .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+  .card-head h3{font-size:20px;font-weight:700;letter-spacing:-.01em;margin-bottom:5px}
+  .card-head p{font-size:14px;color:var(--dim)}
+  .kv{display:flex;gap:24px;align-items:center;flex-wrap:wrap;font-size:14px;color:var(--dim)}
+  .kv .sw{display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:8px;vertical-align:middle}
+  .kv b{margin-left:8px;font-weight:600}
+  .pill{font-size:13px;font-weight:600;color:var(--green);border:1px solid rgba(110,239,0,.35);background:rgba(110,239,0,.08);border-radius:8px;padding:6px 12px}
+  .asof{font-size:13px;color:var(--faint)}
+
+  /* ===== top metrics ===== */
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+  .metric{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px 30px}
+  .metric.glow{background:linear-gradient(135deg,rgba(110,239,0,.10),var(--card) 55%);border-color:rgba(110,239,0,.28)}
+  .metric .lbl{display:flex;align-items:center;gap:9px;font-size:15px;color:var(--dim);margin-bottom:16px}
+  .metric .lbl svg{width:16px;height:16px;stroke:var(--dim);fill:none;stroke-width:1.8}
+  .metric.glow .lbl svg{stroke:var(--green)}
+  .metric .val{font-size:34px;font-weight:600;letter-spacing:-.01em;line-height:1.1;margin-bottom:12px}
+  .metric.glow .val{color:var(--green)}
+  .metric .sub{font-size:13px;color:var(--faint)}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .chart{width:100%;display:block}
+  .big{font-size:22px;font-weight:600;line-height:1}
+  .big.amber{color:var(--amber)}
+  .latest{font-size:12px;color:var(--faint);text-align:right;margin-top:6px}
+
+  /* ===== calculator ===== */
+  .calc{display:grid;grid-template-columns:1fr 1fr;gap:28px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:30px}
+  .calc-l h3{font-size:20px;font-weight:700;margin-bottom:8px}
+  .calc-l .desc{font-size:14px;color:var(--dim);line-height:1.55;margin-bottom:24px;padding-right:20px}
+  .badge{display:inline-block;float:right;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);border:1px solid var(--line);border-radius:8px;padding:6px 12px;background:var(--card2)}
+  .field{margin-bottom:26px}
+  .field .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:14px}
+  .field .row .v{font-weight:600;font-size:15px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:var(--line);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--green);cursor:pointer;box-shadow:0 0 0 4px rgba(110,239,0,.18)}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--green);cursor:pointer;border:0;box-shadow:0 0 0 4px rgba(110,239,0,.18)}
+  .fixed{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:10px;border:1px solid rgba(110,239,0,.35);background:rgba(110,239,0,.06);font-size:14px}
+  .fixed b{color:var(--green);font-weight:600}
+  .calc-r{background:#0E1518;border:1px solid var(--line);border-radius:14px;padding:26px 28px}
+  .calc-r .cap{font-size:13px;letter-spacing:.08em;font-weight:700;color:var(--green);margin-bottom:6px}
+  .calc-r .cap span{color:var(--dim);font-weight:400;letter-spacing:0;text-transform:none;margin-left:10px;font-size:13px}
+  .calc-r .huge{font-size:56px;font-weight:600;color:var(--green);line-height:1.05;margin:10px 0 8px;text-shadow:0 0 28px rgba(110,239,0,.25)}
+  .calc-r .cap2{font-size:14px;color:var(--dim);margin-bottom:22px}
+  .outs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+  .out{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 16px}
+  .out .v{font-size:19px;font-weight:600;margin-bottom:6px}
+  .out .k{font-size:12px;color:var(--faint)}
+  .note{font-size:12.5px;color:var(--faint);line-height:1.5}
+
+  /* ===== live ===== */
+  .live{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 28px 20px}
+  .price-row{margin-bottom:16px}
+  .price-row .k{font-size:13px;color:var(--dim);margin-bottom:6px}
+  .price-row .p{font-size:34px;font-weight:600;display:inline-block;vertical-align:middle}
+  .chg{display:inline-block;vertical-align:middle;margin-left:14px;font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;background:rgba(255,77,109,.14);color:var(--red)}
+  .chg.up{background:rgba(110,239,0,.14);color:var(--green)}
+  .chg + span{font-size:12px;color:var(--faint);margin-left:8px;vertical-align:middle}
+  .tv{height:560px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0E1518}
+
+  /* ===== table ===== */
+  .tbl{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  thead th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:600;text-align:right;padding:16px 22px;border-bottom:1px solid var(--line);white-space:nowrap}
+  thead th:first-child{text-align:left}
+  tbody td{padding:14px 22px;font-size:14px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+  tbody td:first-child{text-align:left;color:var(--dim);font-family:Inter,sans-serif}
+  tbody td.g{color:var(--green)}
+  tbody td.b{font-weight:600}
+  tbody tr:last-child td{border-bottom:none}
+  .pager{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;font-size:13px;color:var(--faint)}
+  .pager .nav{display:flex;align-items:center;gap:14px}
+  .pager button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--text);cursor:pointer;font-size:16px;font-family:inherit;display:flex;align-items:center;justify-content:center}
+  .pager button:disabled{opacity:.3;cursor:default}
+  .pager button:not(:disabled):hover{background:#22303a}
+
+  /* ===== why ===== */
+  .why{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:34px 36px}
+  .why .lead{font-size:20px;font-weight:700;line-height:1.4;margin-bottom:18px}
+  .why p{font-size:15px;color:var(--dim);line-height:1.65;margin-bottom:16px}
+  .why p:last-child{margin-bottom:0}
+  .why strong{color:var(--text)}
+  .facts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+  .fact{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:22px 16px;text-align:center}
+  .fact .v{font-size:20px;font-weight:600;margin-bottom:6px}
+  .fact .k{font-size:12px;color:var(--faint)}
+
+  /* ===== fine print ===== */
+  .fine{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 26px;font-size:13.5px;line-height:1.65;color:var(--dim);margin-bottom:14px}
+  .fine h4{font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px}
+  .addr{display:inline-block;font-size:12px;background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:5px 10px;margin:8px 8px 0 0;color:var(--text);text-decoration:none}
+  .addr:hover{border-color:var(--green)}
+
+
+  /* ===== hover tooltip ===== */
+  .card{position:relative}
+  .tip{position:absolute;z-index:5;pointer-events:none;display:none;min-width:200px;
+    background:#0F171B;border:1px solid #2A363C;border-radius:10px;padding:12px 14px;
+    box-shadow:0 14px 40px rgba(0,0,0,.5)}
+  .tip.on{display:block}
+  .tip .tp-h{font-size:12.5px;color:var(--faint);margin-bottom:9px}
+  .tip .tp-r{display:flex;align-items:center;gap:8px;font-size:13px;color:#C9D1D5;white-space:nowrap}
+  .tip .tp-r+.tp-r{margin-top:7px}
+  .tip .tp-d{width:8px;height:8px;border-radius:50%;flex:none}
+  .tip .tp-v{margin-left:auto;padding-left:18px;font-weight:600;color:var(--text)}
+  .chart .xl{stroke:#3A474E;stroke-width:1}
+  .chart .xdot{stroke:#0F171B;stroke-width:2}
+
+  @media (max-width:960px){
+    .metrics{grid-template-columns:1fr}
+    .two,.calc,.why{grid-template-columns:1fr}
+    .hero h1{font-size:34px}
+    .outs{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- ===== HERO ===== -->
+  <div class="hero">
+    <div class="hero-icon"><img src="../assets/icon_talex.svg" alt=""></div>
+    <h1>$X token powers the user-driven ecosystem for Real-World Businesses (RWBs)</h1>
+    <p>Every buyback, injected back into the treasury as liquidity pool. Every dollar the TaleX ecosystem projects generate as company revenue buys $X on the open market, then injects it back into the main $X liquidity pool.</p>
+    <div class="btns">
+      <a class="btn primary" href="https://www.binance.com/en/trade/X_USDT" target="_blank" rel="noopener">Trade $X on <img class="bn" src="../assets/binance.svg" alt="Binance"></a>
+      <button class="btn" id="shareBtn" type="button">Share</button>
+    </div>
+  </div>
+
+  <!-- ===== TOP METRICS ===== -->
+  <section>
+    <div class="sec-head">
+      <h2>Every buyback, injected as liquidity</h2>
+      <p>Every dollar the TaleX ecosystem earns buys $X on the open market, then injects it back into the $X liquidity pool.</p>
+    </div>
+    <div class="metrics">
+      <div class="metric glow">
+        <div class="lbl"><svg viewBox="0 0 24 24"><path d="M3 13l4-4 4 4 5-6 5 5"/></svg>Annualized revenue</div>
+        <div class="val mono">$10,284</div>
+        <div class="sub mono">&asymp; $28.17 / day &middot; 30d avg</div>
+      </div>
+      <div class="metric">
+        <div class="lbl"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 10l7-7 7 7"/></svg>Total bought back &amp; injected liquidity</div>
+        <div class="val mono">$10,284</div>
+        <div class="sub mono">791,076 $X bought back and injected</div>
+      </div>
+      <div class="metric">
+        <div class="lbl"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>Total supply injection</div>
+        <div class="val mono">0.079%</div>
+        <div class="sub mono">791,076 $X injected</div>
+      </div>
+    </div>
+
+    <!-- cumulative -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-head">
+        <div><h3>Cumulative buybacks</h3><p>Total USD deployed to buy &amp; inject $X, since launch.</p></div>
+        <div class="kv">
+          <span><i class="sw" style="background:var(--green)"></i>Cumulative buybacks<b class="mono" style="color:var(--green)" id="cumV"></b></span>
+          <span><i class="sw" style="background:var(--purple)"></i>$X FDV<b class="mono" style="color:var(--purple)" id="fdvV"></b></span>
+        </div>
+      </div>
+      <svg class="chart" id="cumChart" viewBox="0 0 1120 300"></svg>
+    </div>
+
+    <!-- weekly + allocation -->
+    <div class="two">
+      <div class="card">
+        <div class="card-head">
+          <div><h3>Weekly buyback &amp; injection</h3><p>USD spent per week</p></div>
+          <div style="text-align:right"><div class="big amber mono" id="wkV"></div><div class="latest">latest</div></div>
+        </div>
+        <svg class="chart" id="wkChart" viewBox="0 0 540 220"></svg>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div><h3>Revenue allocated to buyback</h3><p>% of weekly revenue spent</p></div>
+          <span class="pill">100% target</span>
+        </div>
+        <svg class="chart" id="allocChart" viewBox="0 0 540 220"></svg>
+      </div>
+    </div>
+
+    <!-- holders -->
+    <div class="card">
+      <div class="card-head">
+        <div><h3>Active holders</h3><p>Daily active holders on BNB Chain with $X activity.</p></div>
+        <div class="kv"><span><i class="sw" style="background:var(--green)"></i>BNB Chain<b class="mono" style="color:var(--green)" id="holdV"></b></span><span class="asof">Data as of Sep 14</span></div>
+      </div>
+      <svg class="chart" id="holdChart" viewBox="0 0 1120 240"></svg>
+    </div>
+  </section>
+
+  <!-- ===== CALCULATOR ===== -->
+  <section>
+    <div class="sec-head"><h2>Run the numbers yourself</h2><p>See how ecosystem revenue stacks up against $X's circulating valuation.</p></div>
+    <div class="calc">
+      <div class="calc-l">
+        <span class="badge">Hypothetical</span>
+        <h3>Earnings to valuation</h3>
+        <div class="desc">See how ecosystem revenue measures up against $X's circulating valuation, with allocation fixed at 100%.</div>
+        <div class="field">
+          <div class="row"><span>Monthly ecosystem revenue</span><span class="v mono" id="oRev"></span></div>
+          <input type="range" id="iRev" min="500" max="100000" step="500" value="857">
+        </div>
+        <div class="field">
+          <div class="row"><span>Assumed circulating market cap</span><span class="v mono" id="oMcap"></span></div>
+          <input type="range" id="iMcap" min="1000000" max="1000000000" step="1000000" value="2000000">
+        </div>
+        <div class="fixed"><span>Allocated to buyback</span><b class="mono">100%</b></div>
+      </div>
+      <div class="calc-r">
+        <div class="cap">REVENUE MULTIPLE<span>market cap &divide; annual revenue</span></div>
+        <div class="huge mono" id="oMult"></div>
+        <div class="cap2">circulating market cap measured against annual revenue</div>
+        <div class="outs">
+          <div class="out"><div class="v mono" id="oAnn"></div><div class="k">Annual revenue</div></div>
+          <div class="out"><div class="v mono" id="oPrice"></div><div class="k">$X price</div></div>
+          <div class="out"><div class="v mono" id="oYield"></div><div class="k">Buyback yield on mkt cap</div></div>
+        </div>
+        <div class="note">Illustrative only. Market cap uses circulating supply; yields use annualized revenue. Not a forecast or financial advice.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== LIVE ===== -->
+  <section>
+    <div class="sec-head"><h2>Live $X market</h2><p>Live price, chart, and market stats for $X.</p></div>
+    <div class="live">
+      <div class="price-row">
+        <div class="k">$X price</div>
+        <span class="p mono" id="livePrice">$0.008906</span><span class="chg" id="liveChg">&darr; 2.9%</span><span>24h</span>
+      </div>
+      <div class="tv">
+        <div class="tradingview-widget-container" style="height:100%;width:100%">
+          <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          {
+            "autosize": true,
+            "symbol": "UNISWAP3BSC:XUSDT_F020B2.USD",
+            "interval": "D",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "backgroundColor": "#0E1518",
+            "gridColor": "rgba(255,255,255,0.05)",
+            "hide_top_toolbar": false,
+            "allow_symbol_change": false,
+            "save_image": false,
+            "calendar": false,
+            "support_host": "https://www.tradingview.com"
+          }
+          </script>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TABLE ===== -->
+  <section>
+    <div class="sec-head"><h2>Every injection, on-chain</h2><p>A verifiable record of each weekly purchase and injection, settled on BNB Chain.</p></div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Date</th><th>$X injected</th><th>$BNB injected</th><th>Spent USD</th><th>Price</th><th>% of revenue</th></tr></thead>
+        <tbody id="tbody" class="mono"></tbody>
+      </table>
+      <div class="pager"><span id="pinfo"></span><div class="nav"><button id="prev">&lsaquo;</button><span class="mono" id="pnum"></span><button id="next">&rsaquo;</button></div></div>
+    </div>
+  </section>
+
+  <!-- ===== WHY ===== -->
+  <section>
+    <div class="sec-head"><h2>Why we built $X</h2><p>From Real-World Businesses to a user-driven economy where customers and businesses grow together.</p></div>
+    <div class="why">
+      <div>
+        <div class="lead">TaleX set out to build a user-driven ecosystem for Real-World Businesses, letting customers benefit from the growth of the businesses they buy from.</div>
+        <p>By featuring traditional consumer-oriented businesses as RWB projects, TaleX helps entrepreneurs boost their product sales while their customers share in the upside. Today the ecosystem spans <strong>ViewsCall</strong>, the YouTube prediction market; <strong>RoamFi</strong>, the eSIM that pays you back; and the <strong>TaleX content app</strong>, where great content pays off both creators and supporters.</p>
+        <p>To unlock further growth, we launched <strong>$X</strong>, the official native token of the TaleX ecosystem. Every dollar of company revenue buys $X on the open market and injects it back into the main $X liquidity pool &mdash; delivering value to the community and deepening the market every RWB project settles against.</p>
+      </div>
+      <div>
+        <div class="facts">
+          <div class="fact"><div class="v mono">3</div><div class="k">Real-World Business projects</div></div>
+          <div class="fact"><div class="v mono">Aug 2025</div><div class="k">$X token launched</div></div>
+        </div>
+        <div class="btns" style="justify-content:flex-start">
+          <a class="btn primary" href="https://www.binance.com/en/trade/X_USDT" target="_blank" rel="noopener">Trade $X on <img class="bn" src="../assets/binance.svg" alt="Binance"></a>
+          <button class="btn share2" type="button">Share</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FINE PRINT ===== -->
+  <section>
+    <div class="fine">
+      <h4>Methodology</h4>
+      From 14 Sep 2026, "Revenue" includes all TaleX ecosystem projects' company revenue &mdash; ViewsCall, RoamFi and the TaleX content app &mdash; net of referral fees and cash backs. Fiat revenue is converted into USDT for use in purchasing $X. As of 14 Sep 2026, 100% of company revenue is allocated to buy $X on the open market and inject it into the main $X liquidity pool.
+      <div style="margin-top:12px">Treasury addresses
+        <a class="addr mono" href="https://bscscan.com/address/0x23bA199EA1C77306f189962D736f807F4cCEb16c" target="_blank" rel="noopener">0x23bA19&hellip;cCEb16c</a>
+        <a class="addr mono" href="https://bscscan.com/address/0x22313ace9911B91A0Bc6eAB0189b99e78c28C699" target="_blank" rel="noopener">0x22313a&hellip;c28C699</a>
+      </div>
+    </div>
+    <div class="fine">
+      <h4>Disclaimer</h4>
+      The $X token does not represent a right to revenues or any other distribution. Any references to token purchases are for informational purposes only, and only describe historical activity. This information should not be understood as a commitment to future token purchases for any reason. Any purchases may have the effect of preventing or retarding a decline in the market price of tokens and may stabilize, maintain or otherwise affect the market price of the tokens. As a result, the market price of the tokens may be higher than the price that otherwise might exist. Entities affiliated with the TaleX ecosystem may purchase or sell tokens from time to time, but are under no obligation to do so. If any purchases occur in the future, any such activity may be initiated, suspended, modified, or discontinued at any time, with or without notice. No token purchaser, holder or seller should rely on past purchases as an indication of future token purchases.
+    </div>
+  </section>
+</div>
+<script>
+const WEEKLY=[{"date":"2025-09-22","usd":110.04,"x":6149,"price":0.011147,"pct":100,"bnb":0.0688,"cum":110.04},{"date":"2025-09-29","usd":138.07,"x":7530,"price":0.011421,"pct":100,"bnb":0.0938,"cum":248.11},{"date":"2025-10-06","usd":125.36,"x":6636,"price":0.011767,"pct":100,"bnb":0.0913,"cum":373.47},{"date":"2025-10-13","usd":148.11,"x":7710,"price":0.011967,"pct":100,"bnb":0.1157,"cum":521.58},{"date":"2025-10-20","usd":152.55,"x":9826,"price":0.009671,"pct":100,"bnb":0.1264,"cum":674.13},{"date":"2025-10-27","usd":104.05,"x":6280,"price":0.01032,"pct":100,"bnb":0.0632,"cum":778.18},{"date":"2025-11-03","usd":100.89,"x":6180,"price":0.010169,"pct":100,"bnb":0.0603,"cum":879.06},{"date":"2025-11-10","usd":180.0,"x":11804,"price":0.009499,"pct":100,"bnb":0.1177,"cum":1059.07},{"date":"2025-11-17","usd":127.62,"x":8038,"price":0.00989,"pct":100,"bnb":0.0767,"cum":1186.69},{"date":"2025-11-24","usd":127.17,"x":8294,"price":0.009551,"pct":100,"bnb":0.0906,"cum":1313.85},{"date":"2025-12-01","usd":204.06,"x":16472,"price":0.007717,"pct":100,"bnb":0.1522,"cum":1517.91},{"date":"2025-12-08","usd":154.62,"x":12932,"price":0.007448,"pct":100,"bnb":0.1088,"cum":1672.52},{"date":"2025-12-15","usd":194.04,"x":16713,"price":0.007232,"pct":100,"bnb":0.1107,"cum":1866.56},{"date":"2025-12-22","usd":159.81,"x":13156,"price":0.007567,"pct":100,"bnb":0.1345,"cum":2026.37},{"date":"2025-12-29","usd":179.09,"x":15037,"price":0.007419,"pct":100,"bnb":0.1191,"cum":2205.46},{"date":"2026-01-05","usd":129.92,"x":10736,"price":0.007539,"pct":100,"bnb":0.0978,"cum":2335.39},{"date":"2026-01-12","usd":183.71,"x":15791,"price":0.007247,"pct":100,"bnb":0.1092,"cum":2519.09},{"date":"2026-01-19","usd":211.6,"x":18304,"price":0.007201,"pct":100,"bnb":0.1511,"cum":2730.69},{"date":"2026-01-26","usd":176.45,"x":13702,"price":0.008022,"pct":100,"bnb":0.1273,"cum":2907.14},{"date":"2026-02-02","usd":203.18,"x":16415,"price":0.00771,"pct":100,"bnb":0.1417,"cum":3110.32},{"date":"2026-02-09","usd":197.96,"x":16368,"price":0.007534,"pct":100,"bnb":0.1295,"cum":3308.27},{"date":"2026-02-16","usd":130.87,"x":10491,"price":0.007771,"pct":100,"bnb":0.0777,"cum":3439.14},{"date":"2026-02-23","usd":213.21,"x":15865,"price":0.008371,"pct":100,"bnb":0.1523,"cum":3652.35},{"date":"2026-03-02","usd":196.25,"x":16765,"price":0.007292,"pct":100,"bnb":0.1131,"cum":3848.6},{"date":"2026-03-09","usd":164.19,"x":14205,"price":0.0072,"pct":100,"bnb":0.1328,"cum":4012.79},{"date":"2026-03-16","usd":133.63,"x":10944,"price":0.007606,"pct":100,"bnb":0.0994,"cum":4146.42},{"date":"2026-03-23","usd":237.15,"x":19380,"price":0.007623,"pct":100,"bnb":0.1932,"cum":4383.57},{"date":"2026-03-30","usd":191.48,"x":14080,"price":0.008472,"pct":100,"bnb":0.1548,"cum":4575.05},{"date":"2026-04-06","usd":224.54,"x":15403,"price":0.009081,"pct":100,"bnb":0.1329,"cum":4799.59},{"date":"2026-04-13","usd":247.43,"x":16166,"price":0.009534,"pct":100,"bnb":0.1495,"cum":5047.02},{"date":"2026-04-20","usd":229.24,"x":15465,"price":0.009234,"pct":100,"bnb":0.1783,"cum":5276.27},{"date":"2026-04-27","usd":258.69,"x":20328,"price":0.007927,"pct":100,"bnb":0.2007,"cum":5534.95},{"date":"2026-05-04","usd":192.74,"x":15322,"price":0.007836,"pct":100,"bnb":0.1335,"cum":5727.69},{"date":"2026-05-11","usd":248.67,"x":19958,"price":0.007762,"pct":100,"bnb":0.1493,"cum":5976.36},{"date":"2026-05-18","usd":203.74,"x":16587,"price":0.007651,"pct":100,"bnb":0.1188,"cum":6180.1},{"date":"2026-05-25","usd":272.45,"x":21413,"price":0.007926,"pct":100,"bnb":0.1632,"cum":6452.55},{"date":"2026-06-01","usd":267.66,"x":19293,"price":0.008642,"pct":100,"bnb":0.1713,"cum":6720.21},{"date":"2026-06-08","usd":162.45,"x":11326,"price":0.008935,"pct":100,"bnb":0.129,"cum":6882.66},{"date":"2026-06-15","usd":169.57,"x":13774,"price":0.007669,"pct":100,"bnb":0.1185,"cum":7052.23},{"date":"2026-06-22","usd":182.81,"x":15235,"price":0.007474,"pct":100,"bnb":0.1415,"cum":7235.04},{"date":"2026-06-29","usd":291.58,"x":23784,"price":0.007637,"pct":100,"bnb":0.192,"cum":7526.62},{"date":"2026-07-06","usd":218.25,"x":17078,"price":0.00796,"pct":100,"bnb":0.1411,"cum":7744.87},{"date":"2026-07-13","usd":248.24,"x":21287,"price":0.007264,"pct":100,"bnb":0.1913,"cum":7993.11},{"date":"2026-07-20","usd":202.82,"x":16214,"price":0.007792,"pct":100,"bnb":0.1525,"cum":8195.93},{"date":"2026-07-27","usd":235.52,"x":19216,"price":0.007635,"pct":100,"bnb":0.1392,"cum":8431.45},{"date":"2026-08-03","usd":219.63,"x":18404,"price":0.007434,"pct":100,"bnb":0.1861,"cum":8651.08},{"date":"2026-08-10","usd":216.49,"x":17300,"price":0.007795,"pct":100,"bnb":0.1269,"cum":8867.57},{"date":"2026-08-17","usd":254.45,"x":18981,"price":0.008351,"pct":100,"bnb":0.1441,"cum":9122.03},{"date":"2026-08-24","usd":256.78,"x":22216,"price":0.0072,"pct":100,"bnb":0.1422,"cum":9378.81},{"date":"2026-08-31","usd":309.16,"x":26331,"price":0.007314,"pct":100,"bnb":0.2176,"cum":9687.97},{"date":"2026-09-07","usd":277.08,"x":21885,"price":0.007887,"pct":100,"bnb":0.1804,"cum":9965.05},{"date":"2026-09-14","usd":318.95,"x":22309,"price":0.008906,"pct":100,"bnb":0.2049,"cum":10284.0}];
+const DAILY=[{"date":"2025-09-15","fdv":12585641,"holders":1212},{"date":"2025-09-16","fdv":11524774,"holders":1181},{"date":"2025-09-17","fdv":11410504,"holders":1146},{"date":"2025-09-18","fdv":11200752,"holders":1148},{"date":"2025-09-19","fdv":11849916,"holders":1140},{"date":"2025-09-20","fdv":11026470,"holders":1166},{"date":"2025-09-21","fdv":11440119,"holders":1156},{"date":"2025-09-22","fdv":11147258,"holders":1137},{"date":"2025-09-23","fdv":11086696,"holders":1125},{"date":"2025-09-24","fdv":10826337,"holders":1173},{"date":"2025-09-25","fdv":11069027,"holders":1183},{"date":"2025-09-26","fdv":10628286,"holders":1179},{"date":"2025-09-27","fdv":10598937,"holders":1166},{"date":"2025-09-28","fdv":10730041,"holders":1152},{"date":"2025-09-29","fdv":11421152,"holders":1158},{"date":"2025-09-30","fdv":10459666,"holders":1177},{"date":"2025-10-01","fdv":11017996,"holders":1211},{"date":"2025-10-02","fdv":11383599,"holders":1246},{"date":"2025-10-03","fdv":11190925,"holders":1262},{"date":"2025-10-04","fdv":11310361,"holders":1257},{"date":"2025-10-05","fdv":11125888,"holders":1247},{"date":"2025-10-06","fdv":11767134,"holders":1206},{"date":"2025-10-07","fdv":11853453,"holders":1193},{"date":"2025-10-08","fdv":11764026,"holders":1212},{"date":"2025-10-09","fdv":11670123,"holders":1214},{"date":"2025-10-10","fdv":11588483,"holders":1231},{"date":"2025-10-11","fdv":11516847,"holders":1211},{"date":"2025-10-12","fdv":11162538,"holders":1240},{"date":"2025-10-13","fdv":11966708,"holders":1256},{"date":"2025-10-14","fdv":11166318,"holders":1267},{"date":"2025-10-15","fdv":9757114,"holders":1285},{"date":"2025-10-16","fdv":9715161,"holders":1245},{"date":"2025-10-17","fdv":9665324,"holders":1243},{"date":"2025-10-18","fdv":9791314,"holders":1232},{"date":"2025-10-19","fdv":9721230,"holders":1282},{"date":"2025-10-20","fdv":9670835,"holders":1287},{"date":"2025-10-21","fdv":9783327,"holders":1286},{"date":"2025-10-22","fdv":10114928,"holders":1314},{"date":"2025-10-23","fdv":9956334,"holders":1300},{"date":"2025-10-24","fdv":9826417,"holders":1341},{"date":"2025-10-25","fdv":10493811,"holders":1335},{"date":"2025-10-26","fdv":10688481,"holders":1343},{"date":"2025-10-27","fdv":10319828,"holders":1333},{"date":"2025-10-28","fdv":11159222,"holders":1360},{"date":"2025-10-29","fdv":11462270,"holders":1322},{"date":"2025-10-30","fdv":11225975,"holders":1346},{"date":"2025-10-31","fdv":10764537,"holders":1338},{"date":"2025-11-01","fdv":10876931,"holders":1348},{"date":"2025-11-02","fdv":10560118,"holders":1332},{"date":"2025-11-03","fdv":10169247,"holders":1347},{"date":"2025-11-04","fdv":9707970,"holders":1361},{"date":"2025-11-05","fdv":9535982,"holders":1383},{"date":"2025-11-06","fdv":9905637,"holders":1400},{"date":"2025-11-07","fdv":9755338,"holders":1423},{"date":"2025-11-08","fdv":9260453,"holders":1454},{"date":"2025-11-09","fdv":9477234,"holders":1455},{"date":"2025-11-10","fdv":9499024,"holders":1439},{"date":"2025-11-11","fdv":9779587,"holders":1420},{"date":"2025-11-12","fdv":10190923,"holders":1444},{"date":"2025-11-13","fdv":10130736,"holders":1446},{"date":"2025-11-14","fdv":10079380,"holders":1478},{"date":"2025-11-15","fdv":10063333,"holders":1489},{"date":"2025-11-16","fdv":9663709,"holders":1476},{"date":"2025-11-17","fdv":9889977,"holders":1505},{"date":"2025-11-18","fdv":10364967,"holders":1558},{"date":"2025-11-19","fdv":10428022,"holders":1563},{"date":"2025-11-20","fdv":10341361,"holders":1552},{"date":"2025-11-21","fdv":10247293,"holders":1543},{"date":"2025-11-22","fdv":9967321,"holders":1572},{"date":"2025-11-23","fdv":9686867,"holders":1569},{"date":"2025-11-24","fdv":9550968,"holders":1569},{"date":"2025-11-25","fdv":9269525,"holders":1594},{"date":"2025-11-26","fdv":9127632,"holders":1604},{"date":"2025-11-27","fdv":8623744,"holders":1616},{"date":"2025-11-28","fdv":8729413,"holders":1613},{"date":"2025-11-29","fdv":8744419,"holders":1609},{"date":"2025-11-30","fdv":8391685,"holders":1622},{"date":"2025-12-01","fdv":7716668,"holders":1635},{"date":"2025-12-02","fdv":7714565,"holders":1657},{"date":"2025-12-03","fdv":8012642,"holders":1656},{"date":"2025-12-04","fdv":7806920,"holders":1673},{"date":"2025-12-05","fdv":7674945,"holders":1693},{"date":"2025-12-06","fdv":7522262,"holders":1704},{"date":"2025-12-07","fdv":7694265,"holders":1726},{"date":"2025-12-08","fdv":7447602,"holders":1758},{"date":"2025-12-09","fdv":7704574,"holders":1772},{"date":"2025-12-10","fdv":7622853,"holders":1783},{"date":"2025-12-11","fdv":7869566,"holders":1771},{"date":"2025-12-12","fdv":7878542,"holders":1788},{"date":"2025-12-13","fdv":7814750,"holders":1795},{"date":"2025-12-14","fdv":7410434,"holders":1798},{"date":"2025-12-15","fdv":7232199,"holders":1789},{"date":"2025-12-16","fdv":7200000,"holders":1811},{"date":"2025-12-17","fdv":7366240,"holders":1877},{"date":"2025-12-18","fdv":7429395,"holders":1896},{"date":"2025-12-19","fdv":7248224,"holders":1908},{"date":"2025-12-20","fdv":7352168,"holders":1927},{"date":"2025-12-21","fdv":7606232,"holders":1923},{"date":"2025-12-22","fdv":7566680,"holders":1935},{"date":"2025-12-23","fdv":7450411,"holders":1930},{"date":"2025-12-24","fdv":7347731,"holders":1925},{"date":"2025-12-25","fdv":7556205,"holders":1940},{"date":"2025-12-26","fdv":7698576,"holders":1954},{"date":"2025-12-27","fdv":7448084,"holders":1961},{"date":"2025-12-28","fdv":7545815,"holders":1953},{"date":"2025-12-29","fdv":7419050,"holders":1969},{"date":"2025-12-30","fdv":7223987,"holders":1954},{"date":"2025-12-31","fdv":7537412,"holders":1981},{"date":"2026-01-01","fdv":7754035,"holders":1982},{"date":"2026-01-02","fdv":7557314,"holders":1992},{"date":"2026-01-03","fdv":7578298,"holders":2019},{"date":"2026-01-04","fdv":7711306,"holders":2041},{"date":"2026-01-05","fdv":7538716,"holders":2022},{"date":"2026-01-06","fdv":7506938,"holders":2026},{"date":"2026-01-07","fdv":7682147,"holders":2043},{"date":"2026-01-08","fdv":7201053,"holders":2029},{"date":"2026-01-09","fdv":7283603,"holders":1985},{"date":"2026-01-10","fdv":7471942,"holders":1993},{"date":"2026-01-11","fdv":7603825,"holders":2002},{"date":"2026-01-12","fdv":7246791,"holders":2021},{"date":"2026-01-13","fdv":7327601,"holders":2032},{"date":"2026-01-14","fdv":7200000,"holders":2044},{"date":"2026-01-15","fdv":7343640,"holders":2059},{"date":"2026-01-16","fdv":7499043,"holders":2099},{"date":"2026-01-17","fdv":7555851,"holders":2119},{"date":"2026-01-18","fdv":7353444,"holders":2140},{"date":"2026-01-19","fdv":7201312,"holders":2141},{"date":"2026-01-20","fdv":7416573,"holders":2176},{"date":"2026-01-21","fdv":7200000,"holders":2181},{"date":"2026-01-22","fdv":7324942,"holders":2207},{"date":"2026-01-23","fdv":7456062,"holders":2170},{"date":"2026-01-24","fdv":7383355,"holders":2185},{"date":"2026-01-25","fdv":8002150,"holders":2192},{"date":"2026-01-26","fdv":8021800,"holders":2191},{"date":"2026-01-27","fdv":8624446,"holders":2229},{"date":"2026-01-28","fdv":8015842,"holders":2248},{"date":"2026-01-29","fdv":7386372,"holders":2254},{"date":"2026-01-30","fdv":7640184,"holders":2252},{"date":"2026-01-31","fdv":7810312,"holders":2303},{"date":"2026-02-01","fdv":7724945,"holders":2329},{"date":"2026-02-02","fdv":7710468,"holders":2353},{"date":"2026-02-03","fdv":7200000,"holders":2345},{"date":"2026-02-04","fdv":7200000,"holders":2384},{"date":"2026-02-05","fdv":7200000,"holders":2405},{"date":"2026-02-06","fdv":7200000,"holders":2409},{"date":"2026-02-07","fdv":7423282,"holders":2416},{"date":"2026-02-08","fdv":7437049,"holders":2390},{"date":"2026-02-09","fdv":7533808,"holders":2414},{"date":"2026-02-10","fdv":7349722,"holders":2399},{"date":"2026-02-11","fdv":7237834,"holders":2427},{"date":"2026-02-12","fdv":7266244,"holders":2427},{"date":"2026-02-13","fdv":7200000,"holders":2423},{"date":"2026-02-14","fdv":7518706,"holders":2441},{"date":"2026-02-15","fdv":7288249,"holders":2455},{"date":"2026-02-16","fdv":7770621,"holders":2439},{"date":"2026-02-17","fdv":7503895,"holders":2447},{"date":"2026-02-18","fdv":7782186,"holders":2470},{"date":"2026-02-19","fdv":7571595,"holders":2474},{"date":"2026-02-20","fdv":8008389,"holders":2454},{"date":"2026-02-21","fdv":8046632,"holders":2458},{"date":"2026-02-22","fdv":8158807,"holders":2447},{"date":"2026-02-23","fdv":8371425,"holders":2443},{"date":"2026-02-24","fdv":8185391,"holders":2454},{"date":"2026-02-25","fdv":7886893,"holders":2462},{"date":"2026-02-26","fdv":7327498,"holders":2467},{"date":"2026-02-27","fdv":7640392,"holders":2440},{"date":"2026-02-28","fdv":7454231,"holders":2458},{"date":"2026-03-01","fdv":7299771,"holders":2463},{"date":"2026-03-02","fdv":7291869,"holders":2463},{"date":"2026-03-03","fdv":7799433,"holders":2476},{"date":"2026-03-04","fdv":7327616,"holders":2528},{"date":"2026-03-05","fdv":7391564,"holders":2509},{"date":"2026-03-06","fdv":7289140,"holders":2483},{"date":"2026-03-07","fdv":7424831,"holders":2510},{"date":"2026-03-08","fdv":7200000,"holders":2502},{"date":"2026-03-09","fdv":7200000,"holders":2540},{"date":"2026-03-10","fdv":7411824,"holders":2528},{"date":"2026-03-11","fdv":7816270,"holders":2527},{"date":"2026-03-12","fdv":8253085,"holders":2554},{"date":"2026-03-13","fdv":8006150,"holders":2584},{"date":"2026-03-14","fdv":8021475,"holders":2603},{"date":"2026-03-15","fdv":7990624,"holders":2623},{"date":"2026-03-16","fdv":7605671,"holders":2629},{"date":"2026-03-17","fdv":7222266,"holders":2629},{"date":"2026-03-18","fdv":7413603,"holders":2634},{"date":"2026-03-19","fdv":7477325,"holders":2671},{"date":"2026-03-20","fdv":7439999,"holders":2696},{"date":"2026-03-21","fdv":7756586,"holders":2706},{"date":"2026-03-22","fdv":7484629,"holders":2723},{"date":"2026-03-23","fdv":7622554,"holders":2750},{"date":"2026-03-24","fdv":7625214,"holders":2786},{"date":"2026-03-25","fdv":7609378,"holders":2793},{"date":"2026-03-26","fdv":7739953,"holders":2800},{"date":"2026-03-27","fdv":7787613,"holders":2817},{"date":"2026-03-28","fdv":7860344,"holders":2884},{"date":"2026-03-29","fdv":7933410,"holders":2898},{"date":"2026-03-30","fdv":8471675,"holders":2936},{"date":"2026-03-31","fdv":8379499,"holders":2912},{"date":"2026-04-01","fdv":8676378,"holders":2940},{"date":"2026-04-02","fdv":8861125,"holders":2918},{"date":"2026-04-03","fdv":8752677,"holders":2904},{"date":"2026-04-04","fdv":8996442,"holders":2900},{"date":"2026-04-05","fdv":8726414,"holders":2906},{"date":"2026-04-06","fdv":9080845,"holders":2920},{"date":"2026-04-07","fdv":8823575,"holders":2937},{"date":"2026-04-08","fdv":8672295,"holders":2952},{"date":"2026-04-09","fdv":8770352,"holders":2952},{"date":"2026-04-10","fdv":9025877,"holders":3018},{"date":"2026-04-11","fdv":9312560,"holders":3036},{"date":"2026-04-12","fdv":9603757,"holders":3060},{"date":"2026-04-13","fdv":9534136,"holders":3114},{"date":"2026-04-14","fdv":9215124,"holders":3144},{"date":"2026-04-15","fdv":9392453,"holders":3166},{"date":"2026-04-16","fdv":9491671,"holders":3183},{"date":"2026-04-17","fdv":9175229,"holders":3233},{"date":"2026-04-18","fdv":9487827,"holders":3219},{"date":"2026-04-19","fdv":9553944,"holders":3208},{"date":"2026-04-20","fdv":9233684,"holders":3220},{"date":"2026-04-21","fdv":9376292,"holders":3185},{"date":"2026-04-22","fdv":8941431,"holders":3178},{"date":"2026-04-23","fdv":8666822,"holders":3212},{"date":"2026-04-24","fdv":8788834,"holders":3212},{"date":"2026-04-25","fdv":8309731,"holders":3225},{"date":"2026-04-26","fdv":8320687,"holders":3249},{"date":"2026-04-27","fdv":7927184,"holders":3233},{"date":"2026-04-28","fdv":8131710,"holders":3249},{"date":"2026-04-29","fdv":7924719,"holders":3245},{"date":"2026-04-30","fdv":7975379,"holders":3230},{"date":"2026-05-01","fdv":7555970,"holders":3234},{"date":"2026-05-02","fdv":7464953,"holders":3242},{"date":"2026-05-03","fdv":7712443,"holders":3243},{"date":"2026-05-04","fdv":7835881,"holders":3238},{"date":"2026-05-05","fdv":7331631,"holders":3268},{"date":"2026-05-06","fdv":7568841,"holders":3303},{"date":"2026-05-07","fdv":7805191,"holders":3324},{"date":"2026-05-08","fdv":7702407,"holders":3332},{"date":"2026-05-09","fdv":8084450,"holders":3318},{"date":"2026-05-10","fdv":7784770,"holders":3310},{"date":"2026-05-11","fdv":7761501,"holders":3295},{"date":"2026-05-12","fdv":8064059,"holders":3309},{"date":"2026-05-13","fdv":8433884,"holders":3339},{"date":"2026-05-14","fdv":8811762,"holders":3368},{"date":"2026-05-15","fdv":8474293,"holders":3377},{"date":"2026-05-16","fdv":7946252,"holders":3378},{"date":"2026-05-17","fdv":8055092,"holders":3392},{"date":"2026-05-18","fdv":7651486,"holders":3404},{"date":"2026-05-19","fdv":7616291,"holders":3426},{"date":"2026-05-20","fdv":7274682,"holders":3468},{"date":"2026-05-21","fdv":7544932,"holders":3463},{"date":"2026-05-22","fdv":7757129,"holders":3518},{"date":"2026-05-23","fdv":7908184,"holders":3481},{"date":"2026-05-24","fdv":7912928,"holders":3452},{"date":"2026-05-25","fdv":7925612,"holders":3429},{"date":"2026-05-26","fdv":7843065,"holders":3416},{"date":"2026-05-27","fdv":7948299,"holders":3420},{"date":"2026-05-28","fdv":8017681,"holders":3475},{"date":"2026-05-29","fdv":8146575,"holders":3469},{"date":"2026-05-30","fdv":8024312,"holders":3503},{"date":"2026-05-31","fdv":8557544,"holders":3504},{"date":"2026-06-01","fdv":8642080,"holders":3517},{"date":"2026-06-02","fdv":9063838,"holders":3504},{"date":"2026-06-03","fdv":9485987,"holders":3563},{"date":"2026-06-04","fdv":9194117,"holders":3572},{"date":"2026-06-05","fdv":8651326,"holders":3568},{"date":"2026-06-06","fdv":9031988,"holders":3627},{"date":"2026-06-07","fdv":8909486,"holders":3640},{"date":"2026-06-08","fdv":8935043,"holders":3659},{"date":"2026-06-09","fdv":8853994,"holders":3665},{"date":"2026-06-10","fdv":8894500,"holders":3657},{"date":"2026-06-11","fdv":8524184,"holders":3635},{"date":"2026-06-12","fdv":8493398,"holders":3641},{"date":"2026-06-13","fdv":8355523,"holders":3685},{"date":"2026-06-14","fdv":8351081,"holders":3704},{"date":"2026-06-15","fdv":7668535,"holders":3710},{"date":"2026-06-16","fdv":7888845,"holders":3742},{"date":"2026-06-17","fdv":7980460,"holders":3732},{"date":"2026-06-18","fdv":7498106,"holders":3771},{"date":"2026-06-19","fdv":7305437,"holders":3780},{"date":"2026-06-20","fdv":7313398,"holders":3772},{"date":"2026-06-21","fdv":7474348,"holders":3796},{"date":"2026-06-22","fdv":7474426,"holders":3817},{"date":"2026-06-23","fdv":7836361,"holders":3819},{"date":"2026-06-24","fdv":7842469,"holders":3833},{"date":"2026-06-25","fdv":7567933,"holders":3864},{"date":"2026-06-26","fdv":7388771,"holders":3904},{"date":"2026-06-27","fdv":7581076,"holders":3895},{"date":"2026-06-28","fdv":7418348,"holders":3847},{"date":"2026-06-29","fdv":7636694,"holders":3901},{"date":"2026-06-30","fdv":7909429,"holders":3905},{"date":"2026-07-01","fdv":8072344,"holders":3905},{"date":"2026-07-02","fdv":8359730,"holders":3924},{"date":"2026-07-03","fdv":8308859,"holders":3924},{"date":"2026-07-04","fdv":8306057,"holders":3956},{"date":"2026-07-05","fdv":8134047,"holders":3939},{"date":"2026-07-06","fdv":7960333,"holders":3944},{"date":"2026-07-07","fdv":7524254,"holders":3926},{"date":"2026-07-08","fdv":7377965,"holders":3969},{"date":"2026-07-09","fdv":7200000,"holders":3973},{"date":"2026-07-10","fdv":7200000,"holders":4006},{"date":"2026-07-11","fdv":7236929,"holders":4046},{"date":"2026-07-12","fdv":7352074,"holders":4029},{"date":"2026-07-13","fdv":7264131,"holders":4034},{"date":"2026-07-14","fdv":7612053,"holders":4059},{"date":"2026-07-15","fdv":7862719,"holders":4070},{"date":"2026-07-16","fdv":8150292,"holders":4076},{"date":"2026-07-17","fdv":7978059,"holders":4104},{"date":"2026-07-18","fdv":7561371,"holders":4134},{"date":"2026-07-19","fdv":7709033,"holders":4130},{"date":"2026-07-20","fdv":7792192,"holders":4137},{"date":"2026-07-21","fdv":7990215,"holders":4160},{"date":"2026-07-22","fdv":8106744,"holders":4175},{"date":"2026-07-23","fdv":8464331,"holders":4187},{"date":"2026-07-24","fdv":8378968,"holders":4172},{"date":"2026-07-25","fdv":8574754,"holders":4220},{"date":"2026-07-26","fdv":8306065,"holders":4225},{"date":"2026-07-27","fdv":7634786,"holders":4240},{"date":"2026-07-28","fdv":7516067,"holders":4249},{"date":"2026-07-29","fdv":7910348,"holders":4260},{"date":"2026-07-30","fdv":7446312,"holders":4272},{"date":"2026-07-31","fdv":7711354,"holders":4264},{"date":"2026-08-01","fdv":7527943,"holders":4281},{"date":"2026-08-02","fdv":7422587,"holders":4317},{"date":"2026-08-03","fdv":7433947,"holders":4335},{"date":"2026-08-04","fdv":7489068,"holders":4361},{"date":"2026-08-05","fdv":7233719,"holders":4381},{"date":"2026-08-06","fdv":7265681,"holders":4391},{"date":"2026-08-07","fdv":7378531,"holders":4440},{"date":"2026-08-08","fdv":7594151,"holders":4435},{"date":"2026-08-09","fdv":7393605,"holders":4452},{"date":"2026-08-10","fdv":7795080,"holders":4484},{"date":"2026-08-11","fdv":8315442,"holders":4500},{"date":"2026-08-12","fdv":9018311,"holders":4487},{"date":"2026-08-13","fdv":8595105,"holders":4473},{"date":"2026-08-14","fdv":8647115,"holders":4516},{"date":"2026-08-15","fdv":8084494,"holders":4505},{"date":"2026-08-16","fdv":8191522,"holders":4515},{"date":"2026-08-17","fdv":8350673,"holders":4536},{"date":"2026-08-18","fdv":8014778,"holders":4547},{"date":"2026-08-19","fdv":7569829,"holders":4518},{"date":"2026-08-20","fdv":7619437,"holders":4486},{"date":"2026-08-21","fdv":7786916,"holders":4493},{"date":"2026-08-22","fdv":7570916,"holders":4486},{"date":"2026-08-23","fdv":7501640,"holders":4490},{"date":"2026-08-24","fdv":7200000,"holders":4501},{"date":"2026-08-25","fdv":7200000,"holders":4514},{"date":"2026-08-26","fdv":7237028,"holders":4495},{"date":"2026-08-27","fdv":7275497,"holders":4467},{"date":"2026-08-28","fdv":7678639,"holders":4498},{"date":"2026-08-29","fdv":7371922,"holders":4493},{"date":"2026-08-30","fdv":7200000,"holders":4477},{"date":"2026-08-31","fdv":7313956,"holders":4443},{"date":"2026-09-01","fdv":7200000,"holders":4464},{"date":"2026-09-02","fdv":7272196,"holders":4446},{"date":"2026-09-03","fdv":7455104,"holders":4433},{"date":"2026-09-04","fdv":7611815,"holders":4456},{"date":"2026-09-05","fdv":7995954,"holders":4472},{"date":"2026-09-06","fdv":8374475,"holders":4494},{"date":"2026-09-07","fdv":7886559,"holders":4476},{"date":"2026-09-08","fdv":7869177,"holders":4423},{"date":"2026-09-09","fdv":8420189,"holders":4411},{"date":"2026-09-10","fdv":8300216,"holders":4414},{"date":"2026-09-11","fdv":8581142,"holders":4409},{"date":"2026-09-12","fdv":8564367,"holders":4438},{"date":"2026-09-13","fdv":8438412,"holders":4455},{"date":"2026-09-14","fdv":8905897,"holders":4442}];
+const NS="http://www.w3.org/2000/svg";
+const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const fmtM=v=>v>=1e9?`$${(v/1e9).toFixed(2)}B`:v>=1e6?`$${(v/1e6).toFixed(2)}M`:v>=1e3?`$${(v/1e3).toFixed(1)}K`:`$${v.toFixed(0)}`;
+const fmtK=v=>v>=1e6?`${(v/1e6).toFixed(2)}M`:v>=1e3?`${(v/1e3).toFixed(1)}K`:`${v}`;
+const mon=iso=>{const d=new Date(iso+'T00:00:00');return d.toLocaleDateString('en-US',{month:'short'})+" '"+String(d.getFullYear()).slice(2);};
+const dmy=iso=>new Date(iso+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const T0=new Date(DAILY[0].date+'T00:00:00').getTime(), T1=new Date(DAILY[DAILY.length-1].date+'T00:00:00').getTime();
+const tx=(iso,x0,x1)=>{const t=new Date(iso+'T00:00:00').getTime();return x0+((t-T0)/(T1-T0))*(x1-x0);};
+const line=pts=>pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+const F='Inter,sans-serif', FM="'JetBrains Mono',monospace";
+
+function axes(svg,W,H,pl,pr,pt,pb,opt){
+  // month ticks along the bottom, one per month boundary
+  let last=null, idx=0;
+  const every=opt.every||1;   // label every Nth month on narrow charts
+  DAILY.forEach(d=>{
+    const m=d.date.slice(0,7);
+    if(m!==last){last=m; idx++;
+      const x=tx(d.date,pl,W-pr);
+      if(x>pl+6 && idx%every===0){const t=mk('text',{x,y:H-6,'font-size':11,fill:'#5F6B72','text-anchor':'middle','font-family':F});t.textContent=mon(d.date);svg.appendChild(t);}
+    }
+  });
+  (opt.yl||[]).forEach(([v,lab])=>{
+    const y=pt+(H-pt-pb)*(1-v);
+    svg.appendChild(mk('line',{x1:pl,y1:y,x2:W-pr,y2:y,stroke:'#1F2A2F','stroke-width':1}));
+    const t=mk('text',{x:pl-10,y:y+4,'font-size':11,fill:'#5F6B72','text-anchor':'end','font-family':FM});t.textContent=lab;svg.appendChild(t);
+  });
+  (opt.yr||[]).forEach(([v,lab])=>{
+    const y=pt+(H-pt-pb)*(1-v);
+    const t=mk('text',{x:W-pr+10,y:y+4,'font-size':11,fill:'#5F6B72','text-anchor':'start','font-family':FM});t.textContent=lab;svg.appendChild(t);
+  });
+}
+
+
+// ===== generic hover: crosshair + dots + tooltip =====
+function hoverify(svg,W,H,pl,pr,pt,pb,probe){
+  const card=svg.closest('.card');
+  const tip=document.createElement('div'); tip.className='tip'; card.appendChild(tip);
+  const g=mk('g',{style:'display:none'});
+  const xl=mk('line',{class:'xl',y1:pt,y2:H-pb}); g.appendChild(xl);
+  const dots=[]; svg.appendChild(g);
+  const cover=mk('rect',{x:pl,y:pt,width:W-pl-pr,height:H-pt-pb,fill:'transparent'}); svg.appendChild(cover);
+  function move(e){
+    const r=svg.getBoundingClientRect(), sx=W/r.width, sy=H/r.height;
+    const vx=(e.clientX-r.left)*sx; if(vx<pl||vx>W-pr) return leave();
+    const res=probe(vx); if(!res) return leave();
+    g.style.display=''; xl.setAttribute('x1',res.x); xl.setAttribute('x2',res.x);
+    while(dots.length<res.dots.length){const c=mk('circle',{class:'xdot',r:4.5});g.appendChild(c);dots.push(c);}
+    dots.forEach((c,i)=>{const d=res.dots[i]; if(d){c.style.display='';c.setAttribute('cx',d.x);c.setAttribute('cy',d.y);c.setAttribute('fill',d.color);} else c.style.display='none';});
+    tip.innerHTML=`<div class="tp-h">${res.title}</div>`+res.rows.map(rw=>`<div class="tp-r"><span class="tp-d" style="background:${rw.color}"></span>${rw.label}<span class="tp-v mono">${rw.value}</span></div>`).join('');
+    tip.classList.add('on');
+    const cr=card.getBoundingClientRect();
+    let left=(e.clientX-cr.left)+16, top=(e.clientY-cr.top)+16;
+    const tw=tip.offsetWidth, thh=tip.offsetHeight;
+    if(left+tw>cr.width-12) left=(e.clientX-cr.left)-tw-16;
+    if(top+thh>cr.height-8) top=(e.clientY-cr.top)-thh-16;
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+  }
+  function leave(){ g.style.display='none'; tip.classList.remove('on'); }
+  cover.addEventListener('mousemove',move); cover.addEventListener('mouseleave',leave);
+}
+const nearestIdx=(arr,vx,pl,pr,W)=>{let bi=0,bd=1e9;arr.forEach((a,i)=>{const d=Math.abs(tx(a.date,pl,W-pr)-vx);if(d<bd){bd=d;bi=i;}});return bi;};
+
+// ===== Cumulative buybacks (green area, left axis) + FDV (purple, right axis)
+(function(){
+  const s=document.getElementById('cumChart'),W=1120,H=300,pl=64,pr=70,pt=14,pb=30;
+  const ch=H-pt-pb;
+  const cmax=Math.max(...WEEKLY.map(w=>w.cum))*1.2, fmax=Math.max(...DAILY.map(d=>d.fdv))*1.25;
+  axes(s,W,H,pl,pr,pt,pb,{
+    yl:[0,.25,.5,.75,1].map(v=>[v,fmtM(v*cmax)]),
+    yr:[0,.25,.5,.75,1].map(v=>[v,fmtM(v*fmax)])
+  });
+  const cp=[[pl,pt+ch],...WEEKLY.map(w=>[tx(w.date,pl,W-pr),pt+ch*(1-w.cum/cmax)])];
+  const g=mk('linearGradient',{id:'gc',x1:0,y1:0,x2:0,y2:1});
+  g.appendChild(mk('stop',{offset:'0','stop-color':'#6EEF00','stop-opacity':.28}));g.appendChild(mk('stop',{offset:'1','stop-color':'#6EEF00','stop-opacity':0}));
+  const d=mk('defs',{});d.appendChild(g);s.appendChild(d);
+  s.appendChild(mk('path',{d:line(cp)+` L${cp[cp.length-1][0]},${pt+ch} Z`,fill:'url(#gc)'}));
+  s.appendChild(mk('path',{d:line(cp),fill:'none',stroke:'#6EEF00','stroke-width':2}));
+  const fp=DAILY.map(x=>[tx(x.date,pl,W-pr),pt+ch*(1-x.fdv/fmax)]);
+  s.appendChild(mk('path',{d:line(fp),fill:'none',stroke:'#7C7CFF','stroke-width':1.6}));
+  document.getElementById('cumV').textContent=fmtM(WEEKLY[WEEKLY.length-1].cum);
+  document.getElementById('fdvV').textContent=fmtM(DAILY[DAILY.length-1].fdv);
+  hoverify(s,W,H,pl,pr,pt,pb,vx=>{
+    const di=nearestIdx(DAILY,vx,pl,pr,W), d=DAILY[di];
+    const x=tx(d.date,pl,W-pr);
+    // cumulative value at that date = last weekly point on/before it
+    let cv=0,cy=pt+ch; for(const w of WEEKLY){ if(w.date<=d.date){cv=w.cum;cy=pt+ch*(1-w.cum/cmax);} else break; }
+    return {x,title:mon(d.date),
+      dots:[{x,y:cy,color:'#6EEF00'},{x,y:pt+ch*(1-d.fdv/fmax),color:'#7C7CFF'}],
+      rows:[{color:'#6EEF00',label:'Cumulative buybacks',value:fmtM(cv)},{color:'#7C7CFF',label:'FDV',value:fmtM(d.fdv)}]};
+  });
+})();
+
+// ===== Weekly bars (amber)
+(function(){
+  const s=document.getElementById('wkChart'),W=540,H=220,pl=58,pr=10,pt=10,pb=30,ch=H-pt-pb;
+  const mx=Math.max(...WEEKLY.map(w=>w.usd))*1.15;
+  axes(s,W,H,pl,pr,pt,pb,{every:2,yl:[0,.25,.5,.75,1].map(v=>[v,fmtM(v*mx)])});
+  const bw=Math.max(3,((W-pl-pr)/WEEKLY.length)*0.55);
+  WEEKLY.forEach(w=>{
+    const x=tx(w.date,pl,W-pr),h=ch*(w.usd/mx);
+    s.appendChild(mk('rect',{x:x-bw/2,y:pt+ch-h,width:bw,height:h,fill:'#F5A524',rx:1}));
+  });
+  document.getElementById('wkV').textContent=fmtM(WEEKLY[WEEKLY.length-1].usd);
+  const hl=mk('rect',{fill:'#FFD27A',rx:1,style:'display:none'}); s.appendChild(hl);   // added before cover -> cover stays on top
+  hoverify(s,W,H,pl,pr,pt,pb,vx=>{
+    const i=nearestIdx(WEEKLY,vx,pl,pr,W), w=WEEKLY[i], x=tx(w.date,pl,W-pr), h=ch*(w.usd/mx);
+    hl.style.display=''; hl.setAttribute('x',x-bw/2); hl.setAttribute('y',pt+ch-h); hl.setAttribute('width',bw); hl.setAttribute('height',h);
+    return {x,title:mon(w.date),dots:[],rows:[{color:'#F5A524',label:'USD spent',value:fmtM(w.usd)}]};
+  });
+  s.addEventListener('mouseleave',()=>hl.style.display='none');
+})();
+
+// ===== Allocation line + 100% target
+(function(){
+  const s=document.getElementById('allocChart'),W=540,H=220,pl=58,pr=10,pt=10,pb=30,ch=H-pt-pb;
+  const mx=110;
+  axes(s,W,H,pl,pr,pt,pb,{every:2,yl:[0,.318,.636,.909].map(v=>[v,Math.round(v*mx)+'%'])});
+  const yT=pt+ch*(1-100/mx);
+  s.appendChild(mk('line',{x1:pl,y1:yT,x2:W-pr,y2:yT,stroke:'#5F6B72','stroke-width':1,'stroke-dasharray':'4 4'}));
+  const pts=WEEKLY.map(w=>[tx(w.date,pl,W-pr),pt+ch*(1-w.pct/mx)]);
+  s.appendChild(mk('path',{d:line(pts),fill:'none',stroke:'#6EEF00','stroke-width':1.8}));
+  hoverify(s,W,H,pl,pr,pt,pb,vx=>{
+    const i=nearestIdx(WEEKLY,vx,pl,pr,W), w=WEEKLY[i];
+    return {x:pts[i][0],title:mon(w.date),dots:[{x:pts[i][0],y:pts[i][1],color:'#6EEF00'}],
+      rows:[{color:'#6EEF00',label:'Revenue to buyback',value:w.pct.toFixed(1)+'%'}]};
+  });
+})();
+
+// ===== Holders line
+(function(){
+  const s=document.getElementById('holdChart'),W=1120,H=240,pl=64,pr=20,pt=12,pb=30,ch=H-pt-pb;
+  const mx=Math.max(...DAILY.map(d=>d.holders))*1.15;
+  axes(s,W,H,pl,pr,pt,pb,{yl:[0,.25,.5,.75,1].map(v=>[v,fmtK(Math.round(v*mx))])});
+  const pts=DAILY.map(d=>[tx(d.date,pl,W-pr),pt+ch*(1-d.holders/mx)]);
+  const g=mk('linearGradient',{id:'gh',x1:0,y1:0,x2:0,y2:1});
+  g.appendChild(mk('stop',{offset:'0','stop-color':'#6EEF00','stop-opacity':.22}));g.appendChild(mk('stop',{offset:'1','stop-color':'#6EEF00','stop-opacity':0}));
+  const d=mk('defs',{});d.appendChild(g);s.appendChild(d);
+  s.appendChild(mk('path',{d:line(pts)+` L${pts[pts.length-1][0]},${pt+ch} L${pts[0][0]},${pt+ch} Z`,fill:'url(#gh)'}));
+  s.appendChild(mk('path',{d:line(pts),fill:'none',stroke:'#6EEF00','stroke-width':1.8}));
+  document.getElementById('holdV').textContent=fmtK(DAILY[DAILY.length-1].holders);
+  hoverify(s,W,H,pl,pr,pt,pb,vx=>{
+    const i=nearestIdx(DAILY,vx,pl,pr,W), d=DAILY[i];
+    return {x:pts[i][0],title:mon(d.date),dots:[{x:pts[i][0],y:pts[i][1],color:'#6EEF00'}],
+      rows:[{color:'#6EEF00',label:'Active holders',value:d.holders.toLocaleString()}]};
+  });
+})();
+
+// ===== Calculator (allocation fixed at 100%, circ supply 150M)
+(function(){
+  const CIRC=150e6, iR=document.getElementById('iRev'), iM=document.getElementById('iMcap');
+  const $=id=>document.getElementById(id);
+  function run(){
+    const m=+iR.value, cap=+iM.value, ann=m*12;
+    $('oRev').textContent=fmtM(m); $('oMcap').textContent=fmtM(cap);
+    $('oMult').textContent=(cap/ann).toFixed(1)+'x';
+    $('oAnn').textContent=fmtM(ann);
+    $('oPrice').textContent='$'+(cap/CIRC).toFixed(6);
+    $('oYield').textContent=(ann/cap*100).toFixed(1)+'%';
+  }
+  iR.addEventListener('input',run); iM.addEventListener('input',run); run();
+})();
+
+// ===== Table (newest first, 10/page)
+(function(){
+  const rows=[...WEEKLY].reverse(), PER=10; let p=0;
+  const tb=document.getElementById('tbody');
+  function draw(){
+    const pages=Math.ceil(rows.length/PER); p=Math.max(0,Math.min(pages-1,p));
+    tb.innerHTML=rows.slice(p*PER,(p+1)*PER).map(r=>
+      `<tr><td>${dmy(r.date)}</td><td class="b">${fmtK(r.x)}</td><td>${r.bnb.toFixed(4)}</td><td>${fmtM(r.usd)}</td><td class="g">$${r.price.toFixed(6)}</td><td>${r.pct.toFixed(2)}%</td></tr>`).join('');
+    document.getElementById('pinfo').textContent=`Showing ${p*PER+1}\u2013${Math.min((p+1)*PER,rows.length)} of ${rows.length}`;
+    document.getElementById('pnum').textContent=`${p+1} / ${pages}`;
+    document.getElementById('prev').disabled=p===0; document.getElementById('next').disabled=p>=pages-1;
+  }
+  document.getElementById('prev').onclick=()=>{p--;draw();}; document.getElementById('next').onclick=()=>{p++;draw();};
+  draw();
+})();
+
+// ===== Share
+document.querySelectorAll('#shareBtn,.share2').forEach(b=>b.addEventListener('click',async()=>{
+  const url=location.href;
+  if(navigator.share){try{await navigator.share({title:'$X Token — TaleX',url});return;}catch(e){}}
+  try{await navigator.clipboard.writeText(url);b.textContent='Copied';setTimeout(()=>b.textContent='Share',1400);}catch(e){}
+}));
+</script>
+</body>
+</html>
