@@ -280,11 +280,11 @@
         <div class="desc">See how ecosystem revenue measures up against $X's circulating valuation, with allocation fixed at 100%.</div>
         <div class="field">
           <div class="row"><span>Monthly ecosystem revenue</span><span class="v mono" id="oRev"></span></div>
-          <input type="range" id="iRev" min="500" max="100000" step="500" value="857">
+          <input type="range" id="iRev" min="10000" max="1000000" step="10000" value="10000">
         </div>
         <div class="field">
           <div class="row"><span>Assumed circulating market cap</span><span class="v mono" id="oMcap"></span></div>
-          <input type="range" id="iMcap" min="1000000" max="1000000000" step="1000000" value="2000000">
+          <input type="range" id="iMcap" min="1000000" max="100000000" step="1000000" value="10000000">
         </div>
         <div class="fixed"><span>Allocated to buyback</span><b class="mono">100%</b></div>
       </div>
@@ -568,7 +568,7 @@ addEventListener('resize',()=>{clearTimeout(_rt);_rt=setTimeout(()=>{ if(isMob()
 
 // ===== Calculator (allocation fixed at 100%, circ supply 150M)
 (function(){
-  const CIRC=150e6, iR=document.getElementById('iRev'), iM=document.getElementById('iMcap');
+  const CIRC=691_660_000, iR=document.getElementById('iRev'), iM=document.getElementById('iMcap');
   const $=id=>document.getElementById(id);
   function run(){
     const m=+iR.value, cap=+iM.value, ann=m*12;
