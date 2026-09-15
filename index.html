@@ -3,981 +3,620 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TaleX — One ecosystem. Three ways to grow.</title>
+<title>$X Token — TaleX's native token</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --vc:#FF0033;
-    --rf:#05E3F7;
-    --tx:#0C1214;
-    --tx-green:#6EEF00;
-    --ease:cubic-bezier(.6,.02,.1,1);
-    --spring:cubic-bezier(.34,1.56,.64,1);
-    --icon-cx: 321;
-    --icon-cy: 526;
-    --icon-sz: 156;
+    --bg:#0C1214; --card:#121A1D; --card2:#182126; --line:#1F2A2F;
+    --text:#F2F4F5; --dim:#8E9AA0; --faint:#5F6B72;
+    --green:#6EEF00; --purple:#7C7CFF; --amber:#F5A524; --red:#FF4D6D;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
-    background:#000;color:#0c1214;overflow:hidden;
-  }
-  .stage{
-    position:fixed;inset:0;display:flex;width:100vw;
-    height:100vh;height:100dvh;
-  }
-  .col{
-    position:relative;flex:1 1 0;min-width:0;height:100%;
-    overflow:hidden;
-  }
-  .frame{
-    position:absolute;left:50%;bottom:0;
-    width:640px;height:1080px;
-    transform:translateX(-50%);
-    transform-origin:bottom center;
-  }
-  .photo{
-    position:absolute;inset:0;width:100%;height:100%;
-    background-size:cover;background-position:center bottom;background-repeat:no-repeat;
-    z-index:1;
-  }
-  .col--vc .photo{background-image:url('assets/viewscall.png');background-color:#fbeaee}
-  .col--rf .photo{background-image:url('assets/roamfi.png');background-color:#eafbff}
-  .col--tx .photo{background-image:url('assets/talex.png');background-color:#f0f0f2}
-  .placeholder{
-    position:absolute;inset:0;z-index:2;background:#0c1214;
-    opacity:0;transition:opacity 120ms ease;pointer-events:none;
-  }
-  .col.active .placeholder{opacity:1}
-  /* VIDEO fills the column's work-area (under address bar -> above taskbar).
-     It sits at column level (not in .frame) at z-3, above the placeholder.
-     object-fit:cover + center keeps it full-height; any overflow is split
-     evenly, and excess width is cropped at the sides. */
-  .vid{
-    position:absolute;inset:0;width:100%;height:100%;z-index:3;
-    object-fit:cover;object-position:center center;
-    opacity:0;visibility:hidden;transition:opacity 160ms ease;pointer-events:none;
-    background:#0c1214;
-  }
-  .col.playing .vid{opacity:1;visibility:visible}
-  .dim{
-    position:absolute;inset:0;z-index:4;pointer-events:none;
-    background:rgba(8,12,16,0);
-    transition:background 380ms ease;
-  }
-  .stage.has-active .col:not(.active) .dim{background:rgba(8,12,16,.64)}
-  /* APP ICON — direct child of .col (NOT inside .frame, so it isn't trapped
-     in the frame's transform stacking-context). z-7 puts it above .dim (z-4)
-     and the seams (z-6), so on dimmed columns it keeps its natural color.
-     Position + size are set by JS to match the baked plate under cover-scale. */
-  .appicon{
-    position:absolute;z-index:7;pointer-events:none;
-    transform:translate(-50%,-50%);
-    background-repeat:no-repeat;background-position:center;background-size:contain;
-    opacity:0;transition:opacity 320ms ease;
-    filter:drop-shadow(0 10px 22px rgba(0,0,0,.28));
-  }
-  .col--vc .appicon{background-image:url('assets/icon_viewscall.svg')}
-  .col--rf .appicon{background-image:url('assets/icon_roamfi.svg')}
-  .col--tx .appicon{background-image:url('assets/icon_talex.svg')}
-  .stage.has-active .col:not(.active) .appicon{opacity:1}
-  /* on the ACTIVE column the plate vanishes instantly (no fade) so the
-     standalone eye can take its exact place with no visible cross-fade */
-  .col.active .appicon{transition:none;opacity:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;padding:0 28px 120px}
+  .mono{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+  .wrap{max-width:1180px;margin:0 auto}
+  a{color:inherit}
+
+  /* ===== hero ===== */
+  .hero{text-align:center;padding:96px 0 84px}
+  .hero-logo{height:44px;width:auto;display:block;margin:0 auto 38px}
+  .hero h1{font-size:43px;line-height:1.16;font-weight:800;letter-spacing:-.025em;margin:0 auto 22px}
+  .hero h1 span{white-space:nowrap}
+  .hero p{font-size:18px;color:var(--dim);max-width:720px;margin:0 auto 34px;line-height:1.6}
+  .btns{display:flex;justify-content:center;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;font-family:inherit;transition:.15s}
+  .btn:hover{background:var(--card2)}
+  .btn.primary{background:var(--green);color:#071008;border-color:var(--green)}
+  .btn.primary:hover{filter:brightness(1.06)}
+  .btn .bn{height:24px;width:auto;display:block;margin:-4px 0 -4px -2px}
+  .btn .bi{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;margin-left:2px}
+
+  /* ===== sections ===== */
+  section{margin-bottom:56px}
+  .sec-head{margin-bottom:18px}
+  .sec-head h2{font-size:24px;font-weight:700;letter-spacing:-.01em;margin-bottom:6px}
+  .sec-head p{font-size:15px;color:var(--dim)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 30px}
+  .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+  .card-head h3{font-size:20px;font-weight:700;letter-spacing:-.01em;margin-bottom:5px}
+  .card-head p{font-size:14px;color:var(--dim)}
+  .kv{display:flex;gap:24px;align-items:center;flex-wrap:wrap;font-size:14px;color:var(--dim)}
+  .kv .sw{display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:8px;vertical-align:middle}
+  .kv b{margin-left:8px;font-weight:600}
+  .pill{font-size:13px;font-weight:600;color:var(--green);border:1px solid rgba(110,239,0,.35);background:rgba(110,239,0,.08);border-radius:8px;padding:6px 12px}
+  .asof{font-size:13px;color:var(--faint)}
+
+  /* ===== top metrics ===== */
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+  .metric{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px 30px}
+  .metric.glow{background:linear-gradient(135deg,rgba(110,239,0,.10),var(--card) 55%);border-color:rgba(110,239,0,.28)}
+  .metric .lbl{display:flex;align-items:center;gap:9px;font-size:15px;color:var(--dim);margin-bottom:16px}
+  .metric .lbl svg{width:16px;height:16px;stroke:var(--dim);fill:none;stroke-width:1.8}
+  .metric.glow .lbl svg{stroke:var(--green)}
+  .metric .val{font-size:34px;font-weight:600;letter-spacing:-.01em;line-height:1.1;margin-bottom:12px}
+  .metric.glow .val{color:var(--green)}
+  .metric .sub{font-size:13px;color:var(--faint)}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .chart{width:100%;display:block;touch-action:pan-y;-webkit-tap-highlight-color:transparent}
+  .big{font-size:22px;font-weight:600;line-height:1}
+  .big.amber{color:var(--amber)}
+  .latest{font-size:12px;color:var(--faint);text-align:right;margin-top:6px}
+
+  /* ===== calculator ===== */
+  .calc{display:grid;grid-template-columns:1fr 1fr;gap:28px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:30px}
+  .calc-l h3{font-size:20px;font-weight:700;margin-bottom:8px}
+  .calc-l .desc{font-size:14px;color:var(--dim);line-height:1.55;margin-bottom:24px;padding-right:20px}
+  .badge{display:inline-block;float:right;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);border:1px solid var(--line);border-radius:8px;padding:6px 12px;background:var(--card2)}
+  .field{margin-bottom:26px}
+  .field .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:14px}
+  .field .row .v{font-weight:600;font-size:15px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:var(--line);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--green);cursor:pointer;box-shadow:0 0 0 4px rgba(110,239,0,.18)}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--green);cursor:pointer;border:0;box-shadow:0 0 0 4px rgba(110,239,0,.18)}
+  .fixed{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:10px;border:1px solid rgba(110,239,0,.35);background:rgba(110,239,0,.06);font-size:14px}
+  .fixed b{color:var(--green);font-weight:600}
+  .calc-r{background:#0E1518;border:1px solid var(--line);border-radius:14px;padding:26px 28px}
+  .calc-r .cap{font-size:13px;letter-spacing:.08em;font-weight:700;color:var(--green);margin-bottom:6px}
+  .calc-r .cap span{color:var(--dim);font-weight:400;letter-spacing:0;text-transform:none;margin-left:10px;font-size:13px}
+  .calc-r .huge{font-size:56px;font-weight:600;color:var(--green);line-height:1.05;margin:10px 0 8px;text-shadow:0 0 28px rgba(110,239,0,.25)}
+  .calc-r .cap2{font-size:14px;color:var(--dim);margin-bottom:22px}
+  .outs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+  .out{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 16px}
+  .out .v{font-size:19px;font-weight:600;margin-bottom:6px}
+  .out .k{font-size:12px;color:var(--faint)}
+  .note{font-size:12.5px;color:var(--faint);line-height:1.5}
+
+  /* ===== live ===== */
+  .live{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 28px 20px}
+  .price-row{margin-bottom:16px}
+  .price-row .k{font-size:13px;color:var(--dim);margin-bottom:6px}
+  .price-row .p{font-size:34px;font-weight:600;display:inline-block;vertical-align:middle}
+  .chg{display:inline-block;vertical-align:middle;margin-left:14px;font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;background:rgba(255,77,109,.14);color:var(--red)}
+  .chg.up{background:rgba(110,239,0,.14);color:var(--green)}
+  .chg + span{font-size:12px;color:var(--faint);margin-left:8px;vertical-align:middle}
+  .tv{height:560px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0E1518}
+
+  /* ===== table ===== */
+  .tbl{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .tbl .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse}
+  thead th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:600;text-align:right;padding:16px 22px;border-bottom:1px solid var(--line);white-space:nowrap}
+  thead th:first-child{text-align:left}
+  tbody td{padding:14px 22px;font-size:14px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+  tbody td:first-child{text-align:left;color:var(--dim);font-family:Inter,sans-serif}
+  tbody td.g{color:var(--green)}
+  tbody td.b{font-weight:600}
+  tbody tr:last-child td{border-bottom:none}
+  .pager{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;font-size:13px;color:var(--faint)}
+  .pager .nav{display:flex;align-items:center;gap:14px}
+  .pager button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--text);cursor:pointer;font-size:16px;font-family:inherit;display:flex;align-items:center;justify-content:center}
+  .pager button:disabled{opacity:.3;cursor:default}
+  .pager button:not(:disabled):hover{background:#22303a}
+
+  /* ===== why ===== */
+  .why{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:34px 36px}
+  .why .lead{font-size:20px;font-weight:700;line-height:1.4;margin-bottom:18px}
+  .why p{font-size:15px;color:var(--dim);line-height:1.65;margin-bottom:16px}
+  .why p:last-child{margin-bottom:0}
+  .why strong{color:var(--text)}
+  .facts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+  .fact{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:22px 16px;text-align:center}
+  .fact .v{font-size:20px;font-weight:600;margin-bottom:6px}
+  .fact .k{font-size:12px;color:var(--faint)}
+
+  /* ===== fine print ===== */
+  .fine{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 26px;font-size:13.5px;line-height:1.65;color:var(--dim);margin-bottom:14px}
+  .fine h4{font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px}
+  .addr{display:inline-block;font-size:12px;background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:5px 10px;margin:8px 8px 0 0;color:var(--text);text-decoration:none}
+  .addr:hover{border-color:var(--green)}
 
 
-  /* ===== ViewsCall LOCKUP (eye + word) shown when the column is ACTIVE ===== */
-  /* container is positioned/sized by JS to match the active column. */
-  .lockup{
-    position:absolute;z-index:8;pointer-events:none;
-    left:0;top:0;width:0;height:0;
-    opacity:0;
-  }
-  .col.active .lockup{opacity:1}
-  /* the standalone icon: spawns exactly over the plate glyph, then JS moves
-     it to the lockup slot (left + shrink). Transition is driven by JS. */
-  .lockup-eye{
-    position:absolute;z-index:2;
-    background:center/contain no-repeat;
-    transform-origin:center center;
-    will-change:transform;
-    filter:drop-shadow(0 8px 18px rgba(0,0,0,.30));
-  }
-  .col--vc .lockup-eye{background-image:url('assets/vc_eye.svg')}
-  .col--rf .lockup-eye{background-image:url('assets/rf_icon.svg')}
-  .col--tx .lockup-eye{background-image:url('assets/tx_feather.svg')}
-  /* the white word: wipe + position are driven by JS (setWordHidden/Reveal) */
-  .lockup-word{
-    position:absolute;z-index:1;
-    background:left center/contain no-repeat;
-    clip-path:inset(0 100% 0 0);
-    opacity:0;
-    filter:drop-shadow(0 6px 16px rgba(0,0,0,.35));
-  }
-  .col--vc .lockup-word{background-image:url('assets/vc_word.svg')}
-  .col--rf .lockup-word{background-image:url('assets/rf_word.svg')}
-  .col--tx .lockup-word{background-image:url('assets/tx_word.svg')}
+  /* ===== hover tooltip ===== */
+  .card{position:relative}
+  .tip{position:absolute;z-index:5;pointer-events:none;display:none;min-width:200px;
+    background:#0F171B;border:1px solid #2A363C;border-radius:10px;padding:12px 14px;
+    box-shadow:0 14px 40px rgba(0,0,0,.5)}
+  .tip.on{display:block}
+  .tip .tp-h{font-size:12.5px;color:var(--faint);margin-bottom:9px}
+  .tip .tp-r{display:flex;align-items:center;gap:8px;font-size:13px;color:#C9D1D5;white-space:nowrap}
+  .tip .tp-r+.tp-r{margin-top:7px}
+  .tip .tp-d{width:8px;height:8px;border-radius:50%;flex:none}
+  .tip .tp-v{margin-left:auto;padding-left:18px;font-weight:600;color:var(--text)}
+  .chart .xl{stroke:#3A474E;stroke-width:1}
+  .chart .xdot{stroke:#0F171B;stroke-width:2}
 
-  /* ===== ViewsCall text panel + CTA (below the lockup) ===== */
-  .vc-panel{
-    position:absolute;left:0;right:0;bottom:3.5%;z-index:9;
-    display:flex;flex-direction:column;align-items:center;gap:16px;
-    padding:0 3.5%;
-    opacity:0;transform:translateY(14px);
-    transition:opacity 360ms ease 160ms, transform 420ms cubic-bezier(.5,.02,.2,1) 160ms;
-    pointer-events:none;
+  @media (max-width:960px){
+    .metrics{grid-template-columns:1fr}
+    .two,.calc,.why{grid-template-columns:1fr}
+    .outs{grid-template-columns:1fr}
   }
-  .col.active .vc-panel{opacity:1;transform:none;pointer-events:auto}
-  /* frosted-glass text box */
-  .vc-glass{
-    width:100%;
-    background:rgba(8,10,13,.52);
-    -webkit-backdrop-filter:blur(34px) saturate(125%);
-    backdrop-filter:blur(34px) saturate(125%);
-    border:1px solid rgba(255,255,255,.16);
-    border-radius:20px;
-    box-shadow:0 18px 50px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.14);
-    padding:15px 20px;
-    color:#eef1f4;text-align:left;
-  }
-  .vc-glass p{
-    font-size:16px;line-height:1.46;font-weight:400;
-    margin:0 0 7px;letter-spacing:.002em;
-    text-shadow:0 1px 8px rgba(0,0,0,.4);
-  }
-  .vc-glass p:last-child{margin-bottom:0}
-  .vc-glass em{font-style:italic;color:#fff;opacity:.96}
-  .vc-tagline{
-    font-size:17px !important;font-weight:800 !important;color:#fff;
-    margin-bottom:12px !important;letter-spacing:.005em;
-  }
-  .vc-kicker{
-    font-weight:400;color:#eef1f4;margin-top:2px;letter-spacing:0;
-  }
-  /* solid brand-red CTA */
-  .vc-cta{
-    display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    background:var(--vc);color:#fff;text-decoration:none;
-    font-size:18px;font-weight:800;letter-spacing:.01em;
-    padding:11px 36px;border-radius:999px;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.25);
-    transition:transform 160ms ease, filter 160ms ease;
-  }
-  .vc-cta:hover{transform:translateY(-2px)}
-  .vc-cta:active{transform:translateY(0)}
-  /* RoamFi: teal CTA */
-  .vc-cta--rf{
-    background:var(--rf);color:#06222a;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
-  }
-  /* TaleX: white CTA */
-  .vc-cta--tx{
-    background:#fff;color:#0c1214;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
-  }
-
-  /* play/pause video toggle — bare icon, no button chrome */
-  .vidtoggle{
-    position:absolute;z-index:11;
-    width:24px;height:24px;padding:0;border:none;cursor:pointer;background:none;
-    display:none;align-items:center;justify-content:center;
-    color:#fff;
-    opacity:0;transition:opacity 260ms ease 140ms, transform 160ms ease;
-    pointer-events:none;
-    filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));
-  }
-  .col.active .vidtoggle{display:flex;opacity:.92;pointer-events:auto}
-  .vidtoggle:hover{opacity:1;transform:scale(1.12)}
-  .vidtoggle:active{transform:scale(.94)}
-  .vidtoggle svg{fill:currentColor;display:block;width:24px;height:24px}
-  /* default: video playing -> show PAUSE icon. paused -> show PLAY icon */
-  .vidtoggle .ico-play{display:none}
-  .vidtoggle.is-paused .ico-pause{display:none}
-  .vidtoggle.is-paused .ico-play{display:block}
-
-
-  .col + .col::before{
-    content:"";position:absolute;left:0;top:0;bottom:0;width:1px;z-index:6;
-    background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.08),rgba(0,0,0,0));
-  }
-  .brand{
-    position:fixed;top:26px;left:0;right:0;z-index:30;
-    display:flex;align-items:center;justify-content:center;
-    pointer-events:none;                 /* row itself is a spacer; children opt back in */
-  }
-  .brand>*{pointer-events:auto}
-  .brand-logo{
-    display:block;line-height:0;position:relative;z-index:1;
-  }
-  .brand .logo{
-    height:36px;width:auto;display:block;
-    filter:drop-shadow(0 2px 10px rgba(0,0,0,.18));
-    transition:opacity 300ms ease;
-  }
-  .brand .logo--white{position:absolute;top:0;left:0;opacity:0}
-  .stage.has-active ~ .brand .logo--dark{opacity:0}
-  .stage.has-active ~ .brand .logo--white{opacity:1}
-
-  /* round frosted-glass buttons flanking the logo — same height as the logo,
-     same spring press feel, custom (not OS) glass so it looks identical on
-     iOS and Android. PC: fixed near the logo (JS refines the exact midpoint
-     between the ViewsCall column edge and the logo edge). Mobile overrides
-     position in the media query below to spread them to the screen edges.
-     The button itself never scales — only its ::before glass layer does —
-     so the icon on top stays put at a fixed size while the glass grows. */
-  .glassbtn{
-    --press:1;
-    width:36px;height:36px;border-radius:999px;border:none;cursor:pointer;
-    position:absolute;top:50%;
-    display:flex;align-items:center;justify-content:center;
-    text-decoration:none;-webkit-tap-highlight-color:transparent;
-    background:none;
-    opacity:0;                       /* hidden until placeBrandButtons() confirms
-                                         the final position — prevents the visible
-                                         "jump" from an early, wrong measurement */
-  }
-  .glassbtn.positioned{opacity:1}
-  .glassbtn::before{
-    content:"";position:absolute;inset:0;border-radius:999px;
-    transform:scale(var(--press));
-    background:rgba(20,22,26,.16);
-    -webkit-backdrop-filter:blur(18px) saturate(180%);
-    backdrop-filter:blur(18px) saturate(180%);
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.75),
-      inset 0 -1px 1px rgba(0,0,0,.05),
-      0 4px 14px rgba(0,0,0,.10);
-    transition:transform 220ms var(--spring), background 220ms ease;
-  }
-  #treasuryBtn{ right:calc(50% + 60px) }
-  #docsBtn{ left:calc(50% + 60px) }
-  .glassbtn:hover{--press:1.08}
-  .glassbtn:active{--press:.94}
-  .glassbtn-ico{
-    width:17px;height:17px;display:block;transition:opacity 220ms ease;
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    z-index:1;   /* sit above the ::before glass layer, unaffected by its scale */
-  }
-  /* two stacked icons (dark ink + white), both centered identically via the
-     rule above; default shows the DARK one for the idle light banner.
-     .on-dark (JS-applied — see updateBrandButtons) means the column actually
-     behind THIS button is dark right now (active or dimmed), so we cross-fade
-     to the white icon instead. */
-  .glassbtn-ico.ico-light{opacity:0}
-  .glassbtn.on-dark .ico-dark{opacity:0}
-  .glassbtn.on-dark .ico-light{opacity:1}
-  /* DEFAULT (idle, light banner underneath): light glass tint.
-     .on-dark: darker glass tint to match the dark backdrop. */
-  .glassbtn.on-dark::before{
-    background:rgba(255,255,255,.14);
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.55),
-      inset 0 -1px 1px rgba(0,0,0,.06),
-      0 4px 14px rgba(0,0,0,.16);
-  }
-  .glassbtn.on-dark:hover::before{background:rgba(255,255,255,.22)}
-  /* ============ MOBILE: full-screen vertical banner feed ============ */
-  @media (max-width:820px){
-    body{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-    .stage{
-      position:relative;flex-direction:column;width:100vw;
-      height:auto;min-height:100dvh;
-      scroll-snap-type:y mandatory;
-    }
-    .col{
-      width:100vw;height:100dvh;min-height:100dvh;
-      scroll-snap-align:start;cursor:pointer;
-    }
-    /* mobile-only feed order: ViewsCall, RoamFi, TaleX (PC untouched) */
-    .col--vc{order:1}
-    .col--rf{order:2}
-    .col--tx{order:3}
-
-    /* mobile: buttons spread to the screen edges (PC keeps them near the logo).
-       Mobile keeps the simpler whole-button press scale (icon scaling with it
-       on tap is fine here — the PC hover-icon-drift issue doesn't apply to touch). */
-    .brand{justify-content:space-between;padding:0 28px}
-    #treasuryBtn, #docsBtn{
-      position:static;right:auto;left:auto;top:auto;
-      transform:scale(var(--press));
-      opacity:1;                     /* mobile buttons don't wait on JS geometry */
-    }
-    .glassbtn:hover{--press:1}   /* no hover state on touch */
-    .glassbtn:active{--press:.94}
-
-    /* MOBILE STATIC BANNER: portrait 640x1387 image, pinned to the BOTTOM of the
-       screen so nothing is cropped at the bottom; the top may crop on shorter
-       phones. Width always fills 100vw (1080 native -> no side crop). */
-    .col .frame{
-      left:0;bottom:0;top:auto;
-      width:100vw;height:auto;aspect-ratio:640/1387;
-      transform:none;
-    }
-    .col--vc .photo{background-image:url('assets/viewscall_phone.png')}
-    .col--rf .photo{background-image:url('assets/roamfi_phone.png')}
-    .col--tx .photo{background-image:url('assets/talex_phone.png')}
-    .col .photo{background-position:center bottom;background-size:cover}
-
-    /* seam between stacked banners */
-    .col + .col::before{
-      width:100%;height:1px;left:0;top:0;right:auto;bottom:auto;
-      background:linear-gradient(to right,rgba(0,0,0,0),rgba(0,0,0,.10),rgba(0,0,0,0));
-    }
-    .stage.has-active .col:not(.active) .dim{background:rgba(8,12,16,.60)}
-
-    /* TaleX logo fixed on top */
-    .brand{top:18px}
-    .brand .logo{height:30px}
-
-    /* text box: WIDER + bigger type for mobile readability. On mobile the panel
-       must stay HIDDEN on the static banner and appear INSTANTLY on tap (no
-       fade, no slide) so only the lockup animates. We override just the entry
-       transition/transform here — visibility is still gated by .col.active. */
-    .vc-panel{
-      bottom:max(6%, env(safe-area-inset-bottom));
-      padding:0 3.5%;
-      transform:none !important;
-      transition:none !important;
-    }
-    .col.active .vc-panel{opacity:1;transform:none !important;pointer-events:auto}
-    .vc-glass{padding:14px 16px;border-radius:18px}
-    .vc-panel{--panel-fs:1}
-    .vc-tagline{font-size:calc(16px * var(--panel-fs)) !important;margin-bottom:calc(9px * var(--panel-fs)) !important}
-    .vc-glass p{font-size:calc(14px * var(--panel-fs));line-height:1.45;margin-bottom:calc(6px * var(--panel-fs))}
-    .vc-cta{font-size:17px;padding:11px 36px}
-
-    /* play/pause: far bottom-right, above the iOS search bar (safe-area) */
-    .vidtoggle{
-      width:28px;height:28px;
-      right:18px !important;left:auto !important;
-      bottom:calc(env(safe-area-inset-bottom) + 16px) !important;top:auto !important;
-    }
-    .vidtoggle svg{width:28px;height:28px}
-  }
-  @media (prefers-reduced-motion:reduce){
-    *{transition-duration:1ms!important;animation-duration:1ms!important}
+  @media (max-width:700px){
+    body{padding:0 14px 80px}
+    .hero{padding:56px 0 48px}
+    .hero-logo{height:34px;margin-bottom:26px}
+    .hero h1{font-size:28px;line-height:1.2}
+    .hero h1 span{white-space:normal}
+    .hero h1 br{display:none}
+    .hero p{font-size:15px;margin-bottom:24px}
+    .btns{flex-wrap:wrap}
+    .btn{padding:12px 18px;font-size:14px;width:100%;justify-content:center}
+    .hero .btns .btn, .why .btns .btn{width:auto;flex:1 1 auto}
+    section{margin-bottom:36px}
+    .sec-head h2{font-size:21px}
+    .sec-head p{font-size:14px}
+    .card{padding:18px 16px}
+    .card-head{margin-bottom:10px}
+    .card-head h3{font-size:17px}
+    .card-head p{font-size:13px}
+    .kv{gap:12px 18px;font-size:13px}
+    .metric{padding:20px 18px}
+    .metric .val{font-size:28px}
+    .big{font-size:19px}
+    .calc{padding:20px 16px;gap:20px}
+    .calc-r{padding:20px 16px}
+    .calc-r .huge{font-size:44px}
+    .badge{float:none;display:inline-block;margin-bottom:12px}
+    .live{padding:16px 14px}
+    .price-row .p{font-size:26px}
+    .tv{height:420px}
+    thead th, tbody td{padding:12px 14px;font-size:13px}
+    .why{padding:22px 18px;gap:22px}
+    .why .lead{font-size:17px}
+    .why p{font-size:14px}
+    .fine{padding:18px 16px;font-size:13px}
+    .tip{min-width:170px;padding:10px 12px}
+    .tip .tp-r{font-size:12.5px}
   }
 </style>
 </head>
 <body>
-
-  <div class="stage" id="stage">
-
-    <section class="col col--rf" data-video="assets/roamfi.mp4">
-      <div class="frame">
-        <div class="photo"></div>
-      </div>
-      <div class="placeholder"></div>
-      <video class="vid" muted loop playsinline preload="auto"></video>
-      <div class="dim"></div>
-      <div class="appicon"></div>
-      <div class="lockup">
-        <div class="lockup-eye"></div>
-        <div class="lockup-word"></div>
-      </div>
-      <div class="vc-panel">
-        <div class="vc-glass">
-          <p class="vc-tagline">eSIM that pays you back.</p>
-          <p><em>Choosing an eSIM shouldn't take longer than the trip.</em> — Travelers drown in endless eSIM options, and buying a local SIM abroad means queues, paperwork, and a number you'll never use again.</p>
-          <p>With RoamFi, one eSIM keeps you connected the moment you land — no choosing, no queues, no local SIM. And it pays you back: every RoamFi user can share in the profit from every RoamFi eSIM sold around the world after them.</p>
-          <p class="vc-kicker">A smart eSIM that can earn back more than you paid.</p>
-        </div>
-        <a class="vc-cta vc-cta--rf" href="https://www.roamfi.net/" target="_blank" rel="noopener">Open</a>
-      </div>
-      <button class="vidtoggle" aria-label="Pause video" type="button">
-        <svg class="ico-pause" viewBox="0 0 24 24" width="20" height="20"><rect x="6" y="5" width="4" height="14" rx="1.3"/><rect x="14" y="5" width="4" height="14" rx="1.3"/></svg>
-        <svg class="ico-play" viewBox="0 0 24 24" width="20" height="20"><path d="M8 5.2c0-.9 1-1.5 1.8-1l9 6.8c.7.5.7 1.5 0 2l-9 6.8c-.8.5-1.8-.1-1.8-1V5.2z"/></svg>
-      </button>
-    </section>
-
-    <section class="col col--vc" data-video="assets/viewscall.mp4">
-      <div class="frame">
-        <div class="photo"></div>
-      </div>
-      <div class="placeholder"></div>
-      <video class="vid" muted loop playsinline preload="auto"></video>
-      <div class="dim"></div>
-      <div class="appicon"></div>
-      <div class="lockup">
-        <div class="lockup-eye"></div>
-        <div class="lockup-word"></div>
-      </div>
-      <div class="vc-panel">
-        <div class="vc-glass">
-          <p class="vc-tagline">The YouTube prediction market.</p>
-          <p><em>Called it when this had 1K views, now it's 10M.</em> — For years, fans spotted successful YouTube videos early, and earned nothing but credit in the comments.</p>
-          <p>With ViewsCall, fans can finally say "Yes" to the impossible view milestones, and profit by making them possible. Creators can fund the other side to hedge production costs, while booming views earn them far more from YouTube ad revenue. Both sides win on the same call.</p>
-          <p class="vc-kicker">Win-win for everyone. Prediction determines outcome.</p>
-        </div>
-        <a class="vc-cta" href="https://test.viewscall.com/" target="_blank" rel="noopener">Open</a>
-      </div>
-      <button class="vidtoggle" aria-label="Pause video" type="button">
-        <svg class="ico-pause" viewBox="0 0 24 24" width="20" height="20"><rect x="6" y="5" width="4" height="14" rx="1.3"/><rect x="14" y="5" width="4" height="14" rx="1.3"/></svg>
-        <svg class="ico-play" viewBox="0 0 24 24" width="20" height="20"><path d="M8 5.2c0-.9 1-1.5 1.8-1l9 6.8c.7.5.7 1.5 0 2l-9 6.8c-.8.5-1.8-.1-1.8-1V5.2z"/></svg>
-      </button>
-    </section>
-
-    <section class="col col--tx" data-video="assets/talex.mp4">
-      <div class="frame">
-        <div class="photo"></div>
-      </div>
-      <div class="placeholder"></div>
-      <video class="vid" muted loop playsinline preload="auto"></video>
-      <div class="dim"></div>
-      <div class="appicon"></div>
-      <div class="lockup">
-        <div class="lockup-eye"></div>
-        <div class="lockup-word"></div>
-      </div>
-      <div class="vc-panel">
-        <div class="vc-glass">
-          <p class="vc-tagline">A new content app where great content pays off both creators and supporters.</p>
-          <p><em>Great work often goes unseen, while creators burn out chasing traffic.</em> — Independent creators fight for every view, until promoting their work matters more than making it.</p>
-          <p>With TaleX, fans can support creators by directly purchasing their content, and can share in the profit from the same content being bought by other fans after them. Supporters become promoters, so creators can finally focus on the work, not the traffic.</p>
-          <p class="vc-kicker">Create great content. Support early. Grow together.</p>
-        </div>
-        <a class="vc-cta vc-cta--tx" href="https://talex.world/" target="_blank" rel="noopener">Open</a>
-      </div>
-      <button class="vidtoggle" aria-label="Pause video" type="button">
-        <svg class="ico-pause" viewBox="0 0 24 24" width="20" height="20"><rect x="6" y="5" width="4" height="14" rx="1.3"/><rect x="14" y="5" width="4" height="14" rx="1.3"/></svg>
-        <svg class="ico-play" viewBox="0 0 24 24" width="20" height="20"><path d="M8 5.2c0-.9 1-1.5 1.8-1l9 6.8c.7.5.7 1.5 0 2l-9 6.8c-.8.5-1.8-.1-1.8-1V5.2z"/></svg>
-      </button>
-    </section>
-
+<div class="wrap">
+  <!-- ===== HERO ===== -->
+  <div class="hero">
+    <img class="hero-logo" src="../assets/logo_white.png" alt="TaleX">
+    <h1><span>$X token powers the user-driven ecosystem for</span><br><span class="l2"> Real-World Businesses (RWBs)</span></h1>
+    <p>The native token of the TaleX ecosystem, built to grow the user-driven economy with value shared back to everyone.</p>
+    <div class="btns">
+      <a class="btn primary" href="https://www.binance.com/en/alpha/bsc/0x0510101ec6c49d24ed911f0011e22a0d697ee776" target="_blank" rel="noopener">Trade $X on <img class="bn" src="../assets/binance.svg" alt="Binance"><svg class="bi" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <button class="btn" id="shareBtn" type="button">Share<svg class="bi" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
+    </div>
   </div>
 
-  <div class="brand" id="brand">
-    <a class="glassbtn" href="treasury/" id="treasuryBtn" aria-label="Treasury">
-      <img class="glassbtn-ico ico-dark" src="assets/icon_treasury_black.svg" alt="">
-      <img class="glassbtn-ico ico-light" src="assets/icon_treasury.svg" alt="">
-    </a>
-    <span class="brand-logo" id="brandLogo">
-      <img class="logo logo--dark" src="assets/logo.png" alt="TaleX">
-      <img class="logo logo--white" src="assets/logo_white.png" alt="">
-    </span>
-    <a class="glassbtn" href="https://docs.talex.world/" target="_blank" rel="noopener" id="docsBtn" aria-label="Docs">
-      <img class="glassbtn-ico ico-dark" src="assets/icon_docs_black.svg" alt="">
-      <img class="glassbtn-ico ico-light" src="assets/icon_docs.svg" alt="">
-    </a>
-  </div>
+  <!-- ===== TOP METRICS ===== -->
+  <section>
+    <div class="sec-head">
+      <h2>Every buyback, injected as liquidity</h2>
+      <p>Every dollar the TaleX ecosystem generates as company revenue through its projects buys $X on the open market, then injects it back into the main $X liquidity pool.</p>
+    </div>
+    <div class="metrics">
+      <div class="metric glow">
+        <div class="lbl"><svg viewBox="0 0 24 24"><path d="M3 13l4-4 4 4 5-6 5 5"/></svg>Annualized revenue</div>
+        <div class="val mono">$10,284</div>
+        <div class="sub mono">&asymp; $28.17 / day &middot; 30d avg</div>
+      </div>
+      <div class="metric">
+        <div class="lbl"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 10l7-7 7 7"/></svg>Total bought back &amp; injected liquidity</div>
+        <div class="val mono">$10,284</div>
+        <div class="sub mono">791,076 $X bought back and injected</div>
+      </div>
+      <div class="metric">
+        <div class="lbl"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>Total supply injection</div>
+        <div class="val mono">0.079%</div>
+        <div class="sub mono">791,076 $X injected</div>
+      </div>
+    </div>
 
-<script>
-  const stage = document.getElementById('stage');
-  const cols = Array.from(document.querySelectorAll('.col'));
-  const brandLink = document.getElementById('brandLogo');
-  const isMobile = () => window.matchMedia('(max-width:820px)').matches;
+    <!-- cumulative -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-head">
+        <div><h3>Cumulative buybacks</h3><p>Total USD deployed to buy &amp; inject $X.</p></div>
+        <div class="kv">
+          <span><i class="sw" style="background:var(--green)"></i>Cumulative buybacks<b class="mono" style="color:var(--green)" id="cumV"></b></span>
+          <span><i class="sw" style="background:var(--purple)"></i>$X FDV<b class="mono" style="color:var(--purple)" id="fdvV"></b></span>
+        </div>
+      </div>
+      <svg class="chart" id="cumChart" viewBox="0 0 1120 300"></svg>
+    </div>
 
-  // plate geometry in source-image (640x1080) coords — same for all columns
-  const ICON = { cx:321, cy:526, sz:156 };
+    <!-- weekly + allocation -->
+    <div class="two">
+      <div class="card">
+        <div class="card-head">
+          <div><h3>Weekly buyback &amp; injection</h3><p>USD spent per week</p></div>
+          <div style="text-align:right"><div class="big amber mono" id="wkV"></div><div class="latest">latest</div></div>
+        </div>
+        <svg class="chart" id="wkChart" viewBox="0 0 540 220"></svg>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div><h3>Revenue allocated to buyback</h3><p>% of weekly revenue spent</p></div>
+          <span class="pill">100% target</span>
+        </div>
+        <svg class="chart" id="allocChart" viewBox="0 0 540 220"></svg>
+      </div>
+    </div>
 
-  // per-column lockup config. iconInPlate = glyph width / plate width.
-  // iconRatio = glyph w/h. word_w/word_h/gap/total in the lockup's own units.
-  // targetW = on-screen total lockup width (SAME for all three, matches ViewsCall).
-  const TARGET_LOCKUP_W = 283;   // px — ViewsCall's active lockup width
-  const LOCKS = {
-    'col--vc': { iconInPlate:0.748, iconRatio:118/62, gap:10,  wordW:355, wordH:62,  totalW:483 },
-    'col--rf': { iconInPlate:1.0,   iconRatio:129/129, gap:32,  wordW:376, wordH:71,  totalW:537, iconW:129 },
-    'col--tx': { iconInPlate:0.712, iconRatio:113/113, gap:45,  wordW:297, wordH:82,  totalW:462, iconW:113 },
-  };
-  function lockKey(col){
-    if(col.classList.contains('col--vc')) return 'col--vc';
-    if(col.classList.contains('col--rf')) return 'col--rf';
-    if(col.classList.contains('col--tx')) return 'col--tx';
-    return null;
-  }
+    <!-- holders -->
+    <div class="card">
+      <div class="card-head">
+        <div><h3>Active holders</h3><p>Daily active holders on BNB Chain with $X activity.</p></div>
+        <div class="kv"><span><i class="sw" style="background:var(--green)"></i>BNB Chain<b class="mono" style="color:var(--green)" id="holdV"></b></span><span class="asof">Data as of Sep 14</span></div>
+      </div>
+      <svg class="chart" id="holdChart" viewBox="0 0 1120 240"></svg>
+    </div>
+  </section>
 
-  // store per-column computed lockup geometry
-  const lockGeo = {};
+  <!-- ===== CALCULATOR ===== -->
+  <section>
+    <div class="sec-head"><h2>Run the numbers yourself</h2><p>See how ecosystem revenue stacks up against $X's circulating valuation.</p></div>
+    <div class="calc">
+      <div class="calc-l">
+        <span class="badge">Hypothetical</span>
+        <h3>Earnings to valuation</h3>
+        <div class="desc">See how ecosystem revenue measures up against $X's circulating valuation, with allocation fixed at 100%.</div>
+        <div class="field">
+          <div class="row"><span>Monthly ecosystem revenue</span><span class="v mono" id="oRev"></span></div>
+          <input type="range" id="iRev" min="10000" max="1000000" step="10000" value="10000">
+        </div>
+        <div class="field">
+          <div class="row"><span>Assumed circulating market cap</span><span class="v mono" id="oMcap"></span></div>
+          <input type="range" id="iMcap" min="1000000" max="100000000" step="1000000" value="10000000">
+        </div>
+        <div class="fixed"><span>Allocated to buyback</span><b class="mono">100%</b></div>
+      </div>
+      <div class="calc-r">
+        <div class="cap">REVENUE MULTIPLE<span>market cap &divide; annual revenue</span></div>
+        <div class="huge mono" id="oMult"></div>
+        <div class="cap2">circulating market cap measured against annual revenue</div>
+        <div class="outs">
+          <div class="out"><div class="v mono" id="oAnn"></div><div class="k">Annual revenue</div></div>
+          <div class="out"><div class="v mono" id="oPrice"></div><div class="k">$X price</div></div>
+          <div class="out"><div class="v mono" id="oYield"></div><div class="k">Buyback yield on mkt cap</div></div>
+        </div>
+        <div class="note">Illustrative only. Market cap uses circulating supply; yields use annualized revenue. Not a forecast or financial advice.</div>
+      </div>
+    </div>
+  </section>
 
-  // MOBILE per-column icon-plate center Y (in the 640x1387 portrait banner).
-  // Each banner raises the plate by a different amount, so the lockup must spawn
-  // at the matching height per column. Text boxes/CTA are bottom-anchored and do
-  // not move. (RoamFi unchanged; VC + TX raised.)
-  const MOB_ICY = { 'col--vc':644, 'col--rf':669, 'col--tx':619 };
-
-  function fitFrames(){
-    const mob = isMobile();
-    // banner source dims + icon plate position differ on mobile (portrait banner)
-    const SRC = mob ? {w:640, h:1387, icx:319, icy:669, isz:156}
-                    : {w:640, h:1080, icx:ICON.cx, icy:ICON.cy, isz:ICON.sz};
-    cols.forEach(col=>{
-      const frame = col.querySelector('.frame');
-      const icon  = col.querySelector('.appicon');
-      const cw = col.clientWidth, ch = col.clientHeight;
-      // resolve this column's icon-center Y in source coords (per-column on mobile)
-      const srcIcy = mob ? (MOB_ICY[lockKey(col)] || SRC.icy) : SRC.icy;
-
-      let frameLeft, frameTop, sc;
-      if(mob){
-        // banner fills width (no side crop); bottom-pinned; top crops if needed.
-        sc = cw / SRC.w;                       // scale to fill width exactly
-        frameLeft = 0;
-        frameTop  = ch - SRC.h*sc;             // bottom edge pinned to column bottom
-      } else {
-        sc = Math.max(cw/SRC.w, ch/SRC.h);     // cover
-        frame.style.transform = `translateX(-50%) scale(${sc})`;
-        frameLeft = (cw - SRC.w*sc)/2;
-        frameTop  = ch - SRC.h*sc;
-      }
-      const ix = frameLeft + SRC.icx*sc;       // icon center x within column
-      const iy = frameTop  + srcIcy*sc;        // icon center y within column
-      const isz = SRC.isz*sc;
-      icon.style.left   = ix + 'px';
-      icon.style.top    = iy + 'px';
-      icon.style.width  = isz + 'px';
-      icon.style.height = isz + 'px';
-
-      // ----- lockup geometry (ViewsCall / RoamFi / TaleX) -----
-      const key = lockKey(col);
-      if(key){
-        const L = LOCKS[key];
-        const iconUnitsW = L.iconW || 118;      // icon width in lockup units (eye=118 for VC)
-        // SPAWN: standalone icon sits exactly over the plate glyph (plate center)
-        const spawnIconW = isz * L.iconInPlate; // on-screen size of the glyph in the plate
-        const spawnCx = ix, spawnCy = iy;
-
-        // FINAL lockup scaled so its TOTAL width === TARGET_LOCKUP_W (same for all)
-        const unit = TARGET_LOCKUP_W / L.totalW;     // px per lockup unit
-        const finalIconW = iconUnitsW * unit;
-        const finalIconH = finalIconW / L.iconRatio;
-        const lockLeft = (cw - TARGET_LOCKUP_W)/2;   // center lockup in column
-        const finalIconCx = lockLeft + (iconUnitsW/2)*unit;
-        const finalIconCy = spawnCy;                 // keep icon on same vertical line
-        const wordLeft = lockLeft + (iconUnitsW + L.gap)*unit;
-        const wordW = L.wordW * unit;
-        const wordH = L.wordH * unit;
-
-        lockGeo[key] = {
-          spawnIconW, spawnIconH: spawnIconW / L.iconRatio, spawnCx, spawnCy,
-          finalIconW, finalIconH, finalIconCx, finalIconCy,
-          wordLeft, wordTop: finalIconCy - wordH/2, wordW, wordH
-        };
-
-        const eye = col.querySelector('.lockup-eye');
-        const word = col.querySelector('.lockup-word');
-        if(eye && word){
-          const G = lockGeo[key];
-          // While the spawn->lockup animation is in flight, DON'T rewrite the eye's
-          // geometry or transform — doing so (e.g. on the URL-bar viewport resize
-          // that fires right after a tap) would snap it to final and kill the
-          // animation. Word slot is safe to keep in sync. We re-apply after.
-          const animating = col.dataset.lockState === 'animating';
-          word.style.left = G.wordLeft + 'px';
-          word.style.top  = G.wordTop + 'px';
-          word.style.width = G.wordW + 'px';
-          word.style.height = G.wordH + 'px';
-          if(!animating){
-            eye.style.width  = G.finalIconW + 'px';
-            eye.style.height = G.finalIconH + 'px';
-            eye.style.left = (G.finalIconCx - G.finalIconW/2) + 'px';
-            eye.style.top  = (G.finalIconCy - G.finalIconH/2) + 'px';
-            if(col.classList.contains('active') && col.dataset.lockState === 'lockup'){
-              eye.style.transition = 'none';
-              eye.style.transform = 'translate(0,0) scale(1)';
-            } else if(!col.classList.contains('active')){
-              setEyeSpawn(col);
-            }
+  <!-- ===== LIVE ===== -->
+  <section>
+    <div class="sec-head"><h2>Live $X market</h2><p>Live price, chart, and market stats for $X.</p></div>
+    <div class="live">
+      <div class="price-row">
+        <div class="k">$X price</div>
+        <span class="p mono" id="livePrice">$0.008906</span><span class="chg" id="liveChg">&darr; 2.9%</span><span>24h</span>
+      </div>
+      <div class="tv">
+        <div class="tradingview-widget-container" style="height:100%;width:100%">
+          <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          {
+            "autosize": true,
+            "symbol": "PANCAKESWAP3BSC:XWBNB_22313A.USD",
+            "interval": "D",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "backgroundColor": "#0E1518",
+            "gridColor": "rgba(255,255,255,0.05)",
+            "hide_top_toolbar": false,
+            "allow_symbol_change": false,
+            "save_image": false,
+            "calendar": false,
+            "support_host": "https://www.tradingview.com"
           }
-        }
+          </script>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TABLE ===== -->
+  <section>
+    <div class="sec-head"><h2>Every injection, on-chain</h2><p>A verifiable record of each weekly purchase and injection, settled on BNB Chain.</p></div>
+    <div class="tbl">
+      <div class="scroll">
+      <table>
+        <thead><tr><th>Date</th><th>$X injected</th><th>$BNB injected</th><th>Spent USD</th><th>Price</th><th>% of revenue</th></tr></thead>
+        <tbody id="tbody" class="mono"></tbody>
+      </table>
+      </div>
+      <div class="pager"><span id="pinfo"></span><div class="nav"><button id="prev">&lsaquo;</button><span class="mono" id="pnum"></span><button id="next">&rsaquo;</button></div></div>
+    </div>
+  </section>
+
+  <!-- ===== WHY ===== -->
+  <section>
+    <div class="sec-head"><h2>Why we built $X</h2><p>From Real-World Businesses to a user-driven economy where customers and businesses grow together.</p></div>
+    <div class="why">
+      <div>
+        <div class="lead">TaleX set out to build a user-driven ecosystem for Real-World Businesses, letting customers benefit from the growth of the businesses they buy from.</div>
+        <p>By featuring traditional consumer-oriented businesses as RWB projects, TaleX helps entrepreneurs boost their product sales while their customers share in the upside. Today the ecosystem spans <strong>ViewsCall</strong>, the YouTube prediction market; <strong>RoamFi</strong>, the eSIM that pays you back; and the <strong>TaleX content app</strong>, where great content pays off both creators and supporters.</p>
+        <p>To unlock further growth, we launched <strong>$X</strong>, the official native token of the TaleX ecosystem. Every dollar of company revenue buys $X on the open market and injects it back into the main $X liquidity pool &mdash; delivering value to the community and deepening the market every RWB project settles against.</p>
+      </div>
+      <div>
+        <div class="facts">
+          <div class="fact"><div class="v mono">3</div><div class="k">Real-World Business projects</div></div>
+          <div class="fact"><div class="v mono">Aug 2025</div><div class="k">$X token launched</div></div>
+        </div>
+        <div class="btns" style="justify-content:flex-start">
+          <a class="btn primary" href="https://www.binance.com/en/alpha/bsc/0x0510101ec6c49d24ed911f0011e22a0d697ee776" target="_blank" rel="noopener">Trade $X on <img class="bn" src="../assets/binance.svg" alt="Binance"><svg class="bi" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <button class="btn share2" type="button">Share<svg class="bi" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FINE PRINT ===== -->
+  <section>
+    <div class="fine">
+      <h4>Methodology</h4>
+      From 14 Sep 2026, "Revenue" includes all TaleX ecosystem projects' company revenue &mdash; ViewsCall, RoamFi and the TaleX content app &mdash; net of referral fees and cash backs. Fiat revenue is converted into USDT for use in purchasing $X. As of 14 Sep 2026, 100% of company revenue is allocated to buy $X on the open market and inject it into the main $X liquidity pool.
+      <div style="margin-top:12px">Treasury addresses
+        <a class="addr mono" href="https://bscscan.com/address/0x23bA199EA1C77306f189962D736f807F4cCEb16c" target="_blank" rel="noopener">0x23bA19&hellip;cCEb16c</a>
+        <a class="addr mono" href="https://bscscan.com/address/0x22313ace9911B91A0Bc6eAB0189b99e78c28C699" target="_blank" rel="noopener">0x22313a&hellip;c28C699</a>
+      </div>
+    </div>
+    <div class="fine">
+      <h4>Disclaimer</h4>
+      The $X token does not represent a right to revenues or any other distribution. Any references to token purchases are for informational purposes only, and only describe historical activity. This information should not be understood as a commitment to future token purchases for any reason. Any purchases may have the effect of preventing or retarding a decline in the market price of tokens and may stabilize, maintain or otherwise affect the market price of the tokens. As a result, the market price of the tokens may be higher than the price that otherwise might exist. Entities affiliated with the TaleX ecosystem may purchase or sell tokens from time to time, but are under no obligation to do so. If any purchases occur in the future, any such activity may be initiated, suspended, modified, or discontinued at any time, with or without notice. No token purchaser, holder or seller should rely on past purchases as an indication of future token purchases.
+    </div>
+  </section>
+</div>
+<script>
+const WEEKLY=[{"date":"2025-09-22","usd":110.04,"x":6149,"price":0.011147,"pct":100,"bnb":0.0688,"cum":110.04},{"date":"2025-09-29","usd":138.07,"x":7530,"price":0.011421,"pct":100,"bnb":0.0938,"cum":248.11},{"date":"2025-10-06","usd":125.36,"x":6636,"price":0.011767,"pct":100,"bnb":0.0913,"cum":373.47},{"date":"2025-10-13","usd":148.11,"x":7710,"price":0.011967,"pct":100,"bnb":0.1157,"cum":521.58},{"date":"2025-10-20","usd":152.55,"x":9826,"price":0.009671,"pct":100,"bnb":0.1264,"cum":674.13},{"date":"2025-10-27","usd":104.05,"x":6280,"price":0.01032,"pct":100,"bnb":0.0632,"cum":778.18},{"date":"2025-11-03","usd":100.89,"x":6180,"price":0.010169,"pct":100,"bnb":0.0603,"cum":879.06},{"date":"2025-11-10","usd":180.0,"x":11804,"price":0.009499,"pct":100,"bnb":0.1177,"cum":1059.07},{"date":"2025-11-17","usd":127.62,"x":8038,"price":0.00989,"pct":100,"bnb":0.0767,"cum":1186.69},{"date":"2025-11-24","usd":127.17,"x":8294,"price":0.009551,"pct":100,"bnb":0.0906,"cum":1313.85},{"date":"2025-12-01","usd":204.06,"x":16472,"price":0.007717,"pct":100,"bnb":0.1522,"cum":1517.91},{"date":"2025-12-08","usd":154.62,"x":12932,"price":0.007448,"pct":100,"bnb":0.1088,"cum":1672.52},{"date":"2025-12-15","usd":194.04,"x":16713,"price":0.007232,"pct":100,"bnb":0.1107,"cum":1866.56},{"date":"2025-12-22","usd":159.81,"x":13156,"price":0.007567,"pct":100,"bnb":0.1345,"cum":2026.37},{"date":"2025-12-29","usd":179.09,"x":15037,"price":0.007419,"pct":100,"bnb":0.1191,"cum":2205.46},{"date":"2026-01-05","usd":129.92,"x":10736,"price":0.007539,"pct":100,"bnb":0.0978,"cum":2335.39},{"date":"2026-01-12","usd":183.71,"x":15791,"price":0.007247,"pct":100,"bnb":0.1092,"cum":2519.09},{"date":"2026-01-19","usd":211.6,"x":18304,"price":0.007201,"pct":100,"bnb":0.1511,"cum":2730.69},{"date":"2026-01-26","usd":176.45,"x":13702,"price":0.008022,"pct":100,"bnb":0.1273,"cum":2907.14},{"date":"2026-02-02","usd":203.18,"x":16415,"price":0.00771,"pct":100,"bnb":0.1417,"cum":3110.32},{"date":"2026-02-09","usd":197.96,"x":16368,"price":0.007534,"pct":100,"bnb":0.1295,"cum":3308.27},{"date":"2026-02-16","usd":130.87,"x":10491,"price":0.007771,"pct":100,"bnb":0.0777,"cum":3439.14},{"date":"2026-02-23","usd":213.21,"x":15865,"price":0.008371,"pct":100,"bnb":0.1523,"cum":3652.35},{"date":"2026-03-02","usd":196.25,"x":16765,"price":0.007292,"pct":100,"bnb":0.1131,"cum":3848.6},{"date":"2026-03-09","usd":164.19,"x":14205,"price":0.0072,"pct":100,"bnb":0.1328,"cum":4012.79},{"date":"2026-03-16","usd":133.63,"x":10944,"price":0.007606,"pct":100,"bnb":0.0994,"cum":4146.42},{"date":"2026-03-23","usd":237.15,"x":19380,"price":0.007623,"pct":100,"bnb":0.1932,"cum":4383.57},{"date":"2026-03-30","usd":191.48,"x":14080,"price":0.008472,"pct":100,"bnb":0.1548,"cum":4575.05},{"date":"2026-04-06","usd":224.54,"x":15403,"price":0.009081,"pct":100,"bnb":0.1329,"cum":4799.59},{"date":"2026-04-13","usd":247.43,"x":16166,"price":0.009534,"pct":100,"bnb":0.1495,"cum":5047.02},{"date":"2026-04-20","usd":229.24,"x":15465,"price":0.009234,"pct":100,"bnb":0.1783,"cum":5276.27},{"date":"2026-04-27","usd":258.69,"x":20328,"price":0.007927,"pct":100,"bnb":0.2007,"cum":5534.95},{"date":"2026-05-04","usd":192.74,"x":15322,"price":0.007836,"pct":100,"bnb":0.1335,"cum":5727.69},{"date":"2026-05-11","usd":248.67,"x":19958,"price":0.007762,"pct":100,"bnb":0.1493,"cum":5976.36},{"date":"2026-05-18","usd":203.74,"x":16587,"price":0.007651,"pct":100,"bnb":0.1188,"cum":6180.1},{"date":"2026-05-25","usd":272.45,"x":21413,"price":0.007926,"pct":100,"bnb":0.1632,"cum":6452.55},{"date":"2026-06-01","usd":267.66,"x":19293,"price":0.008642,"pct":100,"bnb":0.1713,"cum":6720.21},{"date":"2026-06-08","usd":162.45,"x":11326,"price":0.008935,"pct":100,"bnb":0.129,"cum":6882.66},{"date":"2026-06-15","usd":169.57,"x":13774,"price":0.007669,"pct":100,"bnb":0.1185,"cum":7052.23},{"date":"2026-06-22","usd":182.81,"x":15235,"price":0.007474,"pct":100,"bnb":0.1415,"cum":7235.04},{"date":"2026-06-29","usd":291.58,"x":23784,"price":0.007637,"pct":100,"bnb":0.192,"cum":7526.62},{"date":"2026-07-06","usd":218.25,"x":17078,"price":0.00796,"pct":100,"bnb":0.1411,"cum":7744.87},{"date":"2026-07-13","usd":248.24,"x":21287,"price":0.007264,"pct":100,"bnb":0.1913,"cum":7993.11},{"date":"2026-07-20","usd":202.82,"x":16214,"price":0.007792,"pct":100,"bnb":0.1525,"cum":8195.93},{"date":"2026-07-27","usd":235.52,"x":19216,"price":0.007635,"pct":100,"bnb":0.1392,"cum":8431.45},{"date":"2026-08-03","usd":219.63,"x":18404,"price":0.007434,"pct":100,"bnb":0.1861,"cum":8651.08},{"date":"2026-08-10","usd":216.49,"x":17300,"price":0.007795,"pct":100,"bnb":0.1269,"cum":8867.57},{"date":"2026-08-17","usd":254.45,"x":18981,"price":0.008351,"pct":100,"bnb":0.1441,"cum":9122.03},{"date":"2026-08-24","usd":256.78,"x":22216,"price":0.0072,"pct":100,"bnb":0.1422,"cum":9378.81},{"date":"2026-08-31","usd":309.16,"x":26331,"price":0.007314,"pct":100,"bnb":0.2176,"cum":9687.97},{"date":"2026-09-07","usd":277.08,"x":21885,"price":0.007887,"pct":100,"bnb":0.1804,"cum":9965.05},{"date":"2026-09-14","usd":318.95,"x":22309,"price":0.008906,"pct":100,"bnb":0.2049,"cum":10284.0}];
+const DAILY=[{"date":"2025-09-15","fdv":12585641,"holders":1212},{"date":"2025-09-16","fdv":11524774,"holders":1181},{"date":"2025-09-17","fdv":11410504,"holders":1146},{"date":"2025-09-18","fdv":11200752,"holders":1148},{"date":"2025-09-19","fdv":11849916,"holders":1140},{"date":"2025-09-20","fdv":11026470,"holders":1166},{"date":"2025-09-21","fdv":11440119,"holders":1156},{"date":"2025-09-22","fdv":11147258,"holders":1137},{"date":"2025-09-23","fdv":11086696,"holders":1125},{"date":"2025-09-24","fdv":10826337,"holders":1173},{"date":"2025-09-25","fdv":11069027,"holders":1183},{"date":"2025-09-26","fdv":10628286,"holders":1179},{"date":"2025-09-27","fdv":10598937,"holders":1166},{"date":"2025-09-28","fdv":10730041,"holders":1152},{"date":"2025-09-29","fdv":11421152,"holders":1158},{"date":"2025-09-30","fdv":10459666,"holders":1177},{"date":"2025-10-01","fdv":11017996,"holders":1211},{"date":"2025-10-02","fdv":11383599,"holders":1246},{"date":"2025-10-03","fdv":11190925,"holders":1262},{"date":"2025-10-04","fdv":11310361,"holders":1257},{"date":"2025-10-05","fdv":11125888,"holders":1247},{"date":"2025-10-06","fdv":11767134,"holders":1206},{"date":"2025-10-07","fdv":11853453,"holders":1193},{"date":"2025-10-08","fdv":11764026,"holders":1212},{"date":"2025-10-09","fdv":11670123,"holders":1214},{"date":"2025-10-10","fdv":11588483,"holders":1231},{"date":"2025-10-11","fdv":11516847,"holders":1211},{"date":"2025-10-12","fdv":11162538,"holders":1240},{"date":"2025-10-13","fdv":11966708,"holders":1256},{"date":"2025-10-14","fdv":11166318,"holders":1267},{"date":"2025-10-15","fdv":9757114,"holders":1285},{"date":"2025-10-16","fdv":9715161,"holders":1245},{"date":"2025-10-17","fdv":9665324,"holders":1243},{"date":"2025-10-18","fdv":9791314,"holders":1232},{"date":"2025-10-19","fdv":9721230,"holders":1282},{"date":"2025-10-20","fdv":9670835,"holders":1287},{"date":"2025-10-21","fdv":9783327,"holders":1286},{"date":"2025-10-22","fdv":10114928,"holders":1314},{"date":"2025-10-23","fdv":9956334,"holders":1300},{"date":"2025-10-24","fdv":9826417,"holders":1341},{"date":"2025-10-25","fdv":10493811,"holders":1335},{"date":"2025-10-26","fdv":10688481,"holders":1343},{"date":"2025-10-27","fdv":10319828,"holders":1333},{"date":"2025-10-28","fdv":11159222,"holders":1360},{"date":"2025-10-29","fdv":11462270,"holders":1322},{"date":"2025-10-30","fdv":11225975,"holders":1346},{"date":"2025-10-31","fdv":10764537,"holders":1338},{"date":"2025-11-01","fdv":10876931,"holders":1348},{"date":"2025-11-02","fdv":10560118,"holders":1332},{"date":"2025-11-03","fdv":10169247,"holders":1347},{"date":"2025-11-04","fdv":9707970,"holders":1361},{"date":"2025-11-05","fdv":9535982,"holders":1383},{"date":"2025-11-06","fdv":9905637,"holders":1400},{"date":"2025-11-07","fdv":9755338,"holders":1423},{"date":"2025-11-08","fdv":9260453,"holders":1454},{"date":"2025-11-09","fdv":9477234,"holders":1455},{"date":"2025-11-10","fdv":9499024,"holders":1439},{"date":"2025-11-11","fdv":9779587,"holders":1420},{"date":"2025-11-12","fdv":10190923,"holders":1444},{"date":"2025-11-13","fdv":10130736,"holders":1446},{"date":"2025-11-14","fdv":10079380,"holders":1478},{"date":"2025-11-15","fdv":10063333,"holders":1489},{"date":"2025-11-16","fdv":9663709,"holders":1476},{"date":"2025-11-17","fdv":9889977,"holders":1505},{"date":"2025-11-18","fdv":10364967,"holders":1558},{"date":"2025-11-19","fdv":10428022,"holders":1563},{"date":"2025-11-20","fdv":10341361,"holders":1552},{"date":"2025-11-21","fdv":10247293,"holders":1543},{"date":"2025-11-22","fdv":9967321,"holders":1572},{"date":"2025-11-23","fdv":9686867,"holders":1569},{"date":"2025-11-24","fdv":9550968,"holders":1569},{"date":"2025-11-25","fdv":9269525,"holders":1594},{"date":"2025-11-26","fdv":9127632,"holders":1604},{"date":"2025-11-27","fdv":8623744,"holders":1616},{"date":"2025-11-28","fdv":8729413,"holders":1613},{"date":"2025-11-29","fdv":8744419,"holders":1609},{"date":"2025-11-30","fdv":8391685,"holders":1622},{"date":"2025-12-01","fdv":7716668,"holders":1635},{"date":"2025-12-02","fdv":7714565,"holders":1657},{"date":"2025-12-03","fdv":8012642,"holders":1656},{"date":"2025-12-04","fdv":7806920,"holders":1673},{"date":"2025-12-05","fdv":7674945,"holders":1693},{"date":"2025-12-06","fdv":7522262,"holders":1704},{"date":"2025-12-07","fdv":7694265,"holders":1726},{"date":"2025-12-08","fdv":7447602,"holders":1758},{"date":"2025-12-09","fdv":7704574,"holders":1772},{"date":"2025-12-10","fdv":7622853,"holders":1783},{"date":"2025-12-11","fdv":7869566,"holders":1771},{"date":"2025-12-12","fdv":7878542,"holders":1788},{"date":"2025-12-13","fdv":7814750,"holders":1795},{"date":"2025-12-14","fdv":7410434,"holders":1798},{"date":"2025-12-15","fdv":7232199,"holders":1789},{"date":"2025-12-16","fdv":7200000,"holders":1811},{"date":"2025-12-17","fdv":7366240,"holders":1877},{"date":"2025-12-18","fdv":7429395,"holders":1896},{"date":"2025-12-19","fdv":7248224,"holders":1908},{"date":"2025-12-20","fdv":7352168,"holders":1927},{"date":"2025-12-21","fdv":7606232,"holders":1923},{"date":"2025-12-22","fdv":7566680,"holders":1935},{"date":"2025-12-23","fdv":7450411,"holders":1930},{"date":"2025-12-24","fdv":7347731,"holders":1925},{"date":"2025-12-25","fdv":7556205,"holders":1940},{"date":"2025-12-26","fdv":7698576,"holders":1954},{"date":"2025-12-27","fdv":7448084,"holders":1961},{"date":"2025-12-28","fdv":7545815,"holders":1953},{"date":"2025-12-29","fdv":7419050,"holders":1969},{"date":"2025-12-30","fdv":7223987,"holders":1954},{"date":"2025-12-31","fdv":7537412,"holders":1981},{"date":"2026-01-01","fdv":7754035,"holders":1982},{"date":"2026-01-02","fdv":7557314,"holders":1992},{"date":"2026-01-03","fdv":7578298,"holders":2019},{"date":"2026-01-04","fdv":7711306,"holders":2041},{"date":"2026-01-05","fdv":7538716,"holders":2022},{"date":"2026-01-06","fdv":7506938,"holders":2026},{"date":"2026-01-07","fdv":7682147,"holders":2043},{"date":"2026-01-08","fdv":7201053,"holders":2029},{"date":"2026-01-09","fdv":7283603,"holders":1985},{"date":"2026-01-10","fdv":7471942,"holders":1993},{"date":"2026-01-11","fdv":7603825,"holders":2002},{"date":"2026-01-12","fdv":7246791,"holders":2021},{"date":"2026-01-13","fdv":7327601,"holders":2032},{"date":"2026-01-14","fdv":7200000,"holders":2044},{"date":"2026-01-15","fdv":7343640,"holders":2059},{"date":"2026-01-16","fdv":7499043,"holders":2099},{"date":"2026-01-17","fdv":7555851,"holders":2119},{"date":"2026-01-18","fdv":7353444,"holders":2140},{"date":"2026-01-19","fdv":7201312,"holders":2141},{"date":"2026-01-20","fdv":7416573,"holders":2176},{"date":"2026-01-21","fdv":7200000,"holders":2181},{"date":"2026-01-22","fdv":7324942,"holders":2207},{"date":"2026-01-23","fdv":7456062,"holders":2170},{"date":"2026-01-24","fdv":7383355,"holders":2185},{"date":"2026-01-25","fdv":8002150,"holders":2192},{"date":"2026-01-26","fdv":8021800,"holders":2191},{"date":"2026-01-27","fdv":8624446,"holders":2229},{"date":"2026-01-28","fdv":8015842,"holders":2248},{"date":"2026-01-29","fdv":7386372,"holders":2254},{"date":"2026-01-30","fdv":7640184,"holders":2252},{"date":"2026-01-31","fdv":7810312,"holders":2303},{"date":"2026-02-01","fdv":7724945,"holders":2329},{"date":"2026-02-02","fdv":7710468,"holders":2353},{"date":"2026-02-03","fdv":7200000,"holders":2345},{"date":"2026-02-04","fdv":7200000,"holders":2384},{"date":"2026-02-05","fdv":7200000,"holders":2405},{"date":"2026-02-06","fdv":7200000,"holders":2409},{"date":"2026-02-07","fdv":7423282,"holders":2416},{"date":"2026-02-08","fdv":7437049,"holders":2390},{"date":"2026-02-09","fdv":7533808,"holders":2414},{"date":"2026-02-10","fdv":7349722,"holders":2399},{"date":"2026-02-11","fdv":7237834,"holders":2427},{"date":"2026-02-12","fdv":7266244,"holders":2427},{"date":"2026-02-13","fdv":7200000,"holders":2423},{"date":"2026-02-14","fdv":7518706,"holders":2441},{"date":"2026-02-15","fdv":7288249,"holders":2455},{"date":"2026-02-16","fdv":7770621,"holders":2439},{"date":"2026-02-17","fdv":7503895,"holders":2447},{"date":"2026-02-18","fdv":7782186,"holders":2470},{"date":"2026-02-19","fdv":7571595,"holders":2474},{"date":"2026-02-20","fdv":8008389,"holders":2454},{"date":"2026-02-21","fdv":8046632,"holders":2458},{"date":"2026-02-22","fdv":8158807,"holders":2447},{"date":"2026-02-23","fdv":8371425,"holders":2443},{"date":"2026-02-24","fdv":8185391,"holders":2454},{"date":"2026-02-25","fdv":7886893,"holders":2462},{"date":"2026-02-26","fdv":7327498,"holders":2467},{"date":"2026-02-27","fdv":7640392,"holders":2440},{"date":"2026-02-28","fdv":7454231,"holders":2458},{"date":"2026-03-01","fdv":7299771,"holders":2463},{"date":"2026-03-02","fdv":7291869,"holders":2463},{"date":"2026-03-03","fdv":7799433,"holders":2476},{"date":"2026-03-04","fdv":7327616,"holders":2528},{"date":"2026-03-05","fdv":7391564,"holders":2509},{"date":"2026-03-06","fdv":7289140,"holders":2483},{"date":"2026-03-07","fdv":7424831,"holders":2510},{"date":"2026-03-08","fdv":7200000,"holders":2502},{"date":"2026-03-09","fdv":7200000,"holders":2540},{"date":"2026-03-10","fdv":7411824,"holders":2528},{"date":"2026-03-11","fdv":7816270,"holders":2527},{"date":"2026-03-12","fdv":8253085,"holders":2554},{"date":"2026-03-13","fdv":8006150,"holders":2584},{"date":"2026-03-14","fdv":8021475,"holders":2603},{"date":"2026-03-15","fdv":7990624,"holders":2623},{"date":"2026-03-16","fdv":7605671,"holders":2629},{"date":"2026-03-17","fdv":7222266,"holders":2629},{"date":"2026-03-18","fdv":7413603,"holders":2634},{"date":"2026-03-19","fdv":7477325,"holders":2671},{"date":"2026-03-20","fdv":7439999,"holders":2696},{"date":"2026-03-21","fdv":7756586,"holders":2706},{"date":"2026-03-22","fdv":7484629,"holders":2723},{"date":"2026-03-23","fdv":7622554,"holders":2750},{"date":"2026-03-24","fdv":7625214,"holders":2786},{"date":"2026-03-25","fdv":7609378,"holders":2793},{"date":"2026-03-26","fdv":7739953,"holders":2800},{"date":"2026-03-27","fdv":7787613,"holders":2817},{"date":"2026-03-28","fdv":7860344,"holders":2884},{"date":"2026-03-29","fdv":7933410,"holders":2898},{"date":"2026-03-30","fdv":8471675,"holders":2936},{"date":"2026-03-31","fdv":8379499,"holders":2912},{"date":"2026-04-01","fdv":8676378,"holders":2940},{"date":"2026-04-02","fdv":8861125,"holders":2918},{"date":"2026-04-03","fdv":8752677,"holders":2904},{"date":"2026-04-04","fdv":8996442,"holders":2900},{"date":"2026-04-05","fdv":8726414,"holders":2906},{"date":"2026-04-06","fdv":9080845,"holders":2920},{"date":"2026-04-07","fdv":8823575,"holders":2937},{"date":"2026-04-08","fdv":8672295,"holders":2952},{"date":"2026-04-09","fdv":8770352,"holders":2952},{"date":"2026-04-10","fdv":9025877,"holders":3018},{"date":"2026-04-11","fdv":9312560,"holders":3036},{"date":"2026-04-12","fdv":9603757,"holders":3060},{"date":"2026-04-13","fdv":9534136,"holders":3114},{"date":"2026-04-14","fdv":9215124,"holders":3144},{"date":"2026-04-15","fdv":9392453,"holders":3166},{"date":"2026-04-16","fdv":9491671,"holders":3183},{"date":"2026-04-17","fdv":9175229,"holders":3233},{"date":"2026-04-18","fdv":9487827,"holders":3219},{"date":"2026-04-19","fdv":9553944,"holders":3208},{"date":"2026-04-20","fdv":9233684,"holders":3220},{"date":"2026-04-21","fdv":9376292,"holders":3185},{"date":"2026-04-22","fdv":8941431,"holders":3178},{"date":"2026-04-23","fdv":8666822,"holders":3212},{"date":"2026-04-24","fdv":8788834,"holders":3212},{"date":"2026-04-25","fdv":8309731,"holders":3225},{"date":"2026-04-26","fdv":8320687,"holders":3249},{"date":"2026-04-27","fdv":7927184,"holders":3233},{"date":"2026-04-28","fdv":8131710,"holders":3249},{"date":"2026-04-29","fdv":7924719,"holders":3245},{"date":"2026-04-30","fdv":7975379,"holders":3230},{"date":"2026-05-01","fdv":7555970,"holders":3234},{"date":"2026-05-02","fdv":7464953,"holders":3242},{"date":"2026-05-03","fdv":7712443,"holders":3243},{"date":"2026-05-04","fdv":7835881,"holders":3238},{"date":"2026-05-05","fdv":7331631,"holders":3268},{"date":"2026-05-06","fdv":7568841,"holders":3303},{"date":"2026-05-07","fdv":7805191,"holders":3324},{"date":"2026-05-08","fdv":7702407,"holders":3332},{"date":"2026-05-09","fdv":8084450,"holders":3318},{"date":"2026-05-10","fdv":7784770,"holders":3310},{"date":"2026-05-11","fdv":7761501,"holders":3295},{"date":"2026-05-12","fdv":8064059,"holders":3309},{"date":"2026-05-13","fdv":8433884,"holders":3339},{"date":"2026-05-14","fdv":8811762,"holders":3368},{"date":"2026-05-15","fdv":8474293,"holders":3377},{"date":"2026-05-16","fdv":7946252,"holders":3378},{"date":"2026-05-17","fdv":8055092,"holders":3392},{"date":"2026-05-18","fdv":7651486,"holders":3404},{"date":"2026-05-19","fdv":7616291,"holders":3426},{"date":"2026-05-20","fdv":7274682,"holders":3468},{"date":"2026-05-21","fdv":7544932,"holders":3463},{"date":"2026-05-22","fdv":7757129,"holders":3518},{"date":"2026-05-23","fdv":7908184,"holders":3481},{"date":"2026-05-24","fdv":7912928,"holders":3452},{"date":"2026-05-25","fdv":7925612,"holders":3429},{"date":"2026-05-26","fdv":7843065,"holders":3416},{"date":"2026-05-27","fdv":7948299,"holders":3420},{"date":"2026-05-28","fdv":8017681,"holders":3475},{"date":"2026-05-29","fdv":8146575,"holders":3469},{"date":"2026-05-30","fdv":8024312,"holders":3503},{"date":"2026-05-31","fdv":8557544,"holders":3504},{"date":"2026-06-01","fdv":8642080,"holders":3517},{"date":"2026-06-02","fdv":9063838,"holders":3504},{"date":"2026-06-03","fdv":9485987,"holders":3563},{"date":"2026-06-04","fdv":9194117,"holders":3572},{"date":"2026-06-05","fdv":8651326,"holders":3568},{"date":"2026-06-06","fdv":9031988,"holders":3627},{"date":"2026-06-07","fdv":8909486,"holders":3640},{"date":"2026-06-08","fdv":8935043,"holders":3659},{"date":"2026-06-09","fdv":8853994,"holders":3665},{"date":"2026-06-10","fdv":8894500,"holders":3657},{"date":"2026-06-11","fdv":8524184,"holders":3635},{"date":"2026-06-12","fdv":8493398,"holders":3641},{"date":"2026-06-13","fdv":8355523,"holders":3685},{"date":"2026-06-14","fdv":8351081,"holders":3704},{"date":"2026-06-15","fdv":7668535,"holders":3710},{"date":"2026-06-16","fdv":7888845,"holders":3742},{"date":"2026-06-17","fdv":7980460,"holders":3732},{"date":"2026-06-18","fdv":7498106,"holders":3771},{"date":"2026-06-19","fdv":7305437,"holders":3780},{"date":"2026-06-20","fdv":7313398,"holders":3772},{"date":"2026-06-21","fdv":7474348,"holders":3796},{"date":"2026-06-22","fdv":7474426,"holders":3817},{"date":"2026-06-23","fdv":7836361,"holders":3819},{"date":"2026-06-24","fdv":7842469,"holders":3833},{"date":"2026-06-25","fdv":7567933,"holders":3864},{"date":"2026-06-26","fdv":7388771,"holders":3904},{"date":"2026-06-27","fdv":7581076,"holders":3895},{"date":"2026-06-28","fdv":7418348,"holders":3847},{"date":"2026-06-29","fdv":7636694,"holders":3901},{"date":"2026-06-30","fdv":7909429,"holders":3905},{"date":"2026-07-01","fdv":8072344,"holders":3905},{"date":"2026-07-02","fdv":8359730,"holders":3924},{"date":"2026-07-03","fdv":8308859,"holders":3924},{"date":"2026-07-04","fdv":8306057,"holders":3956},{"date":"2026-07-05","fdv":8134047,"holders":3939},{"date":"2026-07-06","fdv":7960333,"holders":3944},{"date":"2026-07-07","fdv":7524254,"holders":3926},{"date":"2026-07-08","fdv":7377965,"holders":3969},{"date":"2026-07-09","fdv":7200000,"holders":3973},{"date":"2026-07-10","fdv":7200000,"holders":4006},{"date":"2026-07-11","fdv":7236929,"holders":4046},{"date":"2026-07-12","fdv":7352074,"holders":4029},{"date":"2026-07-13","fdv":7264131,"holders":4034},{"date":"2026-07-14","fdv":7612053,"holders":4059},{"date":"2026-07-15","fdv":7862719,"holders":4070},{"date":"2026-07-16","fdv":8150292,"holders":4076},{"date":"2026-07-17","fdv":7978059,"holders":4104},{"date":"2026-07-18","fdv":7561371,"holders":4134},{"date":"2026-07-19","fdv":7709033,"holders":4130},{"date":"2026-07-20","fdv":7792192,"holders":4137},{"date":"2026-07-21","fdv":7990215,"holders":4160},{"date":"2026-07-22","fdv":8106744,"holders":4175},{"date":"2026-07-23","fdv":8464331,"holders":4187},{"date":"2026-07-24","fdv":8378968,"holders":4172},{"date":"2026-07-25","fdv":8574754,"holders":4220},{"date":"2026-07-26","fdv":8306065,"holders":4225},{"date":"2026-07-27","fdv":7634786,"holders":4240},{"date":"2026-07-28","fdv":7516067,"holders":4249},{"date":"2026-07-29","fdv":7910348,"holders":4260},{"date":"2026-07-30","fdv":7446312,"holders":4272},{"date":"2026-07-31","fdv":7711354,"holders":4264},{"date":"2026-08-01","fdv":7527943,"holders":4281},{"date":"2026-08-02","fdv":7422587,"holders":4317},{"date":"2026-08-03","fdv":7433947,"holders":4335},{"date":"2026-08-04","fdv":7489068,"holders":4361},{"date":"2026-08-05","fdv":7233719,"holders":4381},{"date":"2026-08-06","fdv":7265681,"holders":4391},{"date":"2026-08-07","fdv":7378531,"holders":4440},{"date":"2026-08-08","fdv":7594151,"holders":4435},{"date":"2026-08-09","fdv":7393605,"holders":4452},{"date":"2026-08-10","fdv":7795080,"holders":4484},{"date":"2026-08-11","fdv":8315442,"holders":4500},{"date":"2026-08-12","fdv":9018311,"holders":4487},{"date":"2026-08-13","fdv":8595105,"holders":4473},{"date":"2026-08-14","fdv":8647115,"holders":4516},{"date":"2026-08-15","fdv":8084494,"holders":4505},{"date":"2026-08-16","fdv":8191522,"holders":4515},{"date":"2026-08-17","fdv":8350673,"holders":4536},{"date":"2026-08-18","fdv":8014778,"holders":4547},{"date":"2026-08-19","fdv":7569829,"holders":4518},{"date":"2026-08-20","fdv":7619437,"holders":4486},{"date":"2026-08-21","fdv":7786916,"holders":4493},{"date":"2026-08-22","fdv":7570916,"holders":4486},{"date":"2026-08-23","fdv":7501640,"holders":4490},{"date":"2026-08-24","fdv":7200000,"holders":4501},{"date":"2026-08-25","fdv":7200000,"holders":4514},{"date":"2026-08-26","fdv":7237028,"holders":4495},{"date":"2026-08-27","fdv":7275497,"holders":4467},{"date":"2026-08-28","fdv":7678639,"holders":4498},{"date":"2026-08-29","fdv":7371922,"holders":4493},{"date":"2026-08-30","fdv":7200000,"holders":4477},{"date":"2026-08-31","fdv":7313956,"holders":4443},{"date":"2026-09-01","fdv":7200000,"holders":4464},{"date":"2026-09-02","fdv":7272196,"holders":4446},{"date":"2026-09-03","fdv":7455104,"holders":4433},{"date":"2026-09-04","fdv":7611815,"holders":4456},{"date":"2026-09-05","fdv":7995954,"holders":4472},{"date":"2026-09-06","fdv":8374475,"holders":4494},{"date":"2026-09-07","fdv":7886559,"holders":4476},{"date":"2026-09-08","fdv":7869177,"holders":4423},{"date":"2026-09-09","fdv":8420189,"holders":4411},{"date":"2026-09-10","fdv":8300216,"holders":4414},{"date":"2026-09-11","fdv":8581142,"holders":4409},{"date":"2026-09-12","fdv":8564367,"holders":4438},{"date":"2026-09-13","fdv":8438412,"holders":4455},{"date":"2026-09-14","fdv":8905897,"holders":4442}];
+const NS="http://www.w3.org/2000/svg";
+const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const fmtM=v=>v>=1e9?`$${(v/1e9).toFixed(2)}B`:v>=1e6?`$${(v/1e6).toFixed(2)}M`:v>=1e3?`$${(v/1e3).toFixed(1)}K`:`$${v.toFixed(0)}`;
+const fmtK=v=>v>=1e6?`${(v/1e6).toFixed(2)}M`:v>=1e3?`${(v/1e3).toFixed(1)}K`:`${v}`;
+const mon=iso=>{const d=new Date(iso+'T00:00:00');return d.toLocaleDateString('en-US',{month:'short'})+" '"+String(d.getFullYear()).slice(2);};
+const dmy=iso=>new Date(iso+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const T0=new Date(DAILY[0].date+'T00:00:00').getTime(), T1=new Date(DAILY[DAILY.length-1].date+'T00:00:00').getTime();
+const tx=(iso,x0,x1)=>{const t=new Date(iso+'T00:00:00').getTime();return x0+((t-T0)/(T1-T0))*(x1-x0);};
+const line=pts=>pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+const F='Inter,sans-serif', FM="'JetBrains Mono',monospace";
+const isMob=()=>innerWidth<700;
+
+function axes(svg,W,H,pl,pr,pt,pb,opt){
+  const FS=opt.fs||11;
+  if(opt.fixedMonths){
+    // evenly-spaced month labels across the plot width, independent of the
+    // exact date of each data point — used for Active holders, whose axis is
+    // meant to always read Aug '25 -> Sep '26 regardless of the underlying
+    // data range.
+    const labels=opt.fixedMonths, N=labels.length;
+    labels.forEach((lab,i)=>{
+      const x=pl+(i/(N-1))*(W-pl-pr);
+      const t=mk('text',{x,y:H-6,'font-size':FS,fill:'#5F6B72','text-anchor':i===0?'start':(i===N-1?'end':'middle'),'font-family':F});
+      t.textContent=lab; svg.appendChild(t);
+    });
+  } else if(opt.weekly){
+    WEEKLY.forEach((w,i)=>{
+      if((WEEKLY.length-1-i)%opt.weekly!==0) return;
+      const x=tx(w.date,pl,W-pr);
+      const t=mk('text',{x,y:H-6,'font-size':FS,fill:'#5F6B72','text-anchor':'middle','font-family':F});
+      t.textContent=new Date(w.date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      svg.appendChild(t);
+    });
+  } else {
+    let last=null, idx=0; const every=opt.every||1;
+    DAILY.forEach(d=>{
+      const m=d.date.slice(0,7);
+      if(m!==last){last=m; idx++;
+        const x=tx(d.date,pl,W-pr);
+        if(x>pl+6 && idx%every===0){const t=mk('text',{x,y:H-6,'font-size':FS,fill:'#5F6B72','text-anchor':'middle','font-family':F});t.textContent=mon(d.date);svg.appendChild(t);}
       }
     });
-    // second pass: scale panels now that ALL lockGeo (incl. ViewsCall ref) is ready
-    cols.forEach(col=>{ if(lockKey(col)) scalePanel(col); });
-    requestAnimationFrame(()=>{ cols.forEach(col=>{ if(lockKey(col)) placeVidToggle(col); }); });
   }
+  (opt.yl||[]).forEach(([v,lab])=>{
+    const y=pt+(H-pt-pb)*(1-v);
+    svg.appendChild(mk('line',{x1:pl,y1:y,x2:W-pr,y2:y,stroke:'#1F2A2F','stroke-width':1}));
+    const t=mk('text',{x:pl-8,y:y+4,'font-size':FS,fill:'#5F6B72','text-anchor':'end','font-family':FM});t.textContent=lab;svg.appendChild(t);
+  });
+  (opt.yr||[]).forEach(([v,lab])=>{
+    const y=pt+(H-pt-pb)*(1-v);
+    const t=mk('text',{x:W-pr+8,y:y+4,'font-size':FS,fill:'#5F6B72','text-anchor':'start','font-family':FM});t.textContent=lab;svg.appendChild(t);
+  });
+}
 
-  // Scale the text panel down only if it can't clear the lockup (zoom-in safety).
-  // Never touches .lockup-eye, so the icon animation is unaffected.
-  function scalePanel(col){
-    const panel = col.querySelector('.vc-panel');
-    const key = lockKey(col);
-    if(!panel || !key || !lockGeo[key]) return;
-    const ch = col.clientHeight;
-    const mob = isMobile();
-    if(col.classList.contains('active')){
-      // reset any prior scaling so we measure the true natural height
-      panel.style.transform = 'none';
-      panel.style.removeProperty('--panel-fs');
-      // On desktop all lockups sit on the same plate-center line, so a shared VC
-      // reference keeps boxes aligned. On mobile each banner raises its plate by a
-      // different amount, so use THIS column's own lockup bottom for the gap calc.
-      const refG = mob ? lockGeo[key] : (lockGeo['col--vc'] || lockGeo[key]);
-      const lockupBottom = refG.finalIconCy + refG.finalIconH/2;
-      // reserve a gap below the lockup so the box never crowds it (smaller on mobile)
-      const gap = mob ? 14 : 48;
-      const bottomInset = ch * (mob ? 0.06 : 0.035);
-      const avail = ch - lockupBottom - bottomInset - gap;
-      const panelH = panel.scrollHeight;
-      if(panelH > avail && avail > 0){
-        const s = Math.max(0.62, avail / panelH);
-        if(mob){
-          // MOBILE: shrink the TEXT (font-size factor), NOT the box width. This keeps
-          // every column's glass box at the same full width even when a column (TaleX)
-          // has more copy. Re-measure once after applying, in case it now fits.
-          panel.style.setProperty('--panel-fs', s.toFixed(3));
-          // a font shrink reduces height super-linearly with line-wrapping, so one pass
-          // is enough; clamp keeps it readable.
-        } else {
-          panel.style.transformOrigin = 'bottom center';
-          panel.style.transform = `scale(${s})`;
-        }
-      }
+// ===== generic hover/touch: crosshair + dots + tooltip =====
+function hoverify(svg,W,H,pl,pr,pt,pb,probe){
+  const card=svg.closest('.card');
+  card.querySelectorAll('.tip').forEach(t=>t.remove());
+  const tip=document.createElement('div'); tip.className='tip'; card.appendChild(tip);
+  const g=mk('g',{style:'display:none'});
+  const xl=mk('line',{class:'xl',y1:pt,y2:H-pb}); g.appendChild(xl);
+  const dots=[]; svg.appendChild(g);
+  const cover=mk('rect',{x:pl,y:pt,width:W-pl-pr,height:H-pt-pb,fill:'transparent'}); svg.appendChild(cover);
+  function show(clientX,clientY){
+    const r=svg.getBoundingClientRect(), sx=W/r.width;
+    const vx=(clientX-r.left)*sx; if(vx<pl||vx>W-pr) return hide();
+    const res=probe(vx); if(!res) return hide();
+    g.style.display=''; xl.setAttribute('x1',res.x); xl.setAttribute('x2',res.x);
+    while(dots.length<res.dots.length){const c=mk('circle',{class:'xdot',r:4.5});g.appendChild(c);dots.push(c);}
+    dots.forEach((c,i)=>{const d=res.dots[i]; if(d){c.style.display='';c.setAttribute('cx',d.x);c.setAttribute('cy',d.y);c.setAttribute('fill',d.color);} else c.style.display='none';});
+    tip.innerHTML=`<div class="tp-h">${res.title}</div>`+res.rows.map(rw=>`<div class="tp-r"><span class="tp-d" style="background:${rw.color}"></span>${rw.label}<span class="tp-v mono">${rw.value}</span></div>`).join('');
+    tip.classList.add('on');
+    const cr=card.getBoundingClientRect(), tw=tip.offsetWidth, th=tip.offsetHeight;
+    let left, top;
+    if(isMob()){
+      // finger covers the point: pin the card just above the plot, following x
+      const px=r.left+res.x/sx;
+      left=(px-cr.left)-tw/2; left=Math.max(6,Math.min(cr.width-tw-6,left));
+      top=(r.top-cr.top)-th-6; if(top<4) top=4;
     } else {
-      panel.style.transform = '';
-      panel.style.transformOrigin = '';
-      panel.style.removeProperty('--panel-fs');
+      left=(clientX-cr.left)+16; top=(clientY-cr.top)+16;
+      if(left+tw>cr.width-12) left=(clientX-cr.left)-tw-16;
+      if(top+th>cr.height-8) top=(clientY-cr.top)-th-16;
     }
+    tip.style.left=left+'px'; tip.style.top=top+'px';
   }
+  function hide(){ g.style.display='none'; tip.classList.remove('on'); }
+  cover.addEventListener('mousemove',e=>show(e.clientX,e.clientY));
+  cover.addEventListener('mouseleave',hide);
+  cover.addEventListener('touchstart',e=>{const t=e.touches[0];show(t.clientX,t.clientY);},{passive:true});
+  cover.addEventListener('touchmove',e=>{const t=e.touches[0];show(t.clientX,t.clientY);},{passive:true});
+  document.addEventListener('touchstart',e=>{ if(!svg.contains(e.target)) hide(); },{passive:true});
+  svg._hide=hide;
+}
+const nearestIdx=(arr,vx,pl,pr,W)=>{let bi=0,bd=1e9;arr.forEach((a,i)=>{const d=Math.abs(tx(a.date,pl,W-pr)-vx);if(d<bd){bd=d;bi=i;}});return bi;};
 
-  // position the bare play/pause icon: right edge aligned to the text box's
-  // right edge, vertical center aligned to the Open button's vertical center.
-  function placeVidToggle(col){
-    const btn = col.querySelector('.vidtoggle');
-    const glass = col.querySelector('.vc-glass');
-    const cta = col.querySelector('.vc-cta');
-    if(!btn || !glass || !cta) return;
-    const colR = col.getBoundingClientRect();
-    const gR = glass.getBoundingClientRect();
-    const cR = cta.getBoundingClientRect();
-    // right edge of icon = right edge of glass; bottom of icon = bottom of CTA
-    const iconW = 24, iconH = 24;
-    btn.style.left = (gR.right - colR.left - iconW) + 'px';
-    btn.style.top  = (cR.bottom - colR.top - iconH) + 'px';
-    btn.style.right = 'auto'; btn.style.bottom = 'auto';
-  }
+function buildCharts(){
+  const M=isMob();
+  const FS=M?11:11;
 
-  // PC only: place each glass button exactly midway between the ViewsCall
-  // column's outer edge and the logo's edge (mobile uses fixed CSS instead).
-  function placeBrandButtons(){
-    if(isMobile()){
-      // clear any leftover inline PC-positioning so mobile CSS takes over cleanly
-      [treasuryBtn, docsBtn].forEach(b=>{
-        if(!b) return;
-        b.style.position=''; b.style.left=''; b.style.right=''; b.style.top=''; b.style.transform='';
-        b.classList.add('positioned');
-      });
-      return;
-    }
-    const vc = document.querySelector('.col--vc');
-    const logo = document.getElementById('brandLogo');
-    if(!vc || !logo || !treasuryBtn || !docsBtn) return;
-    const vcR = vc.getBoundingClientRect();
-    const logoR = logo.getBoundingClientRect();
-    // logo not laid out with a real size yet (image still loading) — skip this
-    // run rather than positioning from a wrong, too-small measurement; whatever
-    // calls us again once the logo is ready will reveal the buttons correctly.
-    if(logoR.width < 10) return;
-    const leftMid  = (vcR.left  + logoR.left)  / 2;
-    const rightMid = (vcR.right + logoR.right) / 2;
-    const cy = logoR.top + logoR.height/2;   // vertical center = logo's center
-    const btnW = 36, btnH = 36;
-    [treasuryBtn, docsBtn].forEach(b=>{
-      b.style.position = 'fixed';
-      b.style.top = (cy - btnH/2) + 'px';   // exact top edge — no extra CSS translateY needed
-      b.style.right = 'auto';
+  // ----- Cumulative: green area (left axis) + FDV (right axis)
+  (function(){
+    const s=document.getElementById('cumChart'); s.innerHTML='';
+    const W=M?380:1120, H=M?250:300, pl=M?48:64, pr=M?60:70, pt=14, pb=30;
+    s.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    const ch=H-pt-pb;
+    const cmax=Math.max(...WEEKLY.map(w=>w.cum))*1.2, fmax=Math.max(...DAILY.map(d=>d.fdv))*1.25;
+    const yl=(M?[0,.5,1]:[0,.25,.5,.75,1]);
+    axes(s,W,H,pl,pr,pt,pb,{fs:FS,weekly:M?13:4, yl:yl.map(v=>[v,fmtM(v*cmax)]), yr:yl.map(v=>[v,fmtM(v*fmax)])});
+    const cp=[[pl,pt+ch],...WEEKLY.map(w=>[tx(w.date,pl,W-pr),pt+ch*(1-w.cum/cmax)])];
+    const g=mk('linearGradient',{id:'gc',x1:0,y1:0,x2:0,y2:1});
+    g.appendChild(mk('stop',{offset:'0','stop-color':'#6EEF00','stop-opacity':.28}));g.appendChild(mk('stop',{offset:'1','stop-color':'#6EEF00','stop-opacity':0}));
+    const d=mk('defs',{});d.appendChild(g);s.appendChild(d);
+    s.appendChild(mk('path',{d:line(cp)+` L${cp[cp.length-1][0]},${pt+ch} Z`,fill:'url(#gc)'}));
+    s.appendChild(mk('path',{d:line(cp),fill:'none',stroke:'#6EEF00','stroke-width':2}));
+    const fp=DAILY.map(x=>[tx(x.date,pl,W-pr),pt+ch*(1-x.fdv/fmax)]);
+    s.appendChild(mk('path',{d:line(fp),fill:'none',stroke:'#7C7CFF','stroke-width':1.6}));
+    document.getElementById('cumV').textContent=fmtM(WEEKLY[WEEKLY.length-1].cum);
+    document.getElementById('fdvV').textContent=fmtM(DAILY[DAILY.length-1].fdv);
+    hoverify(s,W,H,pl,pr,pt,pb,vx=>{
+      const di=nearestIdx(DAILY,vx,pl,pr,W), dd=DAILY[di], x=tx(dd.date,pl,W-pr);
+      let cv=0,cy=pt+ch; for(const w of WEEKLY){ if(w.date<=dd.date){cv=w.cum;cy=pt+ch*(1-w.cum/cmax);} else break; }
+      return {x,title:dmy(dd.date),dots:[{x,y:cy,color:'#6EEF00'},{x,y:pt+ch*(1-dd.fdv/fmax),color:'#7C7CFF'}],
+        rows:[{color:'#6EEF00',label:'Cumulative buybacks',value:fmtM(cv)},{color:'#7C7CFF',label:'FDV',value:fmtM(dd.fdv)}]};
     });
-    treasuryBtn.style.left = (leftMid - btnW/2) + 'px';
-    docsBtn.style.left = (rightMid - btnW/2) + 'px';
-    treasuryBtn.classList.add('positioned');
-    docsBtn.classList.add('positioned');
-  }
+  })();
 
-
-  // place the icon at the SPAWN transform (over the plate glyph, full size)
-  function setEyeSpawn(col){
-    const eye = col.querySelector('.lockup-eye');
-    const key = lockKey(col);
-    if(!eye || !key || !lockGeo[key]) return;
-    const G = lockGeo[key];
-    const dx = G.spawnCx - G.finalIconCx;
-    const dy = G.spawnCy - G.finalIconCy;     // may be 0
-    const s  = G.spawnIconW / G.finalIconW;   // scale up to spawn size
-    eye.style.transition = 'none';
-    eye.style.transform = `translate(${dx}px,${dy}px) scale(${s})`;
-    col.dataset.lockState = 'spawn';
-  }
-  // animate the eye from spawn -> final lockup slot. Robust against the mobile
-  // URL-bar viewport resize that can fire mid-tap: we mark 'animating' so
-  // fitFrames won't snap the eye, force a reflow to commit the spawn 'from'
-  // state, then start the transition. onfinish clears the guard.
-  function setEyeLockup(col){
-    const eye = col.querySelector('.lockup-eye');
-    if(!eye) return;
-    col.dataset.lockState = 'animating';
-    // commit the spawn transform as the animation's starting point
-    eye.style.transition = 'none';
-    void eye.offsetWidth;
-    // start the transition on the NEXT frame so the 'from' state is painted first
-    requestAnimationFrame(()=>{
-      if(col.dataset.lockState !== 'animating') return;  // deactivated meanwhile
-      eye.style.transition = 'transform 480ms cubic-bezier(.5,.02,.2,1)';
-      eye.style.transform = 'translate(0,0) scale(1)';
+  // ----- Weekly bars
+  (function(){
+    const s=document.getElementById('wkChart'); s.innerHTML='';
+    const W=M?380:540, H=M?230:220, pl=M?48:58, pr=10, pt=10, pb=30, ch=H-pt-pb;
+    s.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    const mx=Math.max(...WEEKLY.map(w=>w.usd))*1.15;
+    axes(s,W,H,pl,pr,pt,pb,{fs:FS,weekly:M?13:8,yl:(M?[0,.5,1]:[0,.25,.5,.75,1]).map(v=>[v,fmtM(v*mx)])});
+    const bw=Math.max(3,((W-pl-pr)/WEEKLY.length)*0.55);
+    WEEKLY.forEach(w=>{const x=tx(w.date,pl,W-pr),h=ch*(w.usd/mx);s.appendChild(mk('rect',{x:x-bw/2,y:pt+ch-h,width:bw,height:h,fill:'#F5A524',rx:1}));});
+    document.getElementById('wkV').textContent=fmtM(WEEKLY[WEEKLY.length-1].usd);
+    const hl=mk('rect',{fill:'#FFD27A',rx:1,style:'display:none'}); s.appendChild(hl);
+    hoverify(s,W,H,pl,pr,pt,pb,vx=>{
+      const i=nearestIdx(WEEKLY,vx,pl,pr,W), w=WEEKLY[i], x=tx(w.date,pl,W-pr), h=ch*(w.usd/mx);
+      hl.style.display=''; hl.setAttribute('x',x-bw/2); hl.setAttribute('y',pt+ch-h); hl.setAttribute('width',bw); hl.setAttribute('height',h);
+      return {x,title:dmy(w.date),dots:[],rows:[{color:'#F5A524',label:'USD spent',value:fmtM(w.usd)}]};
     });
-    // clear the guard when the move completes (fallback timer in case the
-    // transitionend doesn't fire, e.g. interrupted)
-    const done = (e)=>{
-      if(e && e.propertyName && e.propertyName !== 'transform') return;
-      if(col.dataset.lockState === 'animating') col.dataset.lockState = 'lockup';
-      eye.removeEventListener('transitionend', done);
-    };
-    eye.addEventListener('transitionend', done);
-    clearTimeout(col._lockTimer);
-    col._lockTimer = setTimeout(done, 620);
-  }
+    s.addEventListener('mouseleave',()=>hl.style.display='none');
+  })();
 
-  // word: fully clipped + hidden, no transition (instant reset on deactivate)
-  function setWordHidden(col){
-    const word = col.querySelector('.lockup-word');
-    if(!word) return;
-    word.style.transition = 'none';
-    word.style.clipPath = 'inset(0 100% 0 0)';
-    word.style.opacity = '0';
-  }
-  // word: wipe in left->right beside the eye (on activate)
-  function setWordReveal(col){
-    const word = col.querySelector('.lockup-word');
-    if(!word) return;
-    void word.offsetWidth;   // commit the hidden state before animating
-    word.style.transition = 'clip-path 460ms cubic-bezier(.5,.02,.2,1) 120ms, opacity 200ms ease 120ms';
-    word.style.clipPath = 'inset(0 0 0 0)';
-    word.style.opacity = '1';
-  }
-
-  // Robust recompute on any viewport change (window resize AND zoom).
-  // Zoom fires a burst of resize events; debounce so geometry settles once,
-  // then recompute everything from the new column dimensions. Because every
-  // element (frame, photo, video, icon, lockup, text) derives from the same
-  // column size, recomputing here keeps the layout aligned at any zoom level.
-  let resizeRAF = null, resizeTimer = null;
-  function onViewportChange(){
-    if(resizeRAF) cancelAnimationFrame(resizeRAF);
-    clearTimeout(resizeTimer);
-    // run once immediately for responsiveness...
-    resizeRAF = requestAnimationFrame(()=>{ fitFrames(); placeBrandButtons(); });
-    // ...and once more after the zoom/resize burst settles, to correct rounding
-    resizeTimer = setTimeout(()=>requestAnimationFrame(()=>{ fitFrames(); placeBrandButtons(); }), 180);
-  }
-  window.addEventListener('resize', onViewportChange);
-  // some browsers fire zoom as a visualViewport change rather than resize
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', onViewportChange);
-    window.visualViewport.addEventListener('scroll', onViewportChange);
-  }
-
-
-
-  cols.forEach(col=>{
-    const v = col.querySelector('.vid');
-    if(col.dataset.video){ v.src = col.dataset.video; }
-  });
-
-  let activeCol = null, settleTimer = null, brandHovered = false;
-  // session preference: when true, video starts paused on a frozen frame so the
-  // text stays readable. Toggled by the per-column play/pause button. Resets on reload.
-  let videoPaused = false;
-
-  // Keep the treasury/docs glass buttons readable against whatever is actually
-  // behind THEM specifically (not a global flag) — each sits over a different
-  // column, and on mobile the column under the fixed header changes on scroll.
-  const treasuryBtn = document.getElementById('treasuryBtn');
-  const docsBtn = document.getElementById('docsBtn');
-  // These buttons sit fixed above the columns but are NOT inside .stage in the
-  // DOM, so moving the cursor onto them fires a real mouseleave on .stage.
-  // Reuse the same brandHovered guard as the logo so that mouseleave doesn't
-  // deactivate — but, unlike the logo, do NOT call deactivate() ourselves:
-  // hovering a button must never activate OR deactivate a card either way.
-  [treasuryBtn, docsBtn].forEach(btn=>{
-    if(!btn) return;
-    btn.addEventListener('click', e=> e.stopPropagation());
-    btn.addEventListener('mouseenter', ()=>{ brandHovered = true; });
-    btn.addEventListener('mouseleave', (e)=>{
-      brandHovered = false;
-      if(isMobile()) return;
-      const to = e.relatedTarget;
-      if(!to || !stage.contains(to)) deactivate();
+  // ----- Allocation
+  (function(){
+    const s=document.getElementById('allocChart'); s.innerHTML='';
+    const W=M?380:540, H=M?200:220, pl=M?48:58, pr=10, pt=10, pb=30, ch=H-pt-pb, mx=110;
+    s.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    axes(s,W,H,pl,pr,pt,pb,{fs:FS,weekly:M?13:8,yl:[0,.318,.636,.909].map(v=>[v,Math.round(v*mx)+'%'])});
+    const yT=pt+ch*(1-100/mx);
+    s.appendChild(mk('line',{x1:pl,y1:yT,x2:W-pr,y2:yT,stroke:'#5F6B72','stroke-width':1,'stroke-dasharray':'4 4'}));
+    const pts=WEEKLY.map(w=>[tx(w.date,pl,W-pr),pt+ch*(1-w.pct/mx)]);
+    s.appendChild(mk('path',{d:line(pts),fill:'none',stroke:'#6EEF00','stroke-width':1.8}));
+    hoverify(s,W,H,pl,pr,pt,pb,vx=>{
+      const i=nearestIdx(WEEKLY,vx,pl,pr,W), w=WEEKLY[i];
+      return {x:pts[i][0],title:dmy(w.date),dots:[{x:pts[i][0],y:pts[i][1],color:'#6EEF00'}],rows:[{color:'#6EEF00',label:'Revenue to buyback',value:w.pct.toFixed(1)+'%'}]};
     });
-  });
-  function colIsDark(col){
-    // a column reads as a dark backdrop when it's showing its video/placeholder
-    // (active) or sitting dimmed behind another active column
-    if(!col) return false;
-    return col.classList.contains('active') ||
-           (stage.classList.contains('has-active') && !isMobile());
-  }
-  function updateBrandButtons(){
-    if(!treasuryBtn || !docsBtn) return;
-    if(isMobile()){
-      // mobile: as soon as ANY card is open, the whole feed is dark (the open
-      // card plus its dimmed siblings) — so both buttons go white together,
-      // regardless of which column currently sits under the fixed header.
-      const dark = stage.classList.contains('has-active');
-      treasuryBtn.classList.toggle('on-dark', dark);
-      docsBtn.classList.toggle('on-dark', dark);
-    } else {
-      // desktop: treasury sits over the FIRST column, docs over the LAST
-      treasuryBtn.classList.toggle('on-dark', colIsDark(cols[0]));
-      docsBtn.classList.toggle('on-dark', colIsDark(cols[cols.length-1]));
-    }
-  }
+  })();
 
-  function activate(col){
-    if(activeCol === col) return;
-    const wasActive = activeCol;          // a switch if another column was active
-    deactivate();
-    activeCol = col;
-
-    // On a direct switch, snap the sibling dim ON instantly (no 380ms fade) so the
-    // just-deactivated column goes video -> dark banner with no bright flash between.
-    const dimsToSnap = [];
-    if(wasActive){
-      cols.forEach(c=>{
-        if(c !== col){
-          const d = c.querySelector('.dim');
-          if(d){ d.style.transition = 'none'; dimsToSnap.push(d); }
-        }
-      });
-    }
-
-    stage.classList.add('has-active');
-    col.classList.add('active');
-
-    // commit the dimmed state with transitions disabled, then re-enable for later
-    if(dimsToSnap.length){
-      dimsToSnap.forEach(d=>{ void d.offsetWidth; });   // force reflow -> dim is now opaque instantly
-      requestAnimationFrame(()=>{ dimsToSnap.forEach(d=>{ d.style.transition = ''; }); });
-    }
-    // start the video — but honor the session pause preference. The frosted
-    // text box still shows on a frozen frame so it's always readable.
-    const v = col.querySelector('.vid');
-    const toggle = col.querySelector('.vidtoggle');
-    if(v && v.getAttribute('src')){
-      v.currentTime = 0;
-      col.classList.add('playing');           // keep the video LAYER visible (frame shown)
-      if(videoPaused){
-        try{ v.pause(); }catch(e){}
-        if(toggle) toggle.classList.add('is-paused');
-      } else {
-        const p = v.play(); if(p && p.catch) p.catch(()=>{});
-        if(toggle) toggle.classList.remove('is-paused');
-      }
-    }
-    // any lockup column: icon sits at SPAWN (over the plate); animate into lockup
-    if(lockKey(col)){
-      setEyeSpawn(col);        // ensure starting point is exact (lockState='spawn')
-      setWordHidden(col);      // word starts fully clipped
-      // wait one frame so the spawn transform is painted, THEN kick the animation
-      // (setEyeLockup adds its own rAF, giving a reliable from->to transition).
-      requestAnimationFrame(()=>{
-        if(activeCol !== col) return;   // bailed out already
-        setEyeLockup(col); setWordReveal(col);
-      });
-      // adaptive text-panel scaling (does NOT touch the icon, so animation is safe)
-      requestAnimationFrame(()=>{ scalePanel(col); });
-      // position the icon after the panel's entry transition settles (so the
-      // scaled glass/CTA rects are final), then keep it correct on resize.
-      setTimeout(()=> placeVidToggle(col), 480);
-    }
-    updateBrandButtons();
-  }
-
-  function deactivate(){
-    clearTimeout(settleTimer);
-    stage.classList.remove('has-active');
-    cols.forEach(c=>{
-      // instantly drop the active layers (no fade) so the banner returns at once
-      const layers = c.querySelectorAll('.placeholder, .vid, .vc-panel, .dim, .lockup');
-      layers.forEach(el=>{ el.style.transition = 'none'; });
-      c.classList.remove('active'); c.classList.remove('playing');
-      const v = c.querySelector('.vid'); if(v){ try{ v.pause(); }catch(e){} }
-      if(lockKey(c)){
-        clearTimeout(c._lockTimer);   // cancel any pending animation-guard release
-        setEyeSpawn(c);          // reset icon to spawn (lockState='spawn')
-        setWordHidden(c);        // reset word to fully clipped (no flash)
-      }
-      // force the no-transition state to commit (reflow) BEFORE restoring transitions,
-      // so the hide is truly instant, then re-enable for the next activation
-      void c.offsetWidth;
-      requestAnimationFrame(()=>{ layers.forEach(el=>{ el.style.transition = ''; }); });
+  // ----- Holders
+  (function(){
+    const s=document.getElementById('holdChart'); s.innerHTML='';
+    const W=M?380:1120, H=M?230:240, pl=M?44:64, pr=M?12:20, pt=12, pb=30, ch=H-pt-pb;
+    s.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    const mx=Math.max(...DAILY.map(d=>d.holders))*1.15;
+    axes(s,W,H,pl,pr,pt,pb,{fs:FS,
+      fixedMonths:(M?['Aug \'25','Nov \'25','Feb \'26','May \'26','Aug \'26']
+                    :['Aug \'25','Sep \'25','Oct \'25','Nov \'25','Dec \'25','Jan \'26','Feb \'26','Mar \'26','Apr \'26','May \'26','Jun \'26','Jul \'26','Aug \'26','Sep \'26']),
+      yl:(M?[0,.5,1]:[0,.25,.5,.75,1]).map(v=>[v,fmtK(Math.round(v*mx))])});
+    const pts=DAILY.map(d=>[tx(d.date,pl,W-pr),pt+ch*(1-d.holders/mx)]);
+    const g=mk('linearGradient',{id:'gh',x1:0,y1:0,x2:0,y2:1});
+    g.appendChild(mk('stop',{offset:'0','stop-color':'#6EEF00','stop-opacity':.22}));g.appendChild(mk('stop',{offset:'1','stop-color':'#6EEF00','stop-opacity':0}));
+    const d=mk('defs',{});d.appendChild(g);s.appendChild(d);
+    s.appendChild(mk('path',{d:line(pts)+` L${pts[pts.length-1][0]},${pt+ch} L${pts[0][0]},${pt+ch} Z`,fill:'url(#gh)'}));
+    s.appendChild(mk('path',{d:line(pts),fill:'none',stroke:'#6EEF00','stroke-width':1.8}));
+    document.getElementById('holdV').textContent=fmtK(DAILY[DAILY.length-1].holders);
+    hoverify(s,W,H,pl,pr,pt,pb,vx=>{
+      const i=nearestIdx(DAILY,vx,pl,pr,W), dd=DAILY[i];
+      return {x:pts[i][0],title:mon(dd.date),dots:[{x:pts[i][0],y:pts[i][1],color:'#6EEF00'}],rows:[{color:'#6EEF00',label:'Active holders',value:dd.holders.toLocaleString()}]};
     });
-    activeCol = null;
-    updateBrandButtons();
+  })();
+}
+buildCharts();
+let _rt=null, _wasMob=isMob();
+addEventListener('resize',()=>{clearTimeout(_rt);_rt=setTimeout(()=>{ if(isMob()!==_wasMob){_wasMob=isMob();buildCharts();} },150);});
+
+// ===== Calculator (allocation fixed at 100%, circ supply 150M)
+(function(){
+  const CIRC=691_660_000, iR=document.getElementById('iRev'), iM=document.getElementById('iMcap');
+  const $=id=>document.getElementById(id);
+  function run(){
+    const m=+iR.value, cap=+iM.value, ann=m*12;
+    $('oRev').textContent=fmtM(m); $('oMcap').textContent=fmtM(cap);
+    $('oMult').textContent=(cap/ann).toFixed(1)+'x';
+    $('oAnn').textContent=fmtM(ann);
+    $('oPrice').textContent='$'+(cap/CIRC).toFixed(6);
+    $('oYield').textContent=(ann/cap*100).toFixed(1)+'%';
   }
+  iR.addEventListener('input',run); iM.addEventListener('input',run); run();
+})();
 
-  cols.forEach(col=>{
-    col.addEventListener('mouseenter', ()=>{
-      if(isMobile() || brandHovered) return;
-      activate(col);
-    });
-  });
-  stage.addEventListener('mouseleave', ()=>{
-    if(isMobile()) return;
-    // The cursor moving from a column onto the brand row (logo or buttons)
-    // fires this mouseleave BEFORE the row's own mouseenter (different DOM
-    // trees), so brandHovered isn't set yet at this exact instant. Defer one
-    // tick so that synchronous mouseenter fires first and updates the flag.
-    setTimeout(()=>{ if(!brandHovered) deactivate(); }, 0);
-  });
-
-  // play/pause toggle — flips the SESSION preference and applies it to the
-  // current video immediately. Clicking it must NOT deactivate the column.
-  cols.forEach(col=>{
-    const btn = col.querySelector('.vidtoggle');
-    if(!btn) return;
-    btn.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      videoPaused = !videoPaused;
-      const v = col.querySelector('.vid');
-      if(v){
-        if(videoPaused){
-          try{ v.pause(); }catch(err){}
-          btn.classList.add('is-paused');
-          btn.setAttribute('aria-label','Play video');
-        } else {
-          const p = v.play(); if(p && p.catch) p.catch(()=>{});
-          btn.classList.remove('is-paused');
-          btn.setAttribute('aria-label','Pause video');
-        }
-      }
-      // keep every column's button icon in sync with the session flag
-      cols.forEach(c=>{
-        const b=c.querySelector('.vidtoggle'); if(!b) return;
-        b.classList.toggle('is-paused', videoPaused);
-        b.setAttribute('aria-label', videoPaused ? 'Play video' : 'Pause video');
-      });
-    });
-  });
-
-  // Hovering the logo must NOT deactivate an active card and must NOT
-  // activate the ViewsCall card sitting behind it — brandHovered only blocks
-  // the column's own mouseenter-activate handler below.
-  brandLink.addEventListener('mouseenter', ()=>{ brandHovered = true; });
-  brandLink.addEventListener('mouseleave', ()=>{ brandHovered = false; });
-
-  cols.forEach(col=>{
-    col.addEventListener('click', ()=>{
-      if(!isMobile()) return;
-      const on = col.classList.contains('active');
-      deactivate(); if(!on) activate(col);
-    });
-  });
-
-  document.addEventListener('visibilitychange', ()=>{ if(document.hidden) deactivate(); });
-
-  fitFrames();
-  placeBrandButtons();
-  updateBrandButtons();
-  // Re-run as soon as the logo image itself is actually ready — this is much
-  // earlier than window.load (which waits for videos etc. too), and is the
-  // exact moment getBoundingClientRect() first returns a real, final size.
-  const logoImg = document.querySelector('.brand-logo .logo--dark');
-  if(logoImg){
-    if(logoImg.complete) placeBrandButtons();
-    else logoImg.addEventListener('load', placeBrandButtons, {once:true});
+// ===== Table (newest first, 10/page)
+(function(){
+  const rows=[...WEEKLY].reverse(), PER=10; let p=0;
+  const tb=document.getElementById('tbody');
+  function draw(){
+    const pages=Math.ceil(rows.length/PER); p=Math.max(0,Math.min(pages-1,p));
+    tb.innerHTML=rows.slice(p*PER,(p+1)*PER).map(r=>
+      `<tr><td>${dmy(r.date)}</td><td class="b">${fmtK(r.x)}</td><td>${r.bnb.toFixed(4)}</td><td>${fmtM(r.usd)}</td><td class="g">$${r.price.toFixed(6)}</td><td>${r.pct.toFixed(2)}%</td></tr>`).join('');
+    document.getElementById('pinfo').textContent=`Showing ${p*PER+1}\u2013${Math.min((p+1)*PER,rows.length)} of ${rows.length}`;
+    document.getElementById('pnum').textContent=`${p+1} / ${pages}`;
+    document.getElementById('prev').disabled=p===0; document.getElementById('next').disabled=p>=pages-1;
   }
-  // safety net in case the above is somehow missed
-  window.addEventListener('load', ()=>{ placeBrandButtons(); });
-  // mobile: the column under the fixed header changes as the feed scrolls
-  window.addEventListener('scroll', updateBrandButtons, {passive:true});
+  document.getElementById('prev').onclick=()=>{p--;draw();}; document.getElementById('next').onclick=()=>{p++;draw();};
+  draw();
+})();
+
+// ===== Share
+document.querySelectorAll('#shareBtn,.share2').forEach(b=>b.addEventListener('click',async()=>{
+  const url=location.href;
+  if(navigator.share){try{await navigator.share({title:'$X Token — TaleX',url});return;}catch(e){}}
+  try{await navigator.clipboard.writeText(url);const t=b.firstChild;t.textContent='Copied';setTimeout(()=>t.textContent='Share',1400);}catch(e){}
+}));
 </script>
 </body>
 </html>
